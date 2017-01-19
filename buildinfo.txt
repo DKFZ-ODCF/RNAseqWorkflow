@@ -1,0 +1,6 @@
+dependson=PluginBase:1.0.28
+dependson=COWorkflows:current
+dependson=AlignmentAndQCWorkflows:current
+JDKVersion=1.8
+GroovyVersion=2.4
+RoddyAPIVersion=2.3

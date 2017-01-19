@@ -1,0 +1,140 @@
+#!/usr/bin/env perl
+
+use strict;
+
+my $usage = "\n\tUSAGE: $0 [sambamba_flagstat_file] [rnaseqc metrics.tsv]\n\n";
+
+## PARSE INPUTS
+
+my $flagstat_file;
+my $rnaseqc_file;
+
+$flagstat_file = shift or die "ERROR: missing \"sambamba_flagstat_file\"\n$usage";
+$rnaseqc_file = shift or die "ERROR: missing \"rnaseqc_file\"\n$usage";
+
+## DEFINE name translations
+my %flagstat_translate = (
+  # RNAseQC
+  "3' Norm" => "3PNorm",
+  "5' Norm" => "5PNorm",
+  "Alternative Aligments" => "alternativeAligments",
+  "Base Mismatch Rate" => "baseMismatchRate",
+  "Chimeric Pairs" => "chimericPairs",
+  "Cumul. Gap Length" => "cumulGapLength",
+  "Duplication Rate of Mapped" => "duplicatesRate",
+  "End 1 % Sense" => "end1PercentageSense",
+  "End 1 Antisense" => "end1Antisense",
+  "End 1 Mapping Rate" => "end1MappingRate",
+  "End 1 Mismatch Rate" => "end1MismatchRate",
+  "End 1 Sense" => "End1Sense",
+  "End 2 % Sense" => "end2PercentageSense",
+  "End 2 Antisense" => "end2Antisense",
+  "End 2 Mapping Rate" => "end2MappingRate",
+  "End 2 Mismatch Rate" => "end2MismatchRate",
+  "End 2 Sense" => "end2Sense",
+  "Estimated Library Size" => "estimatedLibrarySize",
+  "Exonic Rate" => "exonicRate",
+  "Expression Profiling Efficiency" => "expressionProfilingEfficiency",
+  "Failed Vendor QC Check" => "failedVendorQCCheck",
+  "Fragment Length Mean" => "insertSizeMean",
+  "Fragment Length StdDev" => "insertSizeSD",
+  "Gap %" => "gapPercentage",
+  "Genes Detected" => "genesDetected",
+  "Intergenic Rate" => "intergenicRate",
+  "Intragenic Rate" => "intragenicRate",
+  "Intronic Rate" => "intronicRate",
+  "Mapped" => "mapped",
+  "Mapped Pairs" => "mappedPairs",
+  "Mapped Unique" => "mappedUnique",
+  "Mapped Unique Rate of Total" => "mappedUniqueRateOfTotal",
+  "Mapping Rate" => "mappingRate",
+  "Mean CV" => "meanCV",
+  "Mean Per Base Cov." => "meanPerBaseCov",
+  "No. Covered 5'" => "noCovered5P",
+  "Num. Gaps" => "numGaps",
+  "Read Length" => "readLength",
+  "Split Reads" => "splitReads",
+  "Total Purity Filtered Reads Sequenced" => "totalPurityFilteredReadsSequenced",
+  "Transcripts Detected" => "TranscriptsDetected",
+  "Unique Rate of Mapped" => "uniqueRateofMapped",
+  "Unpaired Reads" => "unpairedReads",
+  #"Note" => "Note",
+  #"Sample" => "Sample",
+  "rRNA" => "rRNAReads",
+  "rRNA rate" => "rRNARate",
+  # flagstats
+  "in total (QC-passed reads + QC-failed reads)" => "totalReadCounter",
+  "secondary" => "secondaryAlignments",
+  "supplementary" => "supplementaryAlignments",
+  "duplicates" => "duplicates",
+  "mapped" => "totalMappedReadCounter",
+  "paired in sequencing" => "pairedInSequencing",
+  "read1" => "mappedRead1",
+  "read2" => "mappedRead2",
+  "properly paired" => "properlyPaired",
+  "with itself and mate mapped" => "withItselfAndMateMapped",
+  "singletons" => "singletons",
+  "with mate mapped to a different chr" => "withMateMappedToDifferentChr",
+  "with mate mapped to a different chr (mapQ>=5)" => "withMateMappedToDifferentChrMaq"
+);
+
+## parse RNAseQC file
+
+my %json;
+
+open (my $rnaseqc_fh, "<$rnaseqc_file") or die "ERROR: cannot open file \"$rnaseqc_file\"\n$usage";
+
+my @rna_header= split "\t" , <$rnaseqc_fh>;
+my @rna_value = split "\t" , <$rnaseqc_fh>;
+
+die "ERROR: RNAseQC header not same length as values (".(scalar(@rna_header))." vs ".(scalar(@rna_value)).")\n" if ((scalar(@rna_header)) ne (scalar(@rna_value)));
+
+close($rnaseqc_fh);
+
+for (my $i=0; $i < (scalar(@rna_header)); $i++){
+  chomp(@rna_header[$i]);
+  chomp(@rna_value[$i]);
+  next if $rna_header[$i] eq "Sample";
+  next if $rna_header[$i] eq "Note";
+  $json{$flagstat_translate{@rna_header[$i]}}=@rna_value[$i] if defined ($flagstat_translate{@rna_header[$i]});
+  warn "WARNING: unrecognised RNAseQC param: \"@rna_header[$i]\"... skipping\n" unless defined ($flagstat_translate{@rna_header[$i]});
+}
+
+# parse flagstat file
+
+open (my $flag_fh, "<$flagstat_file") or die "ERROR: cannot open file \"$flagstat_file\"\n$usage";
+
+while (<$flag_fh>){
+  chomp;
+  if (/^(\d+) \+ (\d+) (.*?) \((\d.*?):(.*?)\)$/){
+    $json{$flagstat_translate{$3}}=$1;
+    my $percentage_value = $4;
+    chop $percentage_value;
+    $json{$flagstat_translate{$3}."Percentage"} = $percentage_value;
+  }
+  elsif(/^(\d+) \+ (\d+) (in total .*)$/){      # special case for total/vendor failed reads
+    $json{$flagstat_translate{$3}}=$1;          # special case for total/vendor failed reads
+    $json{"qcFailedReads"}=$2;                  # special case for total/vendor failed reads
+  }                                             # special case for total/vendor failed reads
+  elsif(/^(\d+) \+ (\d+) (.*?)$/){
+    $json{$flagstat_translate{$3}}=$1;
+  }
+  else{
+    warn "WARNING: unrecognised flagstat line: \"$_\"... skipping\n";
+  }
+}
+
+close($flag_fh);
+
+## json file
+
+print "{\n  \"all\": {";
+
+my $counter = 0;
+foreach my $key (sort keys %json){
+  print "," unless $counter eq 0;
+  print "\n    \"$key\": $json{$key}";
+  $counter = 1;
+}
+print "\n  }\n}\n";
+
