@@ -15,8 +15,8 @@ $rnaseqc_file = shift or die "ERROR: missing \"rnaseqc_file\"\n$usage";
 ## DEFINE name translations
 my %flagstat_translate = (
   # RNAseQC
-  "3' Norm" => "3PNorm",
-  "5' Norm" => "5PNorm",
+  "3' Norm" => "threePNorm",
+  "5' Norm" => "fivePNorm",
   "Alternative Aligments" => "alternativeAligments",
   "Base Mismatch Rate" => "baseMismatchRate",
   "Chimeric Pairs" => "chimericPairs",
@@ -26,7 +26,7 @@ my %flagstat_translate = (
   "End 1 Antisense" => "end1Antisense",
   "End 1 Mapping Rate" => "end1MappingRate",
   "End 1 Mismatch Rate" => "end1MismatchRate",
-  "End 1 Sense" => "End1Sense",
+  "End 1 Sense" => "end1Sense",
   "End 2 % Sense" => "end2PercentageSense",
   "End 2 Antisense" => "end2Antisense",
   "End 2 Mapping Rate" => "end2MappingRate",
@@ -55,11 +55,11 @@ my %flagstat_translate = (
   "Read Length" => "readLength",
   "Split Reads" => "splitReads",
   "Total Purity Filtered Reads Sequenced" => "totalPurityFilteredReadsSequenced",
-  "Transcripts Detected" => "TranscriptsDetected",
+  "Transcripts Detected" => "transcriptsDetected",
   "Unique Rate of Mapped" => "uniqueRateofMapped",
   "Unpaired Reads" => "unpairedReads",
-  #"Note" => "Note",
-  #"Sample" => "Sample",
+  #"Note" => "note",
+  #"Sample" => "sample",
   "rRNA" => "rRNAReads",
   "rRNA rate" => "rRNARate",
   # flagstats
