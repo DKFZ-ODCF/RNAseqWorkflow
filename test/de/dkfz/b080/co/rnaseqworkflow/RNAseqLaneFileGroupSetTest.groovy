@@ -3,6 +3,7 @@ package de.dkfz.b080.co.rnaseqworkflow
 import de.dkfz.b080.co.common.COProjectsRuntimeService
 import de.dkfz.b080.co.files.COConstants
 import de.dkfz.b080.co.files.Sample
+import de.dkfz.b080.co.qcworkflow.QCPipeline
 import de.dkfz.roddy.RunMode
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.config.ConfigurationConstants
@@ -22,23 +23,23 @@ import java.lang.reflect.Field
  * Created by heinold on 05.12.16.
  */
 @CompileStatic
-public class RNAseqLaneFileGroupSetTest {
+class RNAseqLaneFileGroupSetTest {
 
-    static ExecutionContext context = MockupExecutionContextBuilder.createSimpleContext(RNAseqLaneFileGroupSetTest, new Configuration(null), new COProjectsRuntimeService());
-    static Sample sample0 = new Sample(context, "tumor0");
-    static Sample sample1 = new Sample(context, "tumor02");
-    static Map<Sample, RNAseqLaneFileGroupSet> fileGroupSetMap = [:];
+    static ExecutionContext context = MockupExecutionContextBuilder.createSimpleContext(RNAseqLaneFileGroupSetTest, new Configuration(null), new COProjectsRuntimeService())
+    static Sample sample0 = new Sample(context, "tumor0")
+    static Sample sample1 = new Sample(context, "tumor02")
+    static Map<Sample, RNAseqLaneFileGroupSet> fileGroupSetMap = [:]
 
     // The test directory
     static String userDir = new File(System.getProperty("user.dir")).parent
     static String pairedFolderSample0 = userDir + "/out/test/RNAseqWorkflow/resources/testdata/TEST_PID/tumor0/paired/"
     String f0l = pairedFolderSample0 + "run160319_D00133_0107_BC5YE7ACXX/sequence/D2826_GATCAGA_L002_R1_001.fastq.gz"
     String f0r = pairedFolderSample0 + "run160319_D00133_0107_BC5YE7ACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz"
-    String f1l = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R1_001.fastq.gz";
-    String f1r = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz";
+    String f1l = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R1_001.fastq.gz"
+    String f1r = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz"
 
     private static setPrivateField(String name, Object object, Object value) {
-        Field f = null;
+        Field f = null
         Class cls = object.class
         while (!f && cls) {
             try {
@@ -48,67 +49,67 @@ public class RNAseqLaneFileGroupSetTest {
             cls = cls.superclass
         }
         assert f
-        f.setAccessible(true);
-        f.set(object, value);
+        f.setAccessible(true)
+        f.set(object, value)
     }
 
     @BeforeClass
-    public static void setup() {
+    static void setup() {
         // The setup is a bit complicated, because I want to load the fastq files from disk to simulate the full
         // fastq loading behaviour
         def resourceDirectory = LibrariesFactory.getGroovyClassLoader().getResource("resources/testdata").file
         setPrivateField("inputDirectory", context, new File(resourceDirectory))
         ExecutionService.initializeService(LocalExecutionService.class, RunMode.CLI)
-        FileSystemAccessProvider.initializeProvider(true);
+        FileSystemAccessProvider.initializeProvider(true)
         def values = context.getConfiguration().getConfigurationValues()
-        values.put(ConfigurationConstants.CFG_INPUT_BASE_DIRECTORY, resourceDirectory, "path");
-        values.put(ConfigurationConstants.CFG_OUTPUT_BASE_DIRECTORY, context.getOutputDirectory().getAbsolutePath(), "path");
-        values.put(COConstants.CVALUE_POSSIBLE_TUMOR_SAMPLE_NAME_PREFIXES, "tumor01, tumor", "string");
+        values.put(ConfigurationConstants.CFG_INPUT_BASE_DIRECTORY, resourceDirectory, "path")
+        values.put(ConfigurationConstants.CFG_OUTPUT_BASE_DIRECTORY, context.getOutputDirectory().getAbsolutePath(), "path")
+        values.put(COConstants.CVALUE_POSSIBLE_TUMOR_SAMPLE_NAME_PREFIXES, "tumor01, tumor", "string")
         values.put(COConstants.CVALUE_SAMPLE_DIRECTORY, '${inputBaseDirectory}/${pid}/${sample}/paired', "path")
         values.put(COConstants.CVALUE_SEQUENCE_DIRECTORY, '${sampleDirectory}/${run}/sequence', "path")
 
-//        [sample0, sample1].each { Sample sample ->
-//            def filesForSample = new RNAseqWorkflow().loadLaneFilesForSample(context, sample)
-//            fileGroupSetMap[sample] = filesForSample
-//        }
+        [sample0, sample1].each { Sample sample ->
+            def filesForSample = new COProjectsRuntimeService().loadLaneFilesForSample(context, sample)
+            fileGroupSetMap[sample] = new RNAseqLaneFileGroupSet(filesForSample)
+        }
     }
 
     @Test
-    public void getLeftLaneFilesAsCSVs() throws Exception {
+    void getLeftLaneFilesAsCSVs() throws Exception {
         assert fileGroupSetMap[sample0].getLeftLaneFilesAsCSVs() == "$f0l,$f1l"
     }
 
     @Test
-    public void getRightLaneFilesAsCSVs() throws Exception {
+    void getRightLaneFilesAsCSVs() throws Exception {
         assert fileGroupSetMap[sample0].getRightLaneFilesAsCSVs() == "$f0r,$f1r"
     }
 
     @Test
-    public void getLaneFilesAlternatingWithSpaceSep() throws Exception {
+    void getLaneFilesAlternatingWithSpaceSep() throws Exception {
         assert fileGroupSetMap[sample0].getLaneFilesAlternatingWithSpaceSep() == "$f0l $f0r $f1l $f1r"
     }
 
     @Test
-    public void collectFlowCellIDs() throws Exception {
-        assert fileGroupSetMap[sample0].collectFlowCellIDs() == "BC5YE7ACXX BC6B2MACXX"
-        assert fileGroupSetMap[sample1].collectFlowCellIDs() == "BC5YE7ACXX BC6B2MACXX"
+    void getFlowCellIDsWithSpaceSepTest() throws Exception {
+        assert fileGroupSetMap[sample0].getFlowCellIDsWithSpaceSep() == "BC5YE7ACXX BC6B2MACXX"
+        assert fileGroupSetMap[sample1].getFlowCellIDsWithSpaceSep() == "BC5YE7ACXX BC6B2MACXX"
     }
 
     @Test
-    public void collectLaneIDs() throws Exception {
-        assert fileGroupSetMap[sample0].collectLaneIDs() == "D2826_GATCAGA_L002 D2826_GATCAGA_L002"
-        assert fileGroupSetMap[sample1].collectLaneIDs() == "D2826_GATCAGA_L002 D2826_GATCAGA_L002"
+    void collectLaneIDs() throws Exception {
+        assert fileGroupSetMap[sample0].getLaneIDsWithSpaceSep() == "D2826_GATCAGA_L002 D2826_GATCAGA_L002"
+        assert fileGroupSetMap[sample1].getLaneIDsWithSpaceSep() == "D2826_GATCAGA_L002 D2826_GATCAGA_L002"
     }
 
     @Test
-    public void collectFlowCellAndLaneIDsWithSpaceSep() throws Exception {
-        assert fileGroupSetMap[sample0].collectFlowCellAndLaneIDsWithSpaceSep() == "BC5YE7ACXX D2826_GATCAGA_L002 BC6B2MACXX D2826_GATCAGA_L002"
-        assert fileGroupSetMap[sample1].collectFlowCellAndLaneIDsWithSpaceSep() == "BC5YE7ACXX D2826_GATCAGA_L002 BC6B2MACXX D2826_GATCAGA_L002"
+    void collectFlowCellAndLaneIDsWithSpaceSep() throws Exception {
+        assert fileGroupSetMap[sample0].getFlowCellAndLaneIDsWithSpaceSep() == "BC5YE7ACXX D2826_GATCAGA_L002 BC6B2MACXX D2826_GATCAGA_L002"
+        assert fileGroupSetMap[sample1].getFlowCellAndLaneIDsWithSpaceSep() == "BC5YE7ACXX D2826_GATCAGA_L002 BC6B2MACXX D2826_GATCAGA_L002"
     }
 
     @Test
-    public void collectReadGroupsTest() throws Exception {
-        assert fileGroupSetMap[sample0].collectReadGroups() == "ID:run160319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:sample_tumor0_TEST_PID PU:BC5YE7ACXX , ID:run160326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:sample_tumor0_TEST_PID PU:BC6B2MACXX"
-        assert fileGroupSetMap[sample1].collectReadGroups() == "ID:run170319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TESTPID PL:ILLUMINA SM:sample_tumor02_TEST_PID PU:BC5YE7ACXX , ID:run170326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:sample_tumor02_TEST_PID PU:BC6B2MACXX"
+    void getBamReadGroupLinesTest() throws Exception {
+        assert fileGroupSetMap[sample0].getBamReadGroupLines() == "ID:run160319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:tumor0_TEST_PID PU:BC5YE7ACXX , ID:run160326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:tumor0_TEST_PID PU:BC6B2MACXX"
+        assert fileGroupSetMap[sample1].getBamReadGroupLines() == "ID:run170319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:tumor02_TEST_PID PU:BC5YE7ACXX , ID:run170326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:tumor02_TEST_PID PU:BC6B2MACXX"
     }
 }

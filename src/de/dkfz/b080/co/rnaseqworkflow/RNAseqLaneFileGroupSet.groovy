@@ -12,7 +12,7 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class RNAseqLaneFileGroupSet {
-    private List<LaneFileGroup> laneFileGroupList = null;
+    private List<LaneFileGroup> laneFileGroupList = null
 
     private Map<LaneFile, LaneFile> laneFiles
 
@@ -21,37 +21,40 @@ class RNAseqLaneFileGroupSet {
         laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], lfg.filesInGroup[1]] }
     }
 
-    public LaneFile getFirstLaneFile() {
-        return laneFiles?.values()?.first() as LaneFile
+    LaneFile getFirstLaneFile() {
+        return laneFiles.values().first() as LaneFile
     }
 
-    public String getLeftLaneFilesAsCSVs() {
-        laneFiles.keySet().collect { it.path.absolutePath }.join(",");
+    String getLeftLaneFilesAsCSVs() {
+        laneFiles.keySet().collect { it.path.absolutePath }.join(",")
     }
 
-    public String getRightLaneFilesAsCSVs() {
-        laneFiles.values().collect { it.path.absolutePath }.join(",");
+    String getRightLaneFilesAsCSVs() {
+        laneFiles.values().collect { it.path.absolutePath }.join(",")
     }
 
-    public String getLaneFilesAlternatingWithSpaceSep() {
+    String getLaneFilesAlternatingWithSpaceSep() {
         laneFileGroupList.collect { return "${it.filesInGroup[0].path} ${it.filesInGroup[1].path}" }.join(" ")
     }
 
 
-    public String collectFlowCellIDs() {
+    String getFlowCellIDsWithSpaceSep() {
         laneFileGroupList.collect { it.getRun().split("[_]")[-1] }.join(" ")
     }
 
-    public String collectLaneIDs() {
+    String getLaneIDsWithSpaceSep() {
         laneFileGroupList.collect { it.getId() }.join(" ")
     }
 
-    public String collectFlowCellAndLaneIDsWithSpaceSep() {
+    String getFlowCellAndLaneIDsWithSpaceSep() {
         laneFileGroupList.collect { "${it.getRun().split("[_]")[-1]} ${it.getId()}" }.join(" ")
     }
 
-    public String collectReadGroups() {
-        //    ID:run150326_D00695_0025_BC6B2MACXX_${PID}_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
+    /**
+     * Example: ID:run150326_D00695_0025_BC6B2MACXX_${PID}_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
+     * @return
+     */
+    String getBamReadGroupLines() {
 
         laneFileGroupList.collect { LaneFileGroup lfg ->
             def pid = lfg.filesInGroup.first().getDataSet().getId()
@@ -66,5 +69,4 @@ class RNAseqLaneFileGroupSet {
             ].join(" ")
         }.join(" , ")
     }
-
 }

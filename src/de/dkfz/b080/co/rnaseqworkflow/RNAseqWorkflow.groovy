@@ -1,24 +1,14 @@
-package de.dkfz.b080.co.rnaseqworkflow;
+package de.dkfz.b080.co.rnaseqworkflow
 
-import de.dkfz.b080.co.common.BasicCOProjectsRuntimeService;
-import de.dkfz.b080.co.common.COProjectsRuntimeService;
-import de.dkfz.b080.co.common.WorkflowUsingMergedBams;
-import de.dkfz.b080.co.files.BasicBamFile;
-import de.dkfz.b080.co.files.COConstants
+import de.dkfz.b080.co.common.COProjectsRuntimeService
 import de.dkfz.b080.co.files.LaneFile
-import de.dkfz.b080.co.files.LaneFileGroup;
-import de.dkfz.b080.co.files.Sample;
-import de.dkfz.b080.co.qcworkflow.QCPipeline;
-import de.dkfz.roddy.config.Configuration;
-import de.dkfz.roddy.config.RecursiveOverridableMapContainerForConfigurationValues;
+import de.dkfz.b080.co.files.LaneFileGroup
+import de.dkfz.b080.co.files.Sample
+import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.ExecutionContext
-import de.dkfz.roddy.core.ExecutionContextError;
-import de.dkfz.roddy.core.Workflow;
-import de.dkfz.roddy.knowledge.methods.GenericMethod
+import de.dkfz.roddy.core.ExecutionContextError
+import de.dkfz.roddy.core.Workflow
 import groovy.transform.CompileStatic
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * RNA seq workflow based on STAR!
@@ -26,25 +16,24 @@ import java.util.List;
  * Uses some methods from QCPipeline(AlignmentAndQCWorkflows:1.1.51+)
  */
 @CompileStatic
-public class RNAseqWorkflow extends Workflow {
+class RNAseqWorkflow extends Workflow {
 
     @Override
-    public boolean execute(ExecutionContext context) {
-        Configuration cfg = context.getConfiguration();
-        COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService();
+    boolean execute(ExecutionContext context) {
+        COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
 
-        List<Sample> samples = runtimeService.getSamplesForContext(context);
-        if (samples.size() == 0)
-            return false;
+        List<Sample> samples = runtimeService.getSamplesForContext(context)
 
         for (Sample sample : samples) {
-            def lfgs = new RNAseqLaneFileGroupSet(runtimeService.loadLaneFilesForSample(context, sample))
-            if (!lfgs) {
-                context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("No fastq files found for sample ${sample.name}"));
+            def laneFilesForSample = runtimeService.loadLaneFilesForSample(context, sample)
+            if (!laneFilesForSample)
                 continue
-            };
 
-            LaneFile fakeFile = lfgs.getFirstLaneFile()
+            def lfgs = new RNAseqLaneFileGroupSet(laneFilesForSample)
+
+            // The file dummy is used by Roddy. It is not actually needed by the starAlignment job itself
+            // but Roddy needs one specific file for every created job.
+            LaneFile dummyFile = lfgs.getFirstLaneFile()
 
             //STAR
             String readsSTARLeft = lfgs.getLeftLaneFilesAsCSVs()
@@ -54,17 +43,49 @@ public class RNAseqWorkflow extends Workflow {
             String readsKallisto = lfgs.getLaneFilesAlternatingWithSpaceSep()
 
             // Flowcell ids
-            String runIDs = lfgs.collectFlowCellIDs()
+            String runIDs = lfgs.getFlowCellIDsWithSpaceSep()
 
             // Lane ids
-            String laneIDs = lfgs.collectLaneIDs()
+            String laneIDs = lfgs.getLaneIDsWithSpaceSep()
 
             // Read groups per pair with " , " separation ( space comma space )
-            String readGroups = lfgs.collectReadGroups()
+            String readGroups = lfgs.getBamReadGroupLines()
 
-            call("starAlignment", fakeFile, "SAMPLE=${sample.name}" , "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
+            call("starAlignment", dummyFile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
         }
 
-        return true;
+        return true
+    }
+
+    @Override
+    boolean checkExecutability(ExecutionContext context) {
+        COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
+
+        /** Check sample availability **/
+        List<Sample> samples = runtimeService.getSamplesForContext(context)
+        if (samples.size() == 0) {
+            context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("There were no samples available."))
+            return false
+        }
+
+        /** Check fastq availability **/
+        boolean hasFiles = false;
+        for (Sample sample : samples) {
+            def laneFilesForSample = runtimeService.loadLaneFilesForSample(context, sample)
+            if (!laneFilesForSample) {
+                context.addErrorEntry(ExecutionContextError.EXECUTION_NOINPUTDATA.expand("No fastq files found for sample ${sample.name}"))
+                continue
+            }
+            hasFiles = true
+            laneFilesForSample.each {
+                LaneFileGroup lfg ->
+                    lfg.filesInGroup.each {
+                        hasFiles &= context.fileIsAccessible(it.path)
+                    }
+            }
+        }
+
+        /** No samples, no files, return false otherwise true **/
+        return hasFiles;
     }
 }
