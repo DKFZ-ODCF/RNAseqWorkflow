@@ -17,7 +17,7 @@ my %flagstat_translate = (
   # RNAseQC
   "3' Norm" => "threePNorm",
   "5' Norm" => "fivePNorm",
-  "Alternative Aligments" => "alternativeAligments",
+  "Alternative Aligments" => "alternativeAlignments",
   "Base Mismatch Rate" => "baseMismatchRate",
   "Chimeric Pairs" => "chimericPairs",
   "Cumul. Gap Length" => "cumulGapLength",

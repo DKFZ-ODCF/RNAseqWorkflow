@@ -142,6 +142,7 @@
         </tool>
 
         <tool name="countsToFpkmTpm" value="featureCounts_2_FpkmTpm" basepath="rnaseqworkflow"/>
+        <tool name="countsdexseqToFpkmTpm" value="featureCountsDexseq_2_FpkmTpm" basepath="rnaseqworkflow"/>
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
 

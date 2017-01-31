@@ -2,41 +2,18 @@
 
 set -vx
 
-########################################################################
-##                                                                    ##
-##  HIPO2 RNAseq workflow                                             ##
-##  Authors: Naveed Ishaque, Barbara Hutter, Sebastian Uhrig          ##
-##                                                                    ##
-########################################################################
+##################################################################
+##								##
+##  HIPO2 RNAseq workflow					##
+##  Authors: Naveed Ishaque, Barbara Hutter, Sebastian Uhrig	##
+##								##
+##################################################################
 
-########################################################################
-##                                                                    ##
-##  CHANGE LOG                                                        ##
-##                                                                    ##
-##  v1.0 [30/11/16]                                                   ##
-##  Author: Naveed Ishaque                                            ##
-##  Implemented basic workflow                                        ##
-##                                                                    ##
-##  v1.2 [01/12/16]                                                   ##
-##  Author: Naveed Ishaque                                            ##
-##  Removed most hard coded elements                                  ##
-##                                                                    ##
-##  v1.4 [05/12/16]                                                   ##
-##  Author: Naveed Ishaque                                            ##
-##  Made all path absolute                                            ##
-##  Parse FQ files                                                    ##
-##                                                                    ##
-##  v1.5 [12/01/16]                                                   ##
-##  Author: Naveed Ishaque                                            ##
-##  Updated for use with Roddy [change log no longer tracked]         ##
-##                                                                    ##
-########################################################################
-
-########################################################################
-##                                                                    ##
-##                           SETUP ENV                                ##
-##                                                                    ##
-########################################################################
+##################################################################
+##								##
+##			   SETUP ENV				##
+##								##
+##################################################################
 
 source $CONFIG_FILE
 
@@ -77,10 +54,12 @@ check_executable "$ARIBA_READTHROUGH_BINARY"
 check_executable "$ARIBA_DRAW_FUSIONS"
 
 ########################################################################
-##                                                                    ##
-##                           WORK FLOW                                ##
-##                                                                    ##
+##								    ##
+##			   WORK FLOW				##
+##								    ##
 ########################################################################
+
+set -u
 
 #make_directory $RESULTS_PID_DIR
 
@@ -111,9 +90,9 @@ then
 
 	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
 	echo_run "$SAMTOOLS_BINARY view -Sbh $STAR_CHIMERA_SAM | $SAMTOOLS_BINARY sort - -o $STAR_CHIMERA_BAM_PREF.bam"
-    check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
-    #echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
-    echo_run "$SAMBAMBA_BINARY markdup -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
+	check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
+	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
+	echo_run "$SAMBAMBA_BINARY markdup -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
 	check_or_die $STAR_CHIMERA_MKDUP_BAM chimera-post-markdups
 	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_CHIMERA_MKDUP_BAM"
@@ -121,13 +100,19 @@ then
 
 	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
 	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-    echo_run "$SAMBAMBA_BINARY markdup -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
+	echo_run "$SAMBAMBA_BINARY markdup -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
 	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
 	
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.bai alignment-index
 	
+        ## md5sum
+	echo_run "md5sum $STAR_SORTED_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_SORTED_MKDUP_BAM.md5"
+	check_or_die ${STAR_SORTED_MKDUP_BAM}.md5 alignment-md5sums
+	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
+	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
+
 	## flagstats (requires 4MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY flagstat -t $CORES $STAR_SORTED_MKDUP_BAM > ${STAR_SORTED_MKDUP_BAM}.flagstat"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.flagstat alignment-qc-flagstats
@@ -164,7 +149,7 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
 	make_directory $COUNT_DIR 
 	cd $COUNT_DIR
-    COUNT="-t exon -g gene_id -p -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${PID}_featureCounts --donotsort"
+	COUNT="-t exon -g gene_id -p -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${PID}_featureCounts --donotsort"
 	make_directory $SCRATCH/${SAMPLE}_${PID}_featureCounts
 	for S in {0..2} 
 	do
@@ -172,13 +157,13 @@ then
 		check_or_die ${SAMPLE}_${PID}.featureCounts.s${S} gene-counting
 	done
 	## RPKM TPM calculations
-    echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.s0 ${SAMPLE}_${PID}.featureCounts.s1 ${SAMPLE}_${PID}.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv"
-    check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv counting-featureCounts
+	echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.s0 ${SAMPLE}_${PID}.featureCounts.s1 ${SAMPLE}_${PID}.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv"
+	check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv counting-featureCounts
 	# cleanup
 	make_directory ${SAMPLE}_${PID}_featureCounts_raw
 	echo_run "mv ${SAMPLE}_${PID}.featureCounts* ${SAMPLE}_${PID}_featureCounts_raw"
 	echo_run "tar --remove-files -czvf ${SAMPLE}_${PID}_featureCounts_raw.tgz ${SAMPLE}_${PID}_featureCounts_raw"
-    #remove_directory $SCRATCH/${SAMPLE}_${PID}_featureCounts
+	#remove_directory $SCRATCH/${SAMPLE}_${PID}_featureCounts
 fi
 
 ##
@@ -194,12 +179,12 @@ then
 	for S in {0..2}  
 	do
 		echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -s $S -o ${SAMPLE}_${PID}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
-	    check_or_die ${SAMPLE}_${PID}.featureCounts.dexseq.s${S} exon-counting
+		check_or_die ${SAMPLE}_${PID}.featureCounts.dexseq.s${S} exon-counting
 	done
-        ## RPKM TPM calculations
-        echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.dexseq.s0 ${SAMPLE}_${PID}.featureCounts.dexseq.s1 ${SAMPLE}_${PID}.featureCounts.dexseq.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv"
-        check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv counting-featureCounts_dexseq
-	# cleanup
+	## RPKM TPM calculations
+	echo_run "$TOOL_COUNTSDEXSEQ_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.dexseq.s0 ${SAMPLE}_${PID}.featureCounts.dexseq.s1 ${SAMPLE}_${PID}.featureCounts.dexseq.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.dexseq.tsv"
+	check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.dexseq.tsv counting-featureCounts_dexseq
+	cleanup
 	make_directory ${SAMPLE}_${PID}_featureCounts_dexseq_raw
 	echo_run "mv ${SAMPLE}_${PID}.featureCounts* ${SAMPLE}_${PID}_featureCounts_dexseq_raw"
 	echo_run "tar --remove-files -czvf ${SAMPLE}_${PID}_featureCounts_dexseq_raw.tgz ${SAMPLE}_${PID}_featureCounts_dexseq_raw"
@@ -242,10 +227,10 @@ then
 	cd $ARIBA_DIR
 	echo_run "$ARIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${PID}_merged_read_through.bam"
 	echo_run "$ARIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${PID}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARIBA_BLACKLIST -o ${SAMPLE}_${PID}.fusions.txt -O ${SAMPLE}_${PID}.discarded_fusions.txt "
-    if [[ -f "${SAMPLE}_${PID}.fusions.txt" ]]
-    then
-        echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${PID}.fusions.txt --output=${SAMPLE}_${PID}.fusions.pdf"
-    fi
+	if [[ -f "${SAMPLE}_${PID}.fusions.txt" ]]
+	then
+		echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${PID}.fusions.txt --output=${SAMPLE}_${PID}.fusions.pdf"
+	fi
 fi
 
 ##
@@ -254,20 +239,20 @@ fi
 
 if [ "$RUN_QCJSON" == true ]
 then
-    make_directory $QC_DIR
-    if [ "$RUN_RNASEQC" == true ]
-    then
-        echo "# Waiting for RNAseQC"
-        wait && cd $QC_DIR
-    else
-        cd $QC_DIR
-    fi
-    if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv" ]]
-    then
-        echo_run "mv $RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv"
-    fi
-    echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
-    check_or_die ${JSON_PREFIX}qualitycontrol.json
+	make_directory $QC_DIR
+	if [ "$RUN_RNASEQC" == true ]
+	then
+		echo "# Waiting for RNAseQC"
+		wait && cd $QC_DIR
+	else
+		cd $QC_DIR
+	fi
+	if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv" ]]
+	then
+		echo_run "mv $RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv"
+	fi
+	echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
+	check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json
 fi
 
 ##
@@ -276,24 +261,23 @@ fi
 
 if [ "$RUN_CLEANUP" == true ]
 then
-    if [ "$RUN_RNASEQC" == true ]
-    then
-        echo "# Waiting for RNAseQC"
-        wait
-    fi
-    remove_directory $SCRATCH/*
-    remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/refGene.txt*
-    remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/rRNA_intervals.list
-    if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz" ]]
-    then
-        echo "# RNAseQC results already archived... skipping"
-    else
-        echo_run "tar --remove-files -czvf $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID} "
-    fi
-    remove_file $ALIGNMENT_DIR/$STAR_SORTED_BAM
-    remove_file $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM
-    remove_file $ALIGNMENT_DIR/$STAR_CHIMERA_SAM
-    remove_file $ALIGNMENT_DIR/$STAR_CHIMERA_BAM
+	if [ "$RUN_RNASEQC" == true ]
+	then
+		echo "# Waiting for RNAseQC"
+		wait
+	fi
+	remove_directory $SCRATCH/*
+	remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/refGene.txt*
+	remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/rRNA_intervals.list
+	if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz" ]]
+	then
+		echo "# RNAseQC results already archived... skipping"
+	else
+		echo_run "tar --remove-files -czvf $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID} "
+	fi
+	remove_file $ALIGNMENT_DIR/$STAR_SORTED_BAM
+	remove_file $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM
+	remove_file $ALIGNMENT_DIR/$STAR_CHIMERA_SAM
 	remove_file $ALIGNMENT_DIR/*fifo.read1
 	remove_file $ALIGNMENT_DIR/*fifo.read2
 	make_directory $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files
