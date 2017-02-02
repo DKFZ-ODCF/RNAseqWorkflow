@@ -240,7 +240,7 @@ while (<$fh>){
   my @line = split("\t", $_);
 
   # print gene ID or BED
-  print "$line[1]\t$line[2]\t$line[3]\t.\t$line[0]\t$line[4]\t";
+  print "$line[1]\t$line[2]\t$line[3]\t$line[0]\t.\t$line[4]\t";
   
   # print gene_name
   if (index($line[0], "+") != -1) {
