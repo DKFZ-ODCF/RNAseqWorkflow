@@ -16,6 +16,7 @@
         <!-- ## Imported from cobase project -->
         <cvalue name='possibleControlSampleNamePrefixes' value='( blood BLOOD normal control CONTROL buffy_coat GERMLINE )' type='bashArray'/>
         <cvalue name='possibleTumorSampleNamePrefixes' value='( tumor TUMOR metastasis xenograft disease DISEASE relapse RELAPSE autopsy AUTOPSY metastasis METASTASIS )' type='bashArray'/>
+        <cvalue name='possibleSingleCellSampleNamePrefixes' value='( SingleCell single_cell )' type='bashArray'/>
         <cvalue name="useCentralAnalysisArchive" value="true"/>
         <cvalue name="enableJobProfiling" value="false"/>
         <cvalue name='QUAL' value='phred' description="Default quality is phred, can be illumina."/>
@@ -58,6 +59,8 @@
         <!-- ## -->
         <!-- ## SOFTWARE STACK -->
         <!-- ## -->
+        <cvalue name='JEMULTIPLEXER_JAR' value='/home/parkj/opt/jemultiplexer_1.0.6_bundle.jar' type='string'/>
+
         <cvalue name='STAR_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/STAR/STAR-2.5.2b/bin/STAR' type='string'/>
         <cvalue name='FEATURECOUNTS_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/subread/1.5.1/bin/featureCounts' type='string'/>
         <cvalue name='SAMBAMBA_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/sambamba/sambamba-0.6.5/sambamba' type='string'/>
@@ -145,6 +148,18 @@
         <tool name="countsdexseqToFpkmTpm" value="featureCountsDexseq_2_FpkmTpm" basepath="rnaseqworkflow"/>
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
+
+        <tool name="jemultiplexer" value="scrna_demultiplexing.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="50g" cores="5" nodes="1" walltime="3h" queue="devel"/>
+                <rset size="l" memory="100g" cores="10" nodes="1" walltime="48h"/>
+            </resourcesets>
+            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
+            <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
+            <input type="string" setby="callingCode" scriptparameter="READ_LEFT"/>
+            <input type="string" setby="callingCode" scriptparameter="READ_RIGHT"/>
+            <output type="filegroup" scriptparameter="READS_DEMULTIPLEXED"/>
+        </tool>
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>

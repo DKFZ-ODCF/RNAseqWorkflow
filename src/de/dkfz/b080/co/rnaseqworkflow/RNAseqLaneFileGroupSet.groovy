@@ -21,29 +21,44 @@ class RNAseqLaneFileGroupSet {
         laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], lfg.filesInGroup[1]] }
     }
 
+    List<String> getLeftLaneFiles() {
+        laneFiles.keySet().collect { it.path.absolutePath }
+    }
+
+    List<String> getRightLaneFiles() {
+        laneFiles.values().collect { it.path.absolutePath }
+    }
+
+    List<String> getRuns() {
+        laneFileGroupList.collect { it.getRun() }
+    }
+
+    List<String> getLaneIDs() {
+        laneFileGroupList.collect { it.getId() }
+    }
+
     LaneFile getFirstLaneFile() {
         return laneFiles.values().first() as LaneFile
     }
 
     String getLeftLaneFilesAsCSVs() {
-        laneFiles.keySet().collect { it.path.absolutePath }.join(",")
+        getLeftLaneFiles().join(",")
     }
 
     String getRightLaneFilesAsCSVs() {
-        laneFiles.values().collect { it.path.absolutePath }.join(",")
+        getRightLaneFiles().join(",")
     }
 
     String getLaneFilesAlternatingWithSpaceSep() {
         laneFileGroupList.collect { return "${it.filesInGroup[0].path} ${it.filesInGroup[1].path}" }.join(" ")
     }
 
-
     String getFlowCellIDsWithSpaceSep() {
         laneFileGroupList.collect { it.getRun().split("[_]")[-1] }.join(" ")
     }
 
     String getLaneIDsWithSpaceSep() {
-        laneFileGroupList.collect { it.getId() }.join(" ")
+        getLaneIDs().join(" ")
     }
 
     String getFlowCellAndLaneIDsWithSpaceSep() {

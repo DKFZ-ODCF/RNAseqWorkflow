@@ -1,13 +1,18 @@
 package de.dkfz.b080.co.rnaseqworkflow
 
 import de.dkfz.b080.co.common.COProjectsRuntimeService
+import de.dkfz.b080.co.common.ParallelizationHelper
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
 import de.dkfz.b080.co.files.Sample
+import de.dkfz.b080.co.files.TextFile
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.ExecutionContext
 import de.dkfz.roddy.core.ExecutionContextError
 import de.dkfz.roddy.core.Workflow
+import de.dkfz.roddy.knowledge.files.FileGroup
+import de.dkfz.roddy.knowledge.files.FileObject
+import de.dkfz.roddy.knowledge.files.IndexedFileObjects
 import groovy.transform.CompileStatic
 
 /**
@@ -18,10 +23,34 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class RNAseqWorkflow extends Workflow {
 
+    private void run_rnaseq(RNAseqLaneFileGroupSet lfgs, String sampleName) {
+        // The file dummy is used by Roddy. It is not actually needed by the starAlignment job itself
+        // but Roddy needs one specific file for every created job.
+        LaneFile dummyFile = lfgs.getFirstLaneFile()
+
+        //STAR
+        String readsSTARLeft = lfgs.getLeftLaneFilesAsCSVs()
+        String readsSTARRight = lfgs.getRightLaneFilesAsCSVs()
+
+        // Kalisto
+        String readsKallisto = lfgs.getLaneFilesAlternatingWithSpaceSep()
+
+        // Flowcell ids
+        String runIDs = lfgs.getFlowCellIDsWithSpaceSep()
+
+        // Lane ids
+        String laneIDs = lfgs.getLaneIDsWithSpaceSep()
+
+        // Read groups per pair with " , " separation ( space comma space )
+        String readGroups = lfgs.getBamReadGroupLines()
+
+        call("starAlignment", dummyFile, "SAMPLE=${sampleName}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
+    }
+
     @Override
     boolean execute(ExecutionContext context) {
         COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
-
+        boolean runSingleCellDemultiplexing = context.getConfiguration().getConfigurationValues().getBoolean("runSingleCellDemultiplexing", false);
         List<Sample> samples = runtimeService.getSamplesForContext(context)
 
         for (Sample sample : samples) {
@@ -31,27 +60,20 @@ class RNAseqWorkflow extends Workflow {
 
             def lfgs = new RNAseqLaneFileGroupSet(laneFilesForSample)
 
-            // The file dummy is used by Roddy. It is not actually needed by the starAlignment job itself
-            // but Roddy needs one specific file for every created job.
-            LaneFile dummyFile = lfgs.getFirstLaneFile()
+            if (runSingleCellDemultiplexing) {
+                // LaneFile barcodeFile = lfgs.getFirstLaneFile().path.getParentFile() //TODO: GET CORRECT BARCODE FILE PATH
+                // int numOfCells = barcodeFile.path.readLines().size()
 
-            //STAR
-            String readsSTARLeft = lfgs.getLeftLaneFilesAsCSVs()
-            String readsSTARRight = lfgs.getRightLaneFilesAsCSVs()
+                LaneFile dummyFile = lfgs.getFirstLaneFile()
 
-            // Kalisto
-            String readsKallisto = lfgs.getLaneFilesAlternatingWithSpaceSep()
-
-            // Flowcell ids
-            String runIDs = lfgs.getFlowCellIDsWithSpaceSep()
-
-            // Lane ids
-            String laneIDs = lfgs.getLaneIDsWithSpaceSep()
-
-            // Read groups per pair with " , " separation ( space comma space )
-            String readGroups = lfgs.getBamReadGroupLines()
-
-            call("starAlignment", dummyFile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
+                List<LaneFileGroup> lfg_list_demultiplexed = []
+                for (List<String> l: [lfgs.getLeftLaneFiles(), lfgs.getRightLaneFiles(), lfgs.getLaneIDs(), lfgs.getRuns()].transpose() as List<List<String>>) {
+                    FileGroup lanefiles = call("jemultiplexer", dummyFile, "READ_LEFT=${l[0]}", "READ_RIGHT=${l[1]}") as FileGroup
+                    lfg_list_demultiplexed.add(new LaneFileGroup(context, l[2], l[3], sample, lanefiles.filesInGroup as List<LaneFile>))
+                }
+                run_rnaseq(new RNAseqLaneFileGroupSet(lfg_list_demultiplexed), sample.name);
+            }
+            else run_rnaseq(lfgs, sample.name);
         }
 
         return true
@@ -80,7 +102,7 @@ class RNAseqWorkflow extends Workflow {
             laneFilesForSample.each {
                 LaneFileGroup lfg ->
                     lfg.filesInGroup.each {
-                        hasFiles &= context.fileIsAccessible(it.path)
+                        hasFiles &= true//context.fileIsAccessible(it.path)
                     }
             }
         }
