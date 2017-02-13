@@ -10,10 +10,13 @@ import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.core.ExecutionContext
 import de.dkfz.roddy.core.ExecutionContextError
 import de.dkfz.roddy.core.Workflow
+import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.knowledge.files.FileGroup
 import de.dkfz.roddy.knowledge.files.FileObject
 import de.dkfz.roddy.knowledge.files.IndexedFileObjects
 import groovy.transform.CompileStatic
+import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVParser
 
 /**
  * RNA seq workflow based on STAR!
@@ -47,10 +50,37 @@ class RNAseqWorkflow extends Workflow {
         call("starAlignment", dummyFile, "SAMPLE=${sampleName}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
     }
 
+    private void run_singlecell(RNAseqLaneFileGroupSet lfgs, ExecutionContext context, Sample sample) {
+        LaneFile dummyFile = lfgs.getFirstLaneFile()
+        File barcodeFile = getBarcodeFile(context, dummyFile)
+        def barcodeFileContent = FileSystemAccessProvider.getInstance().loadTextFile(barcodeFile)
+
+        // Read stuff from csv, tsv   convertFormat is in Roddy! Take Roddy from GitHub
+        //  => look up BaseMetadataTableFactory
+        CSVFormat tableFormat = convertFormat(format)
+        tableFormat = tableFormat.withCommentMarker('#' as char)
+                .withIgnoreEmptyLines()
+                .withHeader();
+        CSVParser parser = tableFormat.parse(instream)
+
+        // int numOfCells = barcodeFile.path.readLines().size()
+
+
+        List<LaneFileGroup> lfg_list_demultiplexed = []
+        for (List<String> l in [lfgs.getLeftLaneFiles(), lfgs.getRightLaneFiles(), lfgs.getLaneIDs(), lfgs.getRuns()].transpose() as List<List<String>>) {
+            // It is not written wrong: It reall is called jemultiplexer! From JE demultiplexer
+
+            FileGroup lanefiles = call("jemultiplexer", dummyFile, "READ_LEFT=${l[0]}", "READ_RIGHT=${l[1]}") as FileGroup
+            lfg_list_demultiplexed.add(new LaneFileGroup(context, l[2], l[3], sample, lanefiles.filesInGroup as List<LaneFile>))
+        }
+        run_rnaseq(new RNAseqLaneFileGroupSet(lfg_list_demultiplexed), sample.name)
+    }
+
     @Override
     boolean execute(ExecutionContext context) {
+        boolean runSingleCellDemultiplexing = getflag(context, "runSingleCellDemultiplexing", false)
+
         COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
-        boolean runSingleCellDemultiplexing = context.getConfiguration().getConfigurationValues().getBoolean("runSingleCellDemultiplexing", false);
         List<Sample> samples = runtimeService.getSamplesForContext(context)
 
         for (Sample sample : samples) {
@@ -61,22 +91,17 @@ class RNAseqWorkflow extends Workflow {
             def lfgs = new RNAseqLaneFileGroupSet(laneFilesForSample)
 
             if (runSingleCellDemultiplexing) {
-                // LaneFile barcodeFile = lfgs.getFirstLaneFile().path.getParentFile() //TODO: GET CORRECT BARCODE FILE PATH
-                // int numOfCells = barcodeFile.path.readLines().size()
-
-                LaneFile dummyFile = lfgs.getFirstLaneFile()
-
-                List<LaneFileGroup> lfg_list_demultiplexed = []
-                for (List<String> l: [lfgs.getLeftLaneFiles(), lfgs.getRightLaneFiles(), lfgs.getLaneIDs(), lfgs.getRuns()].transpose() as List<List<String>>) {
-                    FileGroup lanefiles = call("jemultiplexer", dummyFile, "READ_LEFT=${l[0]}", "READ_RIGHT=${l[1]}") as FileGroup
-                    lfg_list_demultiplexed.add(new LaneFileGroup(context, l[2], l[3], sample, lanefiles.filesInGroup as List<LaneFile>))
-                }
-                run_rnaseq(new RNAseqLaneFileGroupSet(lfg_list_demultiplexed), sample.name);
-            }
-            else run_rnaseq(lfgs, sample.name);
+                run_singlecell(lfgs, context, sample)
+            } else run_rnaseq(lfgs, sample.name)
         }
 
         return true
+    }
+
+    private File getBarcodeFile(ExecutionContext context, LaneFile dummyFile) {
+        String barcodeFilename = context.getConfiguration().getConfigurationValues().get("barcodeFilename")
+        File barcodeFile = new File(dummyFile.getPath().getParentFile(), barcodeFilename)
+        barcodeFile
     }
 
     @Override
@@ -91,7 +116,7 @@ class RNAseqWorkflow extends Workflow {
         }
 
         /** Check fastq availability **/
-        boolean hasFiles = false;
+        boolean hasFiles = false
         for (Sample sample : samples) {
             def laneFilesForSample = runtimeService.loadLaneFilesForSample(context, sample)
             if (!laneFilesForSample) {
@@ -102,12 +127,17 @@ class RNAseqWorkflow extends Workflow {
             laneFilesForSample.each {
                 LaneFileGroup lfg ->
                     lfg.filesInGroup.each {
-                        hasFiles &= true//context.fileIsAccessible(it.path)
+                        hasFiles &= context.fileIsAccessible(it.path)
                     }
             }
         }
 
+        if (getflag(context, "runSingleCellDemultiplexing", false)) {
+            //TODO Introduce the check at the right position
+//            context.fileIsAccessible(getBarcodeFile(context, ))
+        }
+
         /** No samples, no files, return false otherwise true **/
-        return hasFiles;
+        return hasFiles
     }
 }
