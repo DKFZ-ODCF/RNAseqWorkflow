@@ -6,14 +6,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="COWorkflows" />
-    <orderEntry type="library" name="roddy" level="project" />
     <orderEntry type="library" name="roddyBundledLibraries" level="project" />
-    <orderEntry type="library" name="DefaultPlugin" level="application" />
-    <orderEntry type="library" name="PluginBase" level="application" />
     <orderEntry type="module" module-name="AlignmentAndQCWorkflows" />
+    <orderEntry type="module" module-name="DefaultPlugin" />
+    <orderEntry type="module" module-name="PluginBase" />
+    <orderEntry type="module" module-name="roddy" />
   </component>
 </module>
