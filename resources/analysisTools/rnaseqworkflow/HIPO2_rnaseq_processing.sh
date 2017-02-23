@@ -195,8 +195,8 @@ fi
 ## Kallisto (2 hours walltime (12 hrs CPU) and 70 gb for 200m reads) PER RUN!
 ##
 
-if [ "$RUN_KALLISTO" == true ]
 KALLISTO_PARAMS="quant -i $GENOME_KALLISTO_INDEX -o . -t $CORES -b 100"
+if [ "$RUN_KALLISTO" == true ]
 then
 	make_directory $KALLISTO_UN_DIR/${SAMPLE}_${PID}
 	cd $KALLISTO_UN_DIR/${SAMPLE}_${PID}
