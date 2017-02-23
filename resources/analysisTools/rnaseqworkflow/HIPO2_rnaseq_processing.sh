@@ -107,7 +107,7 @@ then
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.bai alignment-index
 	
-        ## md5sum
+    ## md5sum
 	echo_run "md5sum $STAR_SORTED_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_SORTED_MKDUP_BAM.md5"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.md5 alignment-md5sums
 	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
@@ -116,6 +116,13 @@ then
 	## flagstats (requires 4MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY flagstat -t $CORES $STAR_SORTED_MKDUP_BAM > ${STAR_SORTED_MKDUP_BAM}.flagstat"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.flagstat alignment-qc-flagstats
+fi
+
+# Run the fingerprinting. This requires the .bai file.
+if [[ "${runFingerprinting:-false}" == true ]]
+then
+    echo_run "$TOOL_FINGERPRINT" "$fingerprintingSitesFile" "$STAR_SORTED_MKDUP_BAM" > "$STAR_SORTED_MKDUP_BAM.fp.tmp"
+    mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
 fi
 
 ##

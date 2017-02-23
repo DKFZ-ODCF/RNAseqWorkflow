@@ -27,7 +27,7 @@
         <!-- ## -->
         <cvalue name='CORES' value='8' type='string'/>
         <cvalue name='TEST_RUN' value='false' type='boolean' description="only print the commands and doesnt execute them"/>
-        <cvalue name='DO_FIRST' value='echo "Do something first"' type='string' description="incase something needs to be run at the start of the workflow"/>
+        <cvalue name='DO_FIRST' value='echo "Do something first"' type='string' description="increase something needs to be run at the start of the workflow"/>
 
         <!-- ## DIRECTORIES -->
         <cvalue name='alignmentOutputDirectory' value='alignment' type='string'/>
@@ -122,7 +122,12 @@
         <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
         <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${PID}_"' type='string'/>
 
-        <!-- ## -->
+        <!-- Fingerprinting -->
+        <cvalue name="runFingerprinting" value="true" type="boolean"/>
+        <cvalue name="fingerprintingSitesFile_hs37" value="${hg19DatabasesDirectory}/fingerprinting/hovestadt_v1.1/snp138Common.n1000.vh20140318.bed" type="path"/>
+	    <cvalue name="fingerprintingSitesFile" value="${fingerprintingSitesFile_hs37}" type="path"
+                description='BED file with the reference positions used for fingerprinting. Used by alignment workflow for fingerprinting individuals to discover swaps. Use runFingerprinting=true/false to toggle fingerprinting.'/>
+
         <!-- ## Default file acces -->
         <cvalue name='outputFileGroup' value='B080'/>
         <cvalue name='outputUMask' value='007' type='string'/>
@@ -145,6 +150,7 @@
         <tool name="countsdexseqToFpkmTpm" value="featureCountsDexseq_2_FpkmTpm" basepath="rnaseqworkflow"/>
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
+        <tool name='fingerprint' value="bsnp.py" basepath="qcPipeline"/>
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
