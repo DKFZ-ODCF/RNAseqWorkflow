@@ -51,7 +51,7 @@ class RNAseqLaneFileGroupSet {
     }
 
     /**
-     * Example: ID:run150326_D00695_0025_BC6B2MACXX_${PID}_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
+     * Example: ID:run150326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
      * @return
      */
     String getBamReadGroupLines() {
@@ -61,10 +61,10 @@ class RNAseqLaneFileGroupSet {
             def sample = lfg.getSample().name
             COFileStageSettings stage = lfg.getFilesInGroup().first().getFileStage() as COFileStageSettings
             [
-                    ["ID:" + lfg.getRun(), pid, stage.laneId].join("_"),
+                    ["ID:" + lfg.getRun(), stage.laneId].join("_"),
                     ["LB:" + sample, pid].join("_"),
                     "PL:ILLUMINA",
-                    ["SM:" + sample, pid].join("_"),
+                    ["SM:sample" + sample, pid].join("_"),
                     "PU:" + lfg.getRun().split("[_]")[-1]
             ].join(" ")
         }.join(" , ")
