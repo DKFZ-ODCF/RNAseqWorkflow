@@ -64,7 +64,7 @@ class RNAseqLaneFileGroupSet {
                     ["ID:" + lfg.getRun(), stage.laneId].join("_"),
                     ["LB:" + sample, pid].join("_"),
                     "PL:ILLUMINA",
-                    ["SM:sample" + sample, pid].join("_"),
+                    ["SM:sample", sample, pid].join("_"),
                     "PU:" + lfg.getRun().split("[_]")[-1]
             ].join(" ")
         }.join(" , ")

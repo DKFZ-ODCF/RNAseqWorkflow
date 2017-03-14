@@ -16,6 +16,5 @@
     <orderEntry type="module" module-name="AlignmentAndQCWorkflows" />
     <orderEntry type="module" module-name="DefaultPlugin" />
     <orderEntry type="module" module-name="PluginBase" />
-    <orderEntry type="module" module-name="roddy" />
   </component>
 </module>
