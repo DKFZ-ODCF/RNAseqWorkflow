@@ -109,8 +109,9 @@
         <cvalue name='READ_COMMAND' value='"${UNZIPTOOL} ${UNZIPTOOL_OPTIONS}"' type='string'/>
         <cvalue name='ADAPTER_SEQ' value="AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT" type='string'/>
         <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFFIX. --genomeDir ${GENOME_STAR_INDEX_200} --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${PID}_STAR"'
+                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${PID}_STAR"'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
