@@ -33,7 +33,7 @@
         <cvalue name='alignmentOutputDirectory' value='alignment' type='string'/>
         <cvalue name='qcOutputDirectory' value='qualitycontrol' type='string'/>
         <cvalue name='ALIGNMENT_DIR' value='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}' type='string'/>
-        <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${SAMPLE}_${PID}' type='string'/>-->
+        <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${sample}_${pid}' type='string'/>-->
         <cvalue name='SCRATCH' value='${RODDY_SCRATCH}' type='string'/>
         <cvalue name='COUNT_DIR' value='${outputAnalysisBaseDirectory}/featureCounts' type='string'/>
         <cvalue name='COUNT_DIR_EXON' value='${outputAnalysisBaseDirectory}/featureCounts_dexseq' type='string'/>
@@ -46,14 +46,14 @@
         <cvalue name='ARIBA_DIR' value='${outputAnalysisBaseDirectory}/fusions_ariba' type='string'/>
 
         <!-- # RUNTIME_CONFIG_OUTFILE DEFINITITIONS -->
-        <cvalue name='STAR_PREFFIX' value='${SAMPLE}_${PID}_merged' type='string'/>
-        <cvalue name='STAR_CHIMERA_PREFFIX' value='${SAMPLE}_${PID}_chimeric_merged' type='string'/>
-        <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFFIX.Aligned.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFFIX.Aligned.sortedByCoord.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_MKDUP_BAM' value='$STAR_PREFFIX.mdup.bam' type='string'/>
-        <cvalue name='STAR_CHIMERA_SAM' value='$STAR_PREFFIX.Chimeric.out.sam' type='string'/>
-        <cvalue name='STAR_CHIMERA_BAM_PREF' value='$STAR_PREFFIX.Chimeric.out' type='string'/>
-        <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='$STAR_CHIMERA_PREFFIX.mdup.bam' type='string'/>
+        <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_merged' type='string'/>
+        <cvalue name='STAR_CHIMERA_PREFIX' value='${SAMPLE}_${pid}_chimeric_merged' type='string'/>
+        <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
+        <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFIX.Aligned.sortedByCoord.out.bam' type='string'/>
+        <cvalue name='STAR_SORTED_MKDUP_BAM' value='$STAR_PREFIX.mdup.bam' type='string'/>
+        <cvalue name='STAR_CHIMERA_SAM' value='$STAR_PREFIX.Chimeric.out.sam' type='string'/>
+        <cvalue name='STAR_CHIMERA_BAM_PREF' value='$STAR_PREFIX.Chimeric.out' type='string'/>
+        <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='$STAR_CHIMERA_PREFIX.mdup.bam' type='string'/>
 
         <!-- ## -->
         <!-- ## SOFTWARE STACK -->
@@ -111,7 +111,7 @@
         <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
         <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${PID}_STAR"'
+                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${pid}_STAR"'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
@@ -121,7 +121,7 @@
         <cvalue name='STAR_PARAMS_INTRONS' value='"--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20"' type='string'/>
         <cvalue name='STAR_PARAMS_ADDITIONAL' value='" "'  type='string'/>
         <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
-        <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${PID}_"' type='string'/>
+        <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${pid}_"' type='string'/>
 
         <!-- Fingerprinting -->
         <cvalue name="runFingerprinting" value="true" type="boolean"/>
@@ -160,6 +160,7 @@
             </resourcesets>
             <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
+            <input type="string" setby="callingCode" scriptparameter="sample"/>
             <input type="string" setby="callingCode" scriptparameter="READS_STAR_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_STAR_RIGHT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_KALLISTO"/>
@@ -173,7 +174,7 @@
 
     </processingTools>
     <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>
-        <filename class='BamFile' onTool="starAlignment" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${STAR_PREFFIX}.mdup.bam'/>
+        <filename class='BamFile' onTool="starAlignment" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${cvalue,name="STAR_PREFIX"}.mdup.bam'/>
         <!--<filename class='BamFile' onTool="rna_processing" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam'/>-->
         <!--<filename class='BasicBamFile' onTool="starAlignment" onScriptParameter="starAlignment:STAR_SORTED_MKDUP_BAM" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam' />-->
         <filename class='BamIndexFile' derivedFrom='BamFile' pattern='${sourcefile}.bai'/>

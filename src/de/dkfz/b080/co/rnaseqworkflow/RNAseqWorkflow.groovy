@@ -51,7 +51,7 @@ class RNAseqWorkflow extends Workflow {
             // Read groups per pair with " , " separation ( space comma space )
             String readGroups = lfgs.getBamReadGroupLines()
 
-            call("starAlignment", dummyFile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
+            call("starAlignment", dummyFile, "SAMPLE=${sample.name}", "sample=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
         }
 
         return true
