@@ -170,7 +170,7 @@
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
             <input type="string" setby="callingCode" scriptparameter="READ_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READ_RIGHT"/>
-            <output type="filegroup" typeof="GenericFileGroup" fileclass="DemultiplexedFile" scriptparameter="READS_DEMULTIPLEXED"/>
+            <output type="filegroup" typeof="GenericFileGroup" fileclass="DemultiplexedFile" scriptparameter="READS_DEMULTIPLEXED" />
         </tool>
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
@@ -197,6 +197,6 @@
         <!--<filename class='BamFile' onTool="rna_processing" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam'/>-->
         <!--<filename class='BasicBamFile' onTool="starAlignment" onScriptParameter="starAlignment:STAR_SORTED_MKDUP_BAM" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam' />-->
         <filename class='BamIndexFile' derivedFrom='BamFile' pattern='${sourcefile}.bai'/>
-        <filename class='DemultiplexedFile' derivedFrom="GenericFile" pattern="${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}/${fgindex}.fastq.gz"/>
+        <filename class='DemultiplexedFile' derivedFrom="LaneFile" pattern="${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}/${fgindex}.fastq.gz"/>
     </filenames>
 </configuration>
