@@ -15,8 +15,6 @@ import de.dkfz.roddy.knowledge.files.FileGroup
 import de.dkfz.roddy.knowledge.files.FileObject
 import de.dkfz.roddy.knowledge.files.IndexedFileObjects
 import groovy.transform.CompileStatic
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
 
 /**
  * RNA seq workflow based on STAR!
@@ -57,11 +55,16 @@ class RNAseqWorkflow extends Workflow {
 
         // Read stuff from csv, tsv   convertFormat is in Roddy! Take Roddy from GitHub
         //  => look up BaseMetadataTableFactory
-        //CSVFormat tableFormat = convertFormat(format)
-        //tableFormat = tableFormat.withCommentMarker('#' as char)
-        //        .withIgnoreEmptyLines()
-        //        .withHeader();
-        //CSVParser parser = tableFormat.parse(instream)
+        //CSVFormat tableFormat = MetadataTableFactory.convertFormat("tsv").withIgnoreEmptyLines()
+        //CSVParser parser = tableFormat.parse(barcodeFileContent)
+
+        List<String> demultiplexed
+
+        for (String line in barcodeFileContent) {
+            List<String> e = line.split("\t")
+            e[0]e[1]
+        }
+
         int numOfCells = barcodeFileContent.size()
 
         if (numOfCells == 0) return false;

@@ -109,7 +109,14 @@ class RNAseqLaneFileGroupSetTest {
 
     @Test
     void getBamReadGroupLinesTest() throws Exception {
-        assert fileGroupSetMap[sample0].getBamReadGroupLines() == "ID:run160319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:tumor0_TEST_PID PU:BC5YE7ACXX , ID:run160326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:tumor0_TEST_PID PU:BC6B2MACXX"
-        assert fileGroupSetMap[sample1].getBamReadGroupLines() == "ID:run170319_D00133_0107_BC5YE7ACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:tumor02_TEST_PID PU:BC5YE7ACXX , ID:run170326_D00695_0025_BC6B2MACXX_TEST_PID_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:tumor02_TEST_PID PU:BC6B2MACXX"
+        def content = [
+                "ID:run160319_D00133_0107_BC5YE7ACXX_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:sample_tumor0_TEST_PID PU:BC5YE7ACXX",
+                "ID:run160326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:tumor0_TEST_PID PL:ILLUMINA SM:sample_tumor0_TEST_PID PU:BC6B2MACXX",
+                "ID:run170319_D00133_0107_BC5YE7ACXX_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:sample_tumor02_TEST_PID PU:BC5YE7ACXX",
+                "ID:run170326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:tumor02_TEST_PID PL:ILLUMINA SM:sample_tumor02_TEST_PID PU:BC6B2MACXX"
+        ]
+
+        assert fileGroupSetMap[sample0].getBamReadGroupLines() == "${content[0]} , ${content[1]}"
+        assert fileGroupSetMap[sample1].getBamReadGroupLines() == "${content[2]} , ${content[3]}"
     }
 }

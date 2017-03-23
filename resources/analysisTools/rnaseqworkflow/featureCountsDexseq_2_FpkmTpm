@@ -16,6 +16,9 @@
 use strict;
 use List::Util 'sum';
 
+my $MILLION =    1000000;
+my $BILLION = 1000000000;
+
 my $usage = "\n\tUSAGE: $0 [featureCounts_file_s0] [featureCounts_file_s1] [featureCounts_file_s2] [GTF_file] [ignore_GTF_file]\n\n";
 
 #######################################################################################################################
@@ -197,12 +200,12 @@ warn "STARTING PROCESS : 7 : calculating total reads FPKMs\n";
 my %all_fpkm_counts = ();   
 my %ignore_fpkm_counts = ();
 
-$all_fpkm_counts{0}    = (sum values %{$read_counts_all_per_length{0}}) * (1000000000/$all_read_counts{0});
-$all_fpkm_counts{1}    = (sum values %{$read_counts_all_per_length{1}}) * (1000000000/$all_read_counts{1});
-$all_fpkm_counts{2}    = (sum values %{$read_counts_all_per_length{2}}) * (1000000000/$all_read_counts{2});
-$ignore_fpkm_counts{0} = (sum values %{$read_counts_per_length{0}})     * (1000000000/$ignore_read_counts{0}); 
-$ignore_fpkm_counts{1} = (sum values %{$read_counts_per_length{1}})     * (1000000000/$ignore_read_counts{1});
-$ignore_fpkm_counts{2} = (sum values %{$read_counts_per_length{2}})     * (1000000000/$ignore_read_counts{2});
+$all_fpkm_counts{0}    = (sum values %{$read_counts_all_per_length{0}}) * ($BILLION/$all_read_counts{0});
+$all_fpkm_counts{1}    = (sum values %{$read_counts_all_per_length{1}}) * ($BILLION/$all_read_counts{1});
+$all_fpkm_counts{2}    = (sum values %{$read_counts_all_per_length{2}}) * ($BILLION/$all_read_counts{2});
+$ignore_fpkm_counts{0} = (sum values %{$read_counts_per_length{0}})     * ($BILLION/$ignore_read_counts{0}); 
+$ignore_fpkm_counts{1} = (sum values %{$read_counts_per_length{1}})     * ($BILLION/$ignore_read_counts{1});
+$ignore_fpkm_counts{2} = (sum values %{$read_counts_per_length{2}})     * ($BILLION/$ignore_read_counts{2});
 
 warn "-------- PROCESS : 7 : calculating total reads FPKMs : $fc0_file : total fpkms : all : $all_fpkm_counts{0}\n";
 warn "-------- PROCESS : 7 : calculating total reads FPKMs : $fc1_file : total fpkms : all : $all_fpkm_counts{1}\n";
@@ -269,25 +272,25 @@ while (<$fh>){
 
   if (length $ignore_gtf_file > 0){
     # print RPKMS exclude
-    print "".($read_counts_per_length{0}{$hash_id})*(1000000000/$ignore_read_counts{0})."\t";
-    print "".($read_counts_per_length{1}{$hash_id})*(1000000000/$ignore_read_counts{1})."\t";
-    print "".($read_counts_per_length{2}{$hash_id})*(1000000000/$ignore_read_counts{2})."\t";
+    print "".($read_counts_all_per_length{0}{$hash_id})*($BILLION/$ignore_read_counts{0})."\t";
+    print "".($read_counts_all_per_length{1}{$hash_id})*($BILLION/$ignore_read_counts{1})."\t";
+    print "".($read_counts_all_per_length{2}{$hash_id})*($BILLION/$ignore_read_counts{2})."\t";
 
     # print TPMS exclude
-    print "".($read_counts_per_length{0}{$hash_id})*(1000000000/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/1000000)."\t";
-    print "".($read_counts_per_length{1}{$hash_id})*(1000000000/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/1000000)."\t";
-    print "".($read_counts_per_length{2}{$hash_id})*(1000000000/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/1000000)."\t"; 
+    print "".($read_counts_all_per_length{0}{$hash_id})*($BILLION/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/$MILLION)."\t";
+    print "".($read_counts_all_per_length{1}{$hash_id})*($BILLION/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/$MILLION)."\t";
+    print "".($read_counts_all_per_length{2}{$hash_id})*($BILLION/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/$MILLION)."\t"; 
   }
 
   # print RPKMS legacy
-  print "".($read_counts_per_length{0}{$hash_id})*(1000000000/$all_read_counts{0})."\t";
-  print "".($read_counts_per_length{1}{$hash_id})*(1000000000/$all_read_counts{1})."\t";
-  print "".($read_counts_per_length{2}{$hash_id})*(1000000000/$all_read_counts{2})."\t";
+  print "".($read_counts_all_per_length{0}{$hash_id})*($BILLION/$all_read_counts{0})."\t";
+  print "".($read_counts_all_per_length{1}{$hash_id})*($BILLION/$all_read_counts{1})."\t";
+  print "".($read_counts_all_per_length{2}{$hash_id})*($BILLION/$all_read_counts{2})."\t";
 
   # print TPMS legacy
-  print "".($read_counts_per_length{0}{$hash_id})*(1000000000/$all_read_counts{0})/($all_fpkm_counts{0}/1000000)."\t";
-  print "".($read_counts_per_length{1}{$hash_id})*(1000000000/$all_read_counts{1})/($all_fpkm_counts{1}/1000000)."\t";
-  print "".($read_counts_per_length{2}{$hash_id})*(1000000000/$all_read_counts{2})/($all_fpkm_counts{2}/1000000)."";
+  print "".($read_counts_all_per_length{0}{$hash_id})*($BILLION/$all_read_counts{0})/($all_fpkm_counts{0}/$MILLION)."\t";
+  print "".($read_counts_all_per_length{1}{$hash_id})*($BILLION/$all_read_counts{1})/($all_fpkm_counts{1}/$MILLION)."\t";
+  print "".($read_counts_all_per_length{2}{$hash_id})*($BILLION/$all_read_counts{2})/($all_fpkm_counts{2}/$MILLION)."";
 
   print "\n";
 
