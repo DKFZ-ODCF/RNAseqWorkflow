@@ -50,27 +50,28 @@ class RNAseqWorkflow extends Workflow {
         call("starAlignment", dummyFile, "SAMPLE=${sampleName}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
     }
 
-    private void run_singlecell(RNAseqLaneFileGroupSet lfgs, ExecutionContext context, Sample sample) {
+    private boolean run_singlecell(RNAseqLaneFileGroupSet lfgs, ExecutionContext context, Sample sample) {
         LaneFile dummyFile = lfgs.getFirstLaneFile()
         File barcodeFile = getBarcodeFile(context, dummyFile)
         def barcodeFileContent = FileSystemAccessProvider.getInstance().loadTextFile(barcodeFile)
 
         // Read stuff from csv, tsv   convertFormat is in Roddy! Take Roddy from GitHub
         //  => look up BaseMetadataTableFactory
-        CSVFormat tableFormat = convertFormat(format)
-        tableFormat = tableFormat.withCommentMarker('#' as char)
-                .withIgnoreEmptyLines()
-                .withHeader();
-        CSVParser parser = tableFormat.parse(instream)
+        //CSVFormat tableFormat = convertFormat(format)
+        //tableFormat = tableFormat.withCommentMarker('#' as char)
+        //        .withIgnoreEmptyLines()
+        //        .withHeader();
+        //CSVParser parser = tableFormat.parse(instream)
+        int numOfCells = barcodeFileContent.size()
 
-        // int numOfCells = barcodeFile.path.readLines().size()
-
+        if (numOfCells == 0) return false;
 
         List<LaneFileGroup> lfg_list_demultiplexed = []
-        for (List<String> l in [lfgs.getLeftLaneFiles(), lfgs.getRightLaneFiles(), lfgs.getLaneIDs(), lfgs.getRuns()].transpose() as List<List<String>>) {
-            // It is not written wrong: It reall is called jemultiplexer! From JE demultiplexer
+        List<List<String>> ll = [lfgs.getLeftLaneFiles(), lfgs.getRightLaneFiles(), lfgs.getLaneIDs(), lfgs.getRuns()].transpose()
 
-            FileGroup lanefiles = call("jemultiplexer", dummyFile, "READ_LEFT=${l[0]}", "READ_RIGHT=${l[1]}") as FileGroup
+        for (List<String> l in ll) {
+            // It is not written wrong: It reall is called jemultiplefacetxer! From JE demultiplexer
+            FileGroup lanefiles = callWithOutputFileGroup("jemultiplexer", dummyFile, numOfCells, "READ_LEFT=${l[0]}", "READ_RIGHT=${l[1]}") as FileGroup
             lfg_list_demultiplexed.add(new LaneFileGroup(context, l[2], l[3], sample, lanefiles.filesInGroup as List<LaneFile>))
         }
         run_rnaseq(new RNAseqLaneFileGroupSet(lfg_list_demultiplexed), sample.name)
@@ -91,7 +92,7 @@ class RNAseqWorkflow extends Workflow {
             def lfgs = new RNAseqLaneFileGroupSet(laneFilesForSample)
 
             if (runSingleCellDemultiplexing) {
-                run_singlecell(lfgs, context, sample)
+                return run_singlecell(lfgs, context, sample)
             } else run_rnaseq(lfgs, sample.name)
         }
 
@@ -101,7 +102,7 @@ class RNAseqWorkflow extends Workflow {
     private File getBarcodeFile(ExecutionContext context, LaneFile dummyFile) {
         String barcodeFilename = context.getConfiguration().getConfigurationValues().get("barcodeFilename")
         File barcodeFile = new File(dummyFile.getPath().getParentFile(), barcodeFilename)
-        barcodeFile
+        return barcodeFile
     }
 
     @Override

@@ -132,6 +132,11 @@
         <cvalue name='outputAccessRights' value='u+rw,g+rw,o-rwx'/>
         <cvalue name='outputAccessRightsForDirectories' value='u+rwx,g+rwx,o-rwx'/>
         <cvalue name='outputAllowAccessRightsModification' value='false' type="boolean"/>
+
+        <!-- ## Single cell analysis -->
+        <cvalue name="barcodeFilename" value="barcode.txt" type="string" />
+        <cvalue name='demultiplexOutputDirectory' value='demultiplex' type='string'/>
+
     </configurationvalues>
 
     <processingTools>
@@ -149,7 +154,7 @@
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
 
-        <tool name="jemultiplexer" value="scrna_demultiplexing.sh" basepath="rnaseqworkflow">
+        <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="50g" cores="5" nodes="1" walltime="3h" queue="devel"/>
                 <rset size="l" memory="100g" cores="10" nodes="1" walltime="48h"/>
@@ -158,7 +163,7 @@
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
             <input type="string" setby="callingCode" scriptparameter="READ_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READ_RIGHT"/>
-            <output type="filegroup" scriptparameter="READS_DEMULTIPLEXED"/>
+            <output type="filegroup" typeof="GenericFileGroup" fileclass="DemultiplexedFile" scriptparameter="READS_DEMULTIPLEXED"/>
         </tool>
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
@@ -185,5 +190,6 @@
         <!--<filename class='BamFile' onTool="rna_processing" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam'/>-->
         <!--<filename class='BasicBamFile' onTool="starAlignment" onScriptParameter="starAlignment:STAR_SORTED_MKDUP_BAM" pattern='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}/${pid}.${sample}.sorted.mkdup.bam' />-->
         <filename class='BamIndexFile' derivedFrom='BamFile' pattern='${sourcefile}.bai'/>
+        <filename class='DemultiplexedFile' derivedFrom="GenericFile" pattern="${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}/${fgindex}.fastq.gz"/>
     </filenames>
 </configuration>

@@ -7,13 +7,13 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test/resources" type="java-test-resource" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8.0_121" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="COWorkflows" />
-    <orderEntry type="library" name="roddy" level="project" />
     <orderEntry type="library" name="roddyBundledLibraries" level="project" />
-    <orderEntry type="library" name="DefaultPlugin" level="application" />
-    <orderEntry type="library" name="PluginBase" level="application" />
     <orderEntry type="module" module-name="AlignmentAndQCWorkflows" />
+    <orderEntry type="module" module-name="DefaultPlugin" />
+    <orderEntry type="module" module-name="PluginBase" />
+    <orderEntry type="module" module-name="Roddy" />
   </component>
 </module>
