@@ -39,9 +39,9 @@ then
 	RNASEQC_BINARY=rnaseqc
 	KALLISTO_BINARY=kallisto
 	QUALIMAP_BINARY=qualimap
-	ARIBA_BINARY=arriba
-	ARIBA_READTHROUGH_BINARY=extract_read-through_fusions
-	ARIBA_DRAW_FUSIONS=draw_fusions.R
+	ARRIBA_BINARY=arriba
+	ARRIBA_READTHROUGH_BINARY=extract_read-through_fusions
+	ARRIBA_DRAW_FUSIONS=draw_fusions.R
 fi
 
 # Check software stack before running workflow
@@ -52,9 +52,9 @@ check_executable "$SAMTOOLS_BINARY"
 check_executable "$RNASEQC_BINARY"
 check_executable "$KALLISTO_BINARY"
 check_executable "$QUALIMAP_BINARY"
-check_executable "$ARIBA_BINARY"
-check_executable "$ARIBA_READTHROUGH_BINARY"
-check_executable "$ARIBA_DRAW_FUSIONS"
+check_executable "$ARRIBA_BINARY"
+check_executable "$ARRIBA_READTHROUGH_BINARY"
+check_executable "$ARRIBA_DRAW_FUSIONS"
 
 ########################################################################
 ##								    ##
@@ -231,15 +231,15 @@ fi
 ## Fusion detection
 ##
 
-if [ "$RUN_ARIBA" == true ]
+if [ "$RUN_ARRIBA" == true ]
 then
-	make_directory $ARIBA_DIR
-	cd $ARIBA_DIR
-	echo_run "$ARIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${pid}_merged_read_through.bam"
-	echo_run "$ARIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${pid}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARIBA_BLACKLIST -o ${SAMPLE}_${pid}.fusions.txt -O ${SAMPLE}_${pid}.discarded_fusions.txt "
+	make_directory $ARRIBA_DIR
+	cd $ARRIBA_DIR
+	echo_run "$ARRIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${pid}_merged_read_through.bam"
+	echo_run "$ARRIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${pid}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARRIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARRIBA_BLACKLIST -o ${SAMPLE}_${pid}.fusions.txt -O ${SAMPLE}_${pid}.discarded_fusions.txt "
 	if [[ -f "${SAMPLE}_${pid}.fusions.txt" ]]
 	then
-		echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${pid}.fusions.txt --output=${SAMPLE}_${pid}.fusions.pdf"
+		echo_run "$ARRIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${pid}.fusions.txt --output=${SAMPLE}_${pid}.fusions.pdf"
 	fi
 fi
 
