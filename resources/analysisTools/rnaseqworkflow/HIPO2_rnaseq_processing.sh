@@ -124,8 +124,9 @@ fi
 # Run the fingerprinting. This requires the .bai file.
 if [[ "${runFingerprinting:-false}" == true ]]
 then
-    echo_run "$TOOL_FINGERPRINT" "$fingerprintingSitesFile" "$STAR_SORTED_MKDUP_BAM" > "$STAR_SORTED_MKDUP_BAM.fp.tmp"
-    mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
+        cd $ALIGNMENT_DIR
+	echo_run "$PYTHON_BINARY $TOOL_FINGERPRINT $fingerprintingSitesFile $STAR_SORTED_MKDUP_BAM > $STAR_SORTED_MKDUP_BAM.fp.tmp"
+	mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
 fi
 
 ##
