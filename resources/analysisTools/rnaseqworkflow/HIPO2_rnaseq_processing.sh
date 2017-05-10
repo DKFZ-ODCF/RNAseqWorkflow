@@ -2,9 +2,34 @@
 
 set -vx
 
+SAMPLES=( `cat ${CHECKPOINT_ALIGNMENT} | cut -f 1` )
+STAR_SORTED_BAMS=( `cat ${CHECKPOINT_ALIGNMENT} | cut -f 2` )
+
+total_cnt="${#STAR_SORTED_BAMS[@]}"
+let chunk_len="(${total_cnt}+${numProcessingJobs}-1)/${numProcessingJobs}"
+let start="(${CHUNK_INDEX}-1)*${chunk_len}"
+
+SAMPLES=( ${SAMPLES[@]:${start}:${chunk_len}} )
+STAR_SORTED_BAMS=( ${STAR_SORTED_BAMS[@]:${start}:${chunk_len}} )
+
+if [[ ${#STAR_SORTED_BAMS[@]} -eq 0  ]]; then
+    echo "There is no BAM file to process."
+    exit 0
+fi
+
+if [ "$runSingleCellWorkflow" == true ]; then
+   	STAR_SORTED_MKDUP_BAMS=()
+    for STAR_SORTED_BAM in "${STAR_SORTED_BAMS[@]}"; do
+        STAR_SORTED_MKDUP_BAM=${STAR_SORTED_BAM%.bam}.mdup.bam
+        STAR_SORTED_MKDUP_BAMS+=(${STAR_SORTED_MKDUP_BAM})
+    done
+else
+    STAR_SORTED_MKDUP_BAMS=${STAR_SORTED_MKDUP_BAM}
+fi
+
 ##################################################################
 ##								##
-##  HIPO2 RNAseq workflow					##
+##  HIPO2 RNAseq workflow (processing)					##
 ##  Authors: Naveed Ishaque, Barbara Hutter, Sebastian Uhrig	##
 ##								##
 ##################################################################
@@ -67,62 +92,43 @@ set -u
 ## PRINT env
 ##
 
-env | sort > $DIR_EXECUTION/${PBS_JOBNAME}.env_dump.txt
-
-##
-## STAR 2-PASS ALIGNMENT: 12 core, 50Gb, 6 hours
-##
+env | sort > $DIR_EXECUTION/${PBS_JOBNAME}.processing.env_dump.txt
 
 make_directory $SCRATCH
 
 if [ "$RUN_STAR" == true ]
 then
-	make_directory $ALIGNMENT_DIR
-	cd $ALIGNMENT_DIR
-	## the STAR temp directory must not exist, otherwise STAR will fail
-	remove_directory $SCRATCH/${SAMPLE}_${PID}_STAR
-	echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
-	check_or_die $STAR_SORTED_BAM alignment
-	check_or_die $STAR_NOTSORTED_BAM alignment
-	check_or_die $STAR_CHIMERA_SAM alignment
-	remove_directory $SCRATCH/${SAMPLE}_${PID}_STAR
-	echo_run "mv ${SAMPLE}_${PID}_merged.Chimeric.out.junction ${SAMPLE}_${PID}_chimeric_merged.junction"
+    make_directory $ALIGNMENT_DIR
+    cd $ALIGNMENT_DIR
 
-	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
-	echo_run "$SAMTOOLS_BINARY view -Sbh $STAR_CHIMERA_SAM | $SAMTOOLS_BINARY sort - -o $STAR_CHIMERA_BAM_PREF.bam"
-	check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
-	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
-	echo_run "$SAMBAMBA_BINARY markdup -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
-	check_or_die $STAR_CHIMERA_MKDUP_BAM chimera-post-markdups
-	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
-	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_CHIMERA_MKDUP_BAM"
-	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
+    ## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+    parallel_run 2 STAR_SORTED_BAMS STAR_SORTED_MKDUP_BAMS ${CORES} "${SAMBAMBA_BINARY} markdup -t1 \$0 \$1"
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
+    done
 
-	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	echo_run "$SAMBAMBA_BINARY markdup -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
-	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
-	
-	## index using samtools (requires 40MB and 5 minutes for 200m reads)
-	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
-	check_or_die ${STAR_SORTED_MKDUP_BAM}.bai alignment-index
-	
+    ## index using samtools (requires 40MB and 5 minutes for 200m reads)
+    parallel_run 1 STAR_SORTED_MKDUP_BAMS ${CORES} "${SAMBAMBA_BINARY} index -t1 \$0"
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        check_or_die $STAR_SORTED_MKDUP_BAM.bai alignment-index
+    done
+
     ## md5sum
-	echo_run "md5sum $STAR_SORTED_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_SORTED_MKDUP_BAM.md5"
-	check_or_die ${STAR_SORTED_MKDUP_BAM}.md5 alignment-md5sums
-	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
-	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
+    parallel_run 1 STAR_SORTED_MKDUP_BAMS ${CORES} "md5sum \$0 | cut -f 1 -d \" \"  > \$0.md5"
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        check_or_die $STAR_SORTED_MKDUP_BAM.md5 alignment-md5sums
+    done
 
-	## flagstats (requires 4MB and 5 minutes for 200m reads)
-	echo_run "$SAMBAMBA_BINARY flagstat -t $CORES $STAR_SORTED_MKDUP_BAM > ${STAR_SORTED_MKDUP_BAM}.flagstat"
-	check_or_die ${STAR_SORTED_MKDUP_BAM}.flagstat alignment-qc-flagstats
+    ## flagstats (requires 4MB and 5 minutes for 200m reads)
+    parallel_run 1 STAR_SORTED_MKDUP_BAMS ${CORES} "$SAMBAMBA_BINARY flagstat -t 1 \$0 > \$0.flagstat"
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        check_or_die $STAR_SORTED_MKDUP_BAM.flagstat alignment-qc-flagstats
+    done
 fi
 
 # Run the fingerprinting. This requires the .bai file.
-if [[ "${runFingerprinting:-false}" == true ]]
-then
-    echo_run "$TOOL_FINGERPRINT" "$fingerprintingSitesFile" "$STAR_SORTED_MKDUP_BAM" > "$STAR_SORTED_MKDUP_BAM.fp.tmp"
-    mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
+if [ "${runFingerprinting:-false}" == true ]; then
+    parallel_run 1 STAR_SORTED_MKDUP_BAMS ${CORES} "$TOOL_FINGERPRINT $fingerprintingSitesFile \$0 > \$0.fp.tmp && mv \$0.fp.tmp \$0.fp"
 fi
 
 ##
@@ -131,9 +137,10 @@ fi
 
 if [ "$RUN_RNASEQC" == true ]
 then
-	make_directory $RNASEQC_DIR/${SAMPLE}_${PID}
-	cd $RNASEQC_DIR/${SAMPLE}_${PID}
-	echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${PID}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${PID}_RNAseQC.log &"
+    make_directory $RNASEQC_DIR/${PID}
+    cd $RNASEQC_DIR/${PID}
+    echo_run paste <(printf "%s\n" ${SAMPLES[@]}) <(printf "%s\n" ${STAR_SORTED_MKDUP_BAMS[@]}) | awk -v PID=$PID '{split($2, s, "_"); print $1 "_" PID "\t" $1 "\t" s[4] "_" s[5] "_" s[6]}' > rnaseqc_samples.txt
+    echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX -t $GENE_MODELS -n 1000 -o . -s rnaseqc_samples.txt &> $DIR_EXECUTION/${PBS_JOBNAME}.${PID}_RNAseQC.log &"
 fi
 
 ##
@@ -142,10 +149,19 @@ fi
 
 if [ "$RUN_QUALIMAP" == true ]
 then
-	make_directory $QUALIMAP_DIR/${SAMPLE}_${PID}
-	cd $QUALIMAP_DIR/${SAMPLE}_${PID}
-	echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${SAMPLE}_${PID}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${PID} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
-	check_or_die rnaseq_qc_results.txt qc-qualimap2
+	make_directory $QUALIMAP_DIR/${SAMPLES}_${PID}
+	cd $QUALIMAP_DIR/${SAMPLES}_${PID}
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+    	if [ "$runSingleCellWorkflow" == true ]; then
+	        QUALIMAP_OUTFILE=${STAR_SORTED_MKDUP_BAM}.report
+	        QUALIMAP_BAM=$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM
+    	else
+	        QUALIMAP_OUTFILE=${SAMPLES}_${PID}.report
+	        QUALIMAP_BAM=$ALIGNMENT_DIR/$STAR_NOTSORTED_BAM
+    	fi
+        echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${QUALIMAP_OUTFILE} -outdir $QUALIMAP_DIR/${SAMPLE}_${PID} -bam ${QUALIMAP_BAM}"
+   	done
+    check_or_die rnaseq_qc_results.txt qc-qualimap2
 fi
 
 ##
@@ -156,21 +172,37 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
 	make_directory $COUNT_DIR 
 	cd $COUNT_DIR
-	COUNT="-t exon -g gene_id -p -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${PID}_featureCounts --donotsort"
-	make_directory $SCRATCH/${SAMPLE}_${PID}_featureCounts
-	for S in {0..2} 
-	do
-		echo_run "$FEATURECOUNTS_BINARY $COUNT -s $S -o ${SAMPLE}_${PID}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
-		check_or_die ${SAMPLE}_${PID}.featureCounts.s${S} gene-counting
-	done
-	## RPKM TPM calculations
-	echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.s0 ${SAMPLE}_${PID}.featureCounts.s1 ${SAMPLE}_${PID}.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv"
-	check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.tsv counting-featureCounts
-	# cleanup
-	make_directory ${SAMPLE}_${PID}_featureCounts_raw
-	echo_run "mv ${SAMPLE}_${PID}.featureCounts* ${SAMPLE}_${PID}_featureCounts_raw"
-	echo_run "tar --remove-files -czvf ${SAMPLE}_${PID}_featureCounts_raw.tgz ${SAMPLE}_${PID}_featureCounts_raw"
-	#remove_directory $SCRATCH/${SAMPLE}_${PID}_featureCounts
+	COUNT="-t exon -g gene_id -Q 255 -T $CORES -a $GENE_MODELS -F GTF --donotsort"
+
+    if [ "$runSingleCellWorkflow" == true ]; then
+        FEATURECOUNTS_PREFIXES=(${STAR_SORTED_MKDUP_BAMS[@]})
+        FEATURECOUNTS_BAMS=(${STAR_SORTED_MKDUP_BAMS[@]})
+    else
+        FEATURECOUNTS_PREFIXES=${SAMPLES}_${PID}
+        FEATURECOUNTS_BAMS=$STAR_NOTSORTED_BAM
+    	COUNT="${COUNT} -p -B"
+    fi
+
+    for S in {0..2}
+    do
+        parallel_run 2 FEATURECOUNTS_PREFIXES FEATURECOUNTS_BAMS ${CORES} "mkdir -p $SCRATCH/featureCounts_\$0_$S && $FEATURECOUNTS_BINARY $COUNT --tmpDir $SCRATCH/featureCounts_\$0_$S -s $S -o \$0.featureCounts.s$S $ALIGNMENT_DIR/\$1 && rm -fr $SCRATCH/featureCounts_\$0_$S"
+        for FEATURECOUNTS_PREFIX in "${FEATURECOUNTS_PREFIXES[@]}"; do
+            check_or_die ${FEATURECOUNTS_PREFIX}.featureCounts.s${S} gene-counting
+        done
+    done
+
+    # RPKM TPM calculations & cleanup
+    parallel_run 1 FEATURECOUNTS_PREFIXES ${CORES} "$TOOL_COUNTS_TO_FPKM_TPM \$0.featureCounts.s0 \$0.featureCounts.s1 \$0.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > \$0.fpkm_tpm.featureCounts.tsv"
+    for FEATURECOUNTS_PREFIX in "${FEATURECOUNTS_PREFIXES[@]}"; do
+    	check_or_die ${FEATURECOUNTS_PREFIX}.fpkm_tpm.featureCounts.tsv counting-featureCounts
+    	make_directory ${FEATURECOUNTS_PREFIX}_featureCounts_raw
+        echo_run "mv ${FEATURECOUNTS_PREFIX}.featureCounts* ${FEATURECOUNTS_PREFIX}_featureCounts_raw"
+    done
+
+	parallel_run 1 FEATURECOUNTS_PREFIXES ${CORES} "tar --remove-files -czvf \$0_featureCounts_raw.tgz \$0_featureCounts_raw"
+    #if [ "$runSingleCellWorkflow" == true ]; then
+    #    echo_run ${PYTHON_BINARY} ${TOOL_MERGE_FEATURECOUNTS_TABLES} ${SAMPLES}_${PID}_*.featureCounts.tsv
+    #fi
 fi
 
 ##
@@ -181,47 +213,40 @@ if [ "$RUN_FEATURE_COUNTS_DEXSEQ" == true ]
 then
 	make_directory $COUNT_DIR_EXON
 	cd $COUNT_DIR_EXON
-	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -p -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${PID}_featureCountsExons --donotsort "
-	make_directory $SCRATCH/${SAMPLE}_${PID}_featureCountsExons
-	for S in {0..2}  
-	do
-		echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -s $S -o ${SAMPLE}_${PID}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
-		check_or_die ${SAMPLE}_${PID}.featureCounts.dexseq.s${S} exon-counting
+	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -p -Q 255 -T $CORES --donotsort"
+	# make_directory $SCRATCH/${SAMPLES}_${PID}_featureCountsExons
+
+    if [ "$runSingleCellWorkflow" == true ]; then
+        FEATURECOUNTS_DEXSEQ_PREFIXES=(${STAR_SORTED_MKDUP_BAMS[@]})
+        FEATURECOUNTS_DEXSEQ_BAMS=(${STAR_SORTED_MKDUP_BAMS[@]})
+    else
+        FEATURECOUNTS_DEXSEQ_PREFIXES=${SAMPLES}_${PID}
+        FEATURECOUNTS_DEXSEQ_BAMS=$STAR_NOTSORTED_BAM
+    fi
+
+    for S in {0..2}
+    do
+        parallel_run 2 FEATURECOUNTS_DEXSEQ_PREFIXES FEATURECOUNTS_DEXSEQ_BAMS ${CORES} "mkdir -p $SCRATCH/featureCounts_\$0_$S && $FEATURECOUNTS_BINARY $COUNT_EXONS --tmpDir $SCRATCH/featureCounts_\$0_$S -s $S -o \$0.featureCounts.s$S $ALIGNMENT_DIR/\$1 && rm -fr $SCRATCH/featureCounts_\$0_$S"
+        for FEATURECOUNTS_DEXSEQ_PREFIX in "${FEATURECOUNTS_DEXSEQ_PREFIXES[@]}"; do
+    		check_or_die ${FEATURECOUNTS_DEXSEQ_PREFIX}.featureCounts.dexseq.s${S} exon-counting
+    	done
+    done
+
+    ## RPKM TPM calculations
+    parallel_run 1 FEATURECOUNTS_DEXSEQ_PREFIXES ${CORES} "$TOOL_COUNTSDEXSEQ_TO_FPKM_TPM \$0.featureCounts.s0 \$0.featureCounts.s1 \$0.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > \$0.fpkm_tpm.featureCounts.dexseq.tsv"
+
+    for FEATURECOUNTS_DEXSEQ_PREFIX in "${FEATURECOUNTS_DEXSEQ_PREFIXES[@]}"; do
+	    check_or_die ${FEATURECOUNTS_DEXSEQ_PREFIX}.fpkm_tpm.featureCounts.dexseq.tsv counting-featureCounts_dexseq
+    	# cleanup
+	    make_directory ${FEATURECOUNTS_DEXSEQ_PREFIX}_featureCounts_dexseq_raw
+    	echo_run "mv ${FEATURECOUNTS_DEXSEQ_PREFIX}.featureCounts* ${FEATURECOUNTS_DEXSEQ_PREFIX}_featureCounts_dexseq_raw"
 	done
-	## RPKM TPM calculations
-	echo_run "$TOOL_COUNTSDEXSEQ_TO_FPKM_TPM ${SAMPLE}_${PID}.featureCounts.dexseq.s0 ${SAMPLE}_${PID}.featureCounts.dexseq.s1 ${SAMPLE}_${PID}.featureCounts.dexseq.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.dexseq.tsv"
-	check_or_die ${SAMPLE}_${PID}.fpkm_tpm.featureCounts.dexseq.tsv counting-featureCounts_dexseq
-	cleanup
-	make_directory ${SAMPLE}_${PID}_featureCounts_dexseq_raw
-	echo_run "mv ${SAMPLE}_${PID}.featureCounts* ${SAMPLE}_${PID}_featureCounts_dexseq_raw"
-	echo_run "tar --remove-files -czvf ${SAMPLE}_${PID}_featureCounts_dexseq_raw.tgz ${SAMPLE}_${PID}_featureCounts_dexseq_raw"
-	#remove_directory $SCRATCH/${SAMPLE}_${PID}_featureCountsExons
-fi
 
-##
-## Kallisto (2 hours walltime (12 hrs CPU) and 70 gb for 200m reads) PER RUN!
-##
+    parallel_run 1 FEATURECOUNTS_DEXSEQ_PREFIXES ${CORES} "tar --remove-files -czvf \$0_featureCounts_dexseq_raw.tgz \$0_featureCounts_dexseq_raw"
 
-KALLISTO_PARAMS="quant -i $GENOME_KALLISTO_INDEX -o . -t $CORES -b 100"
-if [ "$RUN_KALLISTO" == true ]
-then
-	make_directory $KALLISTO_UN_DIR/${SAMPLE}_${PID}
-	cd $KALLISTO_UN_DIR/${SAMPLE}_${PID}
-	echo_run "$KALLISTO_BINARY $KALLISTO_PARAMS $READS_KALLISTO"
-	check_or_die abundance.tsv kallisto
-	echo_run "$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv"
-
-#	make_directory $KALLISTO_RF_DIR
-#	cd $KALLISTO_RF_DIR
-#	$KALLISTO_BINARY $KALLISTO_PARAMS --rf-stranded $READS_KALLISTO
-#	check_or_die abundance.tsv kallisto
-#	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
-
-#	make_directory $KALLISTO_FR_DIR
-#	cd $KALLISTO_FR_DIR
-#	$KALLISTO_BINARY $KALLISTO_PARAMS --fr-stranded $READS_KALLISTO
-#	check_or_die abundance.tsv kallisto
-#	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
+    #if [ "$runSingleCellWorkflow" == true ]; then
+    #    echo_run ${PYTHON_BINARY} ${TOOL_MERGE_FEATURECOUNTS_TABLES} *.featureCounts.dexseq.tsv
+    #fi
 fi
 
 ##
@@ -232,12 +257,20 @@ if [ "$RUN_ARIBA" == true ]
 then
 	make_directory $ARIBA_DIR
 	cd $ARIBA_DIR
-	echo_run "$ARIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${PID}_merged_read_through.bam"
-	echo_run "$ARIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${PID}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARIBA_BLACKLIST -o ${SAMPLE}_${PID}.fusions.txt -O ${SAMPLE}_${PID}.discarded_fusions.txt "
-	if [[ -f "${SAMPLE}_${PID}.fusions.txt" ]]
-	then
-		echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${PID}.fusions.txt --output=${SAMPLE}_${PID}.fusions.pdf"
-	fi
+
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        if [ "$runSingleCellWorkflow" == true ]; then
+            ARIBA_PREFIX=${STAR_SORTED_MKDUP_BAM%_merged.mdup.bam}
+        else
+            ARIBA_PREFIX=${SAMPLES}_${PID}
+        fi
+	    echo_run "$ARIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${ARIBA_PREFIX}_merged_read_through.bam"
+	    echo_run "$ARIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${ARIBA_PREFIX}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARIBA_BLACKLIST -o ${ARIBA_PREFIX}.fusions.txt -O ${ARIBA_PREFIX}.discarded_fusions.txt "
+	    if [[ -f "${ARIBA_PREFIX}.fusions.txt" ]]
+	    then
+		    echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${ARIBA_PREFIX}.fusions.txt --output=${ARIBA_PREFIX}.fusions.pdf"
+	    fi
+	done
 fi
 
 ##
@@ -254,12 +287,24 @@ then
 	else
 		cd $QC_DIR
 	fi
-	if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv" ]]
-	then
-		echo_run "mv $RNASEQC_DIR/${SAMPLE}_${PID}/metrics.tsv $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv"
-	fi
-	echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
-	check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json
+
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        if [ "$runSingleCellWorkflow" == true ]; then
+            QCJSON_PREFIX=${STAR_SORTED_MKDUP_BAM%_merged.mdup.bam}
+            RNASEQC_DIR_PER_SAMPLE=$RNASEQC_DIR/${QCJSON_PREFIX}
+            JSON_PREFIX=${JSON_PREFIX}${QCJSON_PREFIX}
+        else
+            QCJSON_PREFIX=${SAMPLE}_${PID}
+            RNASEQC_DIR_PER_SAMPLE=$RNASEQC_DIR/${QCJSON_PREFIX}
+        fi
+
+    	if [[ -f "${RNASEQC_DIR_PER_SAMPLE}/metrics.tsv" ]]
+	    then
+    		echo_run "mv ${RNASEQC_DIR_PER_SAMPLE}/metrics.tsv ${RNASEQC_DIR_PER_SAMPLE}/${QCJSON_PREFIX}_metrics.tsv"
+	    fi
+	    echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat ${RNASEQC_DIR_PER_SAMPLE}/${QCJSON_PREFIX}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
+	    check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json
+	done
 fi
 
 ##
@@ -274,25 +319,40 @@ then
 		wait
 	fi
 	remove_directory $SCRATCH/*
-	remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/refGene.txt*
-	remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/rRNA_intervals.list
-	if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz" ]]
-	then
-		echo "# RNAseQC results already archived... skipping"
-	else
-		echo_run "tar --remove-files -czvf $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID} "
-	fi
-	remove_file $ALIGNMENT_DIR/$STAR_SORTED_BAM
+
+    for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
+        if [ "$runSingleCellWorkflow" == true ]; then
+            RNASEQC_DIR_PER_SAMPLE=$RNASEQC_DIR/${STAR_SORTED_MKDUP_BAM%_merged.mdup.bam}
+        else
+            RNASEQC_DIR_PER_SAMPLE=$RNASEQC_DIR/${PID}
+        fi
+
+        if [[ -f "${RNASEQC_DIR_PER_SAMPLE}/${PID}_RNAseQC.tgz" ]]
+	    then
+	        echo "# RNAseQC results already archived... skipping"
+    	else
+	        echo_run "tar --remove-files -czvf ${RNASEQC_DIR_PER_SAMPLE}/${PID}_RNAseQC.tgz ${RNASEQC_DIR_PER_SAMPLE}/${PID} "
+	    fi
+
+    	remove_file ${RNASEQC_DIR_PER_SAMPLE}/refGene.txt*
+	    remove_file ${RNASEQC_DIR_PER_SAMPLE}/rRNA_intervals.list
+	done
+
+	for STAR_SORTED_BAM in "${STAR_SORTED_BAMS[@]}"; do
+	    remove_file $ALIGNMENT_DIR/$STAR_SORTED_BAM
+	done
 	remove_file $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM
 	remove_file $ALIGNMENT_DIR/$STAR_CHIMERA_SAM
 	remove_file $ALIGNMENT_DIR/*fifo.read1
 	remove_file $ALIGNMENT_DIR/*fifo.read2
-	make_directory $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files
-	echo_run "mv -f $ALIGNMENT_DIR/${SAMPLE}_${PID}*out $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv -f $ALIGNMENT_DIR/${SAMPLE}_${PID}*.tab $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv -f $ALIGNMENT_DIR/${SAMPLE}_${PID}_merged._STARgenome $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv -f $ALIGNMENT_DIR/${SAMPLE}_${PID}_merged._STARpass1 $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
+	make_directory $ALIGNMENT_DIR/${PID}_star_logs_and_files
+	echo_run "mv -f $ALIGNMENT_DIR/${PID}*out $ALIGNMENT_DIR/${PID}_star_logs_and_files 2>/dev/null"
+	echo_run "mv -f $ALIGNMENT_DIR/${PID}*.tab $ALIGNMENT_DIR/${PID}_star_logs_and_files 2>/dev/null"
+	echo_run "mv -f $ALIGNMENT_DIR/${PID}_merged._STARgenome $ALIGNMENT_DIR/${PID}_star_logs_and_files 2>/dev/null"
+	echo_run "mv -f $ALIGNMENT_DIR/${PID}_merged._STARpass1 $ALIGNMENT_DIR/${PID}_star_logs_and_files 2>/dev/null"
 	remove_directory $SCRATCH
 fi
+
+touch ${CHECKPOINT_PROCESSING}
 
 echo "DONE!"

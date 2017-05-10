@@ -3,7 +3,6 @@ package de.dkfz.b080.co.rnaseqworkflow
 import de.dkfz.b080.co.files.COFileStageSettings
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
-import de.dkfz.roddy.knowledge.files.FileStageSettings
 import groovy.transform.CompileStatic
 
 /**
@@ -18,7 +17,7 @@ class RNAseqLaneFileGroupSet {
 
     RNAseqLaneFileGroupSet(List<LaneFileGroup> laneFileGroupList) {
         this.laneFileGroupList = laneFileGroupList
-        laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], lfg.filesInGroup[1]] }
+        laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], (lfg.filesInGroup.size()>=2)?lfg.filesInGroup[1]:null] }
     }
 
     List<String> getLeftLaneFiles() {
@@ -38,7 +37,7 @@ class RNAseqLaneFileGroupSet {
     }
 
     LaneFile getFirstLaneFile() {
-        return laneFiles.values().first() as LaneFile
+        return laneFiles.keySet().first() as LaneFile
     }
 
     String getLeftLaneFilesAsCSVs() {
@@ -47,6 +46,14 @@ class RNAseqLaneFileGroupSet {
 
     String getRightLaneFilesAsCSVs() {
         getRightLaneFiles().join(",")
+    }
+
+    String getTrimmedLeftLaneFilesAsCSVs(String trimmingOutputDirectory) {
+        laneFiles.keySet().collect { new File(new File(it.path.parentFile.parentFile, trimmingOutputDirectory), it.path.getName()) }.join(",")
+    }
+
+    String getTrimmedRightLaneFilesAsCSVs(String trimmingOutputDirectory) {
+        laneFiles.values().collect { new File(new File(it.path.parentFile.parentFile, trimmingOutputDirectory), it.path.getName()) }.join(",")
     }
 
     String getLaneFilesAlternatingWithSpaceSep() {
@@ -66,7 +73,7 @@ class RNAseqLaneFileGroupSet {
     }
 
     /**
-     * Example: ID:run150326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
+     * Example: ID:run150326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:${sample}_${pid} PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
      * @return
      */
     String getBamReadGroupLines() {

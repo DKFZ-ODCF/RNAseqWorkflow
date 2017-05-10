@@ -4,6 +4,33 @@ IFS=$'\n\t'
 
 set -vx
 
+## function parallel_run
+#  author : Jeongbin Park
+#  usage  : parallel_run ${NUM_ARRAYS} ${ARRAY_1} ${ARRAY_2} ... ${ARRAY_N} ${NUM_CORES} "${COMMAND} \$0 \$1 \$2 ... \$N"
+#  example: parallel_run 2 ${STAR_SORTED_BAMS} ${STAR_SORTED_MKDUP_BAMS} 8 "${SAMBAMBA_BINARY} markdup -t1 \$0 \$1"
+
+function parallel_run(){
+        local argc=$1
+        local parallel_cmd=paste
+        for s in $(seq 2 $(($argc+1))); do
+                parallel_cmd="${parallel_cmd} <(printf \"%s\n\" \${${!s}[@]})"
+        done
+
+        s=$(($s+1))
+        parallel_cmd="${parallel_cmd} | xargs -P ${!s} -l bash -c "
+        s=$(($s+1))
+        parallel_cmd="${parallel_cmd} '${!s}'"
+
+        if [[ "$TEST_RUN" != true ]]
+        then
+                echo $parallel_cmd
+                if [[ "$TEST_RUN" != true ]]
+                then
+                    eval $parallel_cmd
+                fi
+        fi
+}
+
 function echo_run (){
         local COMMAND="$*"
         echo $COMMAND
