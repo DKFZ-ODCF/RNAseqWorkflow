@@ -137,7 +137,12 @@ if [ "$RUN_RNASEQC" == true ]
 then
 	make_directory $RNASEQC_DIR/${SAMPLE}_${pid}
 	cd $RNASEQC_DIR/${SAMPLE}_${pid}
-	echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+        DOC_FLAG=" "
+        if [ "$disableDoC_GATK" == true ]
+        then
+		DOC_FLAG="-noDoC"
+	fi
+        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
 fi
 
 ##
@@ -214,18 +219,24 @@ then
 	echo_run "$KALLISTO_BINARY $KALLISTO_PARAMS $READS_KALLISTO"
 	check_or_die abundance.tsv kallisto
 	echo_run "$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv"
+fi
 
-#	make_directory $KALLISTO_RF_DIR
-#	cd $KALLISTO_RF_DIR
-#	$KALLISTO_BINARY $KALLISTO_PARAMS --rf-stranded $READS_KALLISTO
-#	check_or_die abundance.tsv kallisto
-#	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
+if [ "$RUN_KALLISTO_RF" == true ]
+then
+	make_directory $KALLISTO_RF_DIR
+	cd $KALLISTO_RF_DIR
+	$KALLISTO_BINARY $KALLISTO_PARAMS --rf-stranded $READS_KALLISTO
+	check_or_die abundance.tsv kallisto
+	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
+fi
 
-#	make_directory $KALLISTO_FR_DIR
-#	cd $KALLISTO_FR_DIR
-#	$KALLISTO_BINARY $KALLISTO_PARAMS --fr-stranded $READS_KALLISTO
-#	check_or_die abundance.tsv kallisto
-#	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
+if [ "$RUN_KALLISTO_FR" == true ]
+then
+	make_directory $KALLISTO_FR_DIR
+	cd $KALLISTO_FR_DIR
+	$KALLISTO_BINARY $KALLISTO_PARAMS --fr-stranded $READS_KALLISTO
+	check_or_die abundance.tsv kallisto
+	$TOOL_KALLISTO_RESCALE abundance.tsv $GENE_MODELS_EXCLUDE > abundance.rescaled.tsv
 fi
 
 ##

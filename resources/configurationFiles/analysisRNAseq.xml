@@ -83,6 +83,8 @@
         <cvalue name='RUN_RNASEQC' value='true' type='boolean'/>
         <cvalue name='RUN_QUALIMAP' value='false' type='boolean'/>
         <cvalue name='RUN_KALLISTO' value='false' type='boolean'/>
+        <cvalue name='RUN_KALLISTO_FR' value='false' type='boolean'/>
+        <cvalue name='RUN_KALLISTO_RF' value='false' type='boolean'/>
         <cvalue name='RUN_ARRIBA' value='true' type='boolean'/>
         <cvalue name='RUN_QCJSON' value='true' type='boolean'/>
         <cvalue name='RUN_CLEANUP' value='true' type='boolean'/>
@@ -107,7 +109,7 @@
         <cvalue name='GENOME_STAR_INDEX_50' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp' type='string'/>
         <cvalue name='GENOME_STAR_INDEX_100' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp' type='string'/>
         <cvalue name='GENOME_STAR_INDEX_200' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp' type='string'/>
-        <cvalue name='GENOME_KALLISTO_INDEX' value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.index' type='string'/>
+        <cvalue name='GENOME_KALLISTO_INDEX' value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/>
         <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz' type='string'/>
         <cvalue name='ARRIBA_BLACKLIST' value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz' type='string'/>
 
@@ -116,7 +118,14 @@
         <!-- ## -->
         <!-- ## STAR -->
         <cvalue name='READ_COMMAND' value='"${UNZIPTOOL} ${UNZIPTOOL_OPTIONS}"' type='string'/>
-        <cvalue name='ADAPTER_SEQ' value="AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT" type='string'/>
+        <!-- ## Adapter sequence for 3' should be reverse compliment of the 5'sequencing adapter: https://support.illumina.com/bulletins/2016/12/what-sequences-do-i-use-for-adapter-trimming.html -->
+        <cvalue name='ADAPTER_SEQ_TRUSEQ_LT_HT' value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCA AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" type='string' description="TruSeq LT and TruSeq HT"/>
+        <cvalue name='ADAPTER_SEQ_TRUSEQ_DNAME' value="AGATCGGAAGAGCACACGTCTGAAC AGATCGGAAGAGCGTCGTGTAGGGA" type='string' description="ScriptSeq and TruSeq DNA Methylation"/>
+        <cvalue name='ADAPTER_SEQ_TRUSEQ_SRNA'  value="TGGAATTCTCGGGTGCCAAGG" type='string' description="TruSeq Small RNA"/>
+        <cvalue name='ADAPTER_SEQ_TRUSEQ_RIBO'  value="AGATCGGAAGAGCACACGTCT" type='string' description="TruSeq Ribo Profile"/>
+        <cvalue name='ADAPTER_SEQ_NEXTERA'      value="CTGTCTCTTATACACATCT" type='string' description="Nextera, Nextera XT, Nextera Enrichment, Nextera Rapid Capture Enrichment, TruSight Enrichment, TruSight Rapid Capture Enrichment, TruSight HLA"/>
+        <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
+        <cvalue name='ADAPTER_SEQ' value='"${ADAPTER_SEQ_TRUSEQ_LT_HT}"' type='string'/>
         <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
         <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
@@ -130,6 +139,7 @@
         <cvalue name='STAR_PARAMS_INTRONS' value='"--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20"' type='string'/>
         <cvalue name='STAR_PARAMS_ADDITIONAL' value='" "'  type='string'/>
         <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
+        <cvalue name='disableDoC_GATK' value='"false"' type='boolean'/>
         <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${pid}_"' type='string'/>
 
         <!-- Fingerprinting -->
