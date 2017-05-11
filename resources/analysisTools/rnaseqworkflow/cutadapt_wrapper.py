@@ -34,12 +34,19 @@ def main(options):
     CUTADAPT_BIN = options.cutadapt #"/home/parkj/.local/bin/cutadapt"
     OUT_DIR = options.OUT_DIR[0]
 
-    tmpdir = path.join(OUT_DIR, "tmp")
+    if len(options.tmpdir) > 0:
+        tmpdir = options.tmpdir
+    else:
+        tmpdir = path.join(OUT_DIR, "tmp")
+
     run_command("mkdir -p " + tmpdir)
 
-    read1 = options.read1.split(",")
+    with open(options.read1) as f:
+        read1 = filter(None, (line.rstrip() for line in f))
+
     if options.read2:
-        read2 = options.read2.split(",")
+        with open(options.read2) as f:
+            read2 = filter(None, (line.rstrip() for line in f))
         files = zip(read1, read2)
     else:
         files = [[fn] for fn in read1]
@@ -53,13 +60,13 @@ def main(options):
     for fns in files:
         prefix = '.'.join(path.basename(fns[0]).split(".")[:-2])
         out_file = path.join(OUT_DIR, prefix + ".fastq.gz")
-        fifo1 = path.join(tmpdir, prefix + ".fifo")
+        fifo1 = path.join(tmpdir, prefix + ".fifo.fastq")
         fifos.append(fifo1)
 
         if options.read2:
             prefix = '.'.join(path.basename(fns[1]).split(".")[:-2])
             out_file2 = path.join(OUT_DIR, prefix + ".fastq.gz")
-            fifo2 = path.join(tmpdir, prefix + ".fifo")
+            fifo2 = path.join(tmpdir, prefix + ".fifo.fastq")
             fifos.append(fifo2)
 
         cmds = [ CUTADAPT_BIN, ' '.join(fns) ]
@@ -80,7 +87,7 @@ def main(options):
 
         if second_cutadapt:
             if first_cutadapt:
-                cmds += ["&&", CUTADAPT_BIN, fifo1]
+                cmds += ["&", CUTADAPT_BIN, fifo1]
                 if options.read2:
                     cmds.append(fifo2)
 
@@ -141,6 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--cores', dest='cores', type=int, default=1)
     parser.add_argument('-1', '--read1', dest='read1', type=str, required=True)
     parser.add_argument('-2', '--read2', dest='read2', type=str)
+    parser.add_argument('-t', '--tmpdir', dest='tmpdir', type=str, default="")
     parser.add_argument('OUT_DIR', type=str, nargs=1)
 
     options = parser.parse_args()

@@ -11,8 +11,9 @@ then
 fi
 
 mkdir -p ${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}
+mkdir -p ${SCRATCH}/${PID}_TRIMMING
 
-trimOpts="-b ${CUTADAPT_BINARY} -a ${ADAPTER_SEQ} -c ${CORES} -q ${TRIM_3P_QUAL}"
+trimOpts="-b ${CUTADAPT_BINARY} -t ${SCRATCH}/${PID}_TRIMMING -a ${ADAPTER_SEQ} -c ${CORES} -q ${TRIM_3P_QUAL}"
 
 if [ "$TRIM_NEXTSEQ" == true ]; then
     trimOpts="${trimOpts} -n"
@@ -36,17 +37,29 @@ fi
 
 if [ "$runSingleCellWorkflow" == true ]; then
     if [[ ${singleCellSequencingSystem} == "wafergen" || ${singleCellSequencingSystem} == "fluidigm" ]]; then
-        READ1=`${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}/ '{print P $0}'`
-        READ1=`echo ${READ1} | tr ' ' ','`
+        READ1_FILE=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/read1.txt
+        ${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}/ '{print P $0}' > ${READ1_FILE}
     #elif [[ ${singleCellSequencingSystem} == "dropseq" ]]; then
     #    # TODO: support dropseq
     fi
-    trimOpts="${trimOpts} -1 ${READ1}"
+    trimOpts="${trimOpts} -1 ${READ1_FILE}"
 else
-    trimOpts="${trimOpts} -1 ${READ1} -2 ${READ2}"
+    READ1_FILE=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/read1.txt
+    READ2_FILE=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/read2.txt
+
+    echo ${READ1} | tr ' ' '\n' > ${READ1_FILE}
+    echo ${READ2} | tr ' ' '\n' > ${READ2_FILE}
+
+    trimOpts="${trimOpts} -1 ${READ1_FILE} -2 ${READ2_FILE}"
 fi
 
-echo "Cutadapt options: ${trimOpts}"
+echo "Cutadapt wrapper options: ${trimOpts}"
 eval "python ${TOOL_CUTADAPT_WRAPPER} ${trimOpts} ${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}"
+
+rm -f $READ1_FILE
+if [ ! -z $READ2_FILE ]; then
+    rm -f $READ2_FILE
+fi
+rm -rf ${SCRATCH}/${PID}_TRIMMING
 
 touch ${CHECKPOINT_TRIMMING}
