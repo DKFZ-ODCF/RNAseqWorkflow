@@ -34,7 +34,7 @@
         <cvalue name='qcOutputDirectory' value='qualitycontrol' type='string'/>
         <cvalue name='ALIGNMENT_DIR' value='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}' type='string'/>
         <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${sample}_${pid}' type='string'/>-->
-        <cvalue name='SCRATCH' value='${RODDY_SCRATCH}' type='string'/>
+        <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp' type='string'/>
         <cvalue name='COUNT_DIR' value='${outputAnalysisBaseDirectory}/featureCounts' type='string'/>
         <cvalue name='COUNT_DIR_EXON' value='${outputAnalysisBaseDirectory}/featureCounts_dexseq' type='string'/>
         <cvalue name='KALLISTO_UN_DIR' value='${outputAnalysisBaseDirectory}/kallisto_un' type='string'/>
@@ -174,8 +174,8 @@
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
-                <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="100g" cores="8" nodes="1" walltime="48h"/>
+                <rset size="s" memory="37g" cores="4" nodes="1" walltime="24h" queue="devel"/>
+                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
             </resourcesets>
             <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>

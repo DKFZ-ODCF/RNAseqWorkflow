@@ -94,16 +94,16 @@ then
 	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
 	echo_run "$SAMTOOLS_BINARY view -Sbh $STAR_CHIMERA_SAM | $SAMTOOLS_BINARY sort - -o $STAR_CHIMERA_BAM_PREF.bam"
 	check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
-	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
-	echo_run "$SAMBAMBA_BINARY markdup -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
+	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
+	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
 	check_or_die $STAR_CHIMERA_MKDUP_BAM chimera-post-markdups
 	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_CHIMERA_MKDUP_BAM"
 	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
 
 	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	#echo_run "$SAMBAMBA_BINARY markdup -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	echo_run "$SAMBAMBA_BINARY markdup -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
+	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
+	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
 	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
 	
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
