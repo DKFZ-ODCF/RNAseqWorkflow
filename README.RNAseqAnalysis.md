@@ -21,6 +21,7 @@ ARRIBA_BINARY   /ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/arriba
 ARRIBA_READTHROUGH_BINARY       /ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/extract_read-through_fusions
 ```
 MODULES
+
 ``
 module load HIPO2_rna/v1
 
@@ -38,6 +39,7 @@ module           load Jemultiplexer/1.0.6
 module           load python/2.7.9 
 ``
 == Run flags / switches / passable values
+
 ``
 RUN_STAR			runs the primary alignment using star [true]
 RUN_FEATURE_COUNTS		runs the transcript based read counting using feature counts [true]
@@ -60,6 +62,7 @@ TEST_RUN			perform a test run without producing any ouput [false]
 DO_FIRST			a place to enter some commands to run before the workflow begins [""]
 ``
 == Adapter trimming params (for star)
+
 ``
 ADAPTER_SEQ_TRUSEQ_LT_HT	AGATCGGAAGAGCACACGTCTGAACTCCAGTCA AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
 ADAPTER_SEQ_TRUSEQ_DNAME	AGATCGGAAGAGCACACGTCTGAAC AGATCGGAAGAGCGTCGTGTAGGGA
@@ -70,6 +73,7 @@ ADAPTER_SEQ_NEXTERA_MP		CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG
 ADAPTER_SEQ			${ADAPTER_SEQ_TRUSEQ_LT_HT}
 ``
 == Reference files
+
 ``
 GENOME_FA			${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa
 GENOME_GATK_INDEX		${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa
