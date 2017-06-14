@@ -139,7 +139,7 @@
         <cvalue name='STAR_PARAMS_INTRONS' value='"--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20"' type='string'/>
         <cvalue name='STAR_PARAMS_ADDITIONAL' value='" "'  type='string'/>
         <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
-        <cvalue name='disableDoC_GATK' value='"false"' type='boolean'/>
+        <cvalue name='disableDoC_GATK' value='"true"' type='boolean'/>
         <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${pid}_"' type='string'/>
 
         <!-- Fingerprinting -->
