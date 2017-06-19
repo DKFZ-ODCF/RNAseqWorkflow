@@ -74,7 +74,41 @@ function check_executable (){
 	    then
 		    echo "#EXE FILE NOT CHECKED: \"$exe_to_check\" with path \"$exe_with_path\"... continuing test mode" 1>&2
 	    else
-		    echo "#ERROR: exe file not found (or executabble): \"$$exe_to_check\" with path \"$exe_with_path\"... exitting!" 1>&2
+		    echo "#ERROR: exe file not found (or executable): \"$$exe_to_check\" with path \"$exe_with_path\"... exitting!" 1>&2
 		    exit 1
 	    fi
 }
+
+function check_text_or_die (){
+        local file_to_check="$1"
+        local text_to_check="$2"
+	local grep_text=`grep ${text_to_check} ${file_to_check}`
+            if [[ ${#grep_text} -ge 5 ]]
+            then
+                    echo "#CHECK TEXT OR DIE: \"$file_to_check\" contains text \"$text_to_check\"... continuing run mode" 1>&2
+	    elif [[ "$TEST_RUN" == true ]]
+            then
+                    echo "#TEXT NOT CHECKED: \"$file_to_check\" contains text \"$text_to_check\"... continuing test mode" 1>&2            
+	    else
+                    echo "#ERROR: \"$file_to_check\" DOES NOT contains text \"$text_to_check\"... exitting!" 1>&2
+                    exit 1
+            fi
+}
+
+function check_text_and_die (){
+        local file_to_check="$1"
+        local text_to_check="$2"
+	local remedy="$3"
+        local grep_text=`grep ${text_to_check} ${file_to_check}`
+            if [[ ${#grep_text} -ge 5 ]]
+            then
+                    echo "#ERROR: \"$file_to_check\" contains text \"$text_to_check\"... $remedy ... exitting!" 1>&2
+                    exit 1
+            elif [[ "$TEST_RUN" == true ]]
+            then
+                    echo "#TEXT NOT CHECKED: \"$file_to_check\" contains text \"$text_to_check\"... continuing test mode" 1>&2
+            else
+                    echo "#CHECK TEXT AND DIE: \"$file_to_check\" DOES NOT contains text \"$text_to_check\"... continuing run mode" 1>&2
+            fi
+}
+

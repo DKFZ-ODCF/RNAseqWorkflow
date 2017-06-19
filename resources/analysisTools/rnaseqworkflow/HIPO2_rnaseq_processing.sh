@@ -273,6 +273,20 @@ then
 	then
 		echo_run "mv $RNASEQC_DIR/${SAMPLE}_${pid}/metrics.tsv $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv"
 	fi
+
+        if  [[ -f "$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv" ]]
+	then
+		echo "#FOUND FILE: RNAseQC file \"$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv\""
+	else
+		echo "#ERROR: file not found: \"$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv\" ... exitting!" 1>&2
+		exit 1
+	fi
+
+        if [[ -f "$DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log" ]]
+	then
+        check_text_and_die $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "org.broadinstitute.sting.gatk.walkers.coverage.DepthOfCoverageWalker.onTraversalDone" "rerun with \$disableDoC_GATK=TRUE"
+        check_text_or_die $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "Finished Successfully"
+	fi
 	echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
 	check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json
 fi

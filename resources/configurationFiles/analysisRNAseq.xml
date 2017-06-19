@@ -174,7 +174,7 @@
 
         <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
-                <rset size="s" memory="37g" cores="4" nodes="1" walltime="24h" queue="devel"/>
+                <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
                 <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
             </resourcesets>
             <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
