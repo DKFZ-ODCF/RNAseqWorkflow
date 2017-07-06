@@ -198,7 +198,7 @@
         <tool name="splitBamByReadgroup" value="split_bam_by_readgroup.py" basepath="rnaseqworkflow"/>
         <tool name="parseBarcodeFile" value="parse_barcodefile.py" basepath="rnaseqworkflow"/>
         <tool name="makeLibraryQcPlot" value="new_makeQCplot.R" basepath="rnaseqworkflow"/>
-        <tool name="singleCellLibraryQc" value="run_library_qc.R" basepath="rnaseqworkflow"/>
+        <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
         <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="5g" cores="5" nodes="1" walltime="3h" queue="devel"/>

@@ -205,8 +205,14 @@ then
 
     # RPKM TPM calculations & cleanup
     parallel_run 1 FEATURECOUNTS_PREFIXES ${CORES} "$TOOL_COUNTS_TO_FPKM_TPM \$0.featureCounts.s0 \$0.featureCounts.s1 \$0.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > \$0.fpkm_tpm.featureCounts.tsv"
+    if [ "$runSingleCellWorkflow" == true ]; then
+        rm -f non_mapped_reads.txt
+    fi
     for FEATURECOUNTS_PREFIX in "${FEATURECOUNTS_PREFIXES[@]}"; do
     	check_or_die ${FEATURECOUNTS_PREFIX}.fpkm_tpm.featureCounts.tsv counting-featureCounts
+        if [ "$runSingleCellWorkflow" == true ]; then
+        	echo_run "echo -e \"${FEATURECOUNTS_PREFIX}\t`grep NoFeatures ${FEATURECOUNTS_PREFIX}.featureCounts.s0.summary | cut -f 2`\" >> non_mapped_reads.txt"
+        fi
     	make_directory ${FEATURECOUNTS_PREFIX}_featureCounts_raw
         echo_run "mv ${FEATURECOUNTS_PREFIX}.featureCounts* ${FEATURECOUNTS_PREFIX}_featureCounts_raw"
     done
