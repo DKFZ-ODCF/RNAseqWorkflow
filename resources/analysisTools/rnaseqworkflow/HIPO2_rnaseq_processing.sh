@@ -15,6 +15,7 @@ STAR_SORTED_BAMS=( ${STAR_SORTED_BAMS[@]:${start}:${chunk_len}} )
 
 if [[ ${#STAR_SORTED_BAMS[@]} -eq 0  ]]; then
     echo "There is no BAM file to process."
+    touch ${CHECKPOINT_PROCESSING}
     exit 0
 fi
 
@@ -263,6 +264,12 @@ then
 	#remove_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
 fi
 
+# TODO: Array conversion is needed to store large number of Fastq files
+# https://stackoverflow.com/questions/14525296/bash-check-if-variable-is-array
+#if [[ !("$(declare -p READS_KALLISTO)" =~ "declare -a") ]]; then
+#    READS_KALLISTO=( $READS_KALLISTO ) # Make sure it is array
+#fi
+
 # TODO: BELOW KALLISTO COMMANDS ARE NOT SO SUITABLE FOR SINGLE CELL WORKFLOW
 KALLISTO_PARAMS="quant -i $GENOME_KALLISTO_INDEX -o . -t $CORES -b 100"
 if [ "$RUN_KALLISTO" == true ]
@@ -298,20 +305,20 @@ fi
 
 if [ "$RUN_ARRIBA" == true ]
 then
-	make_directory $ARIBA_DIR
-	cd $ARIBA_DIR
+	make_directory $ARRIBA_DIR
+	cd $ARRIBA_DIR
 
     for STAR_SORTED_MKDUP_BAM in "${STAR_SORTED_MKDUP_BAMS[@]}"; do
         if [ "$runSingleCellWorkflow" == true ]; then
-            ARIBA_PREFIX=${STAR_SORTED_MKDUP_BAM%_merged.mdup.bam}
+            ARRIBA_PREFIX=${STAR_SORTED_MKDUP_BAM%_merged.mdup.bam}
         else
-            ARIBA_PREFIX=${SAMPLES}_${PID}
+            ARRIBA_PREFIX=${SAMPLES}_${PID}
         fi
-	    echo_run "$ARIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${ARIBA_PREFIX}_merged_read_through.bam"
-	    echo_run "$ARIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${ARIBA_PREFIX}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARIBA_BLACKLIST -o ${ARIBA_PREFIX}.fusions.txt -O ${ARIBA_PREFIX}.discarded_fusions.txt "
-	    if [[ -f "${ARIBA_PREFIX}.fusions.txt" ]]
+	    echo_run "$ARRIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${ARRIBA_PREFIX}_merged_read_through.bam"
+	    echo_run "$ARRIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${ARRIBA_PREFIX}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARRIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARRIBA_BLACKLIST -o ${ARRIBA_PREFIX}.fusions.txt -O ${ARRIBA_PREFIX}.discarded_fusions.txt "
+	    if [[ -f "${ARRIBA_PREFIX}.fusions.txt" ]]
 	    then
-		    echo_run "$ARIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${ARIBA_PREFIX}.fusions.txt --output=${ARIBA_PREFIX}.fusions.pdf"
+		    echo_run "$ARRIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${ARRIBA_PREFIX}.fusions.txt --output=${ARRIBA_PREFIX}.fusions.pdf"
 	    fi
 	done
 fi
