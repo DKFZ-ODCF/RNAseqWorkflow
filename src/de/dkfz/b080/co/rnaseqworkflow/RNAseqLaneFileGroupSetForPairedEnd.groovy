@@ -3,6 +3,7 @@ package de.dkfz.b080.co.rnaseqworkflow
 import de.dkfz.b080.co.files.COFileStageSettings
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
+import de.dkfz.roddy.core.ExecutionContext
 import de.dkfz.roddy.knowledge.files.FileStageSettings
 import groovy.transform.CompileStatic
 
@@ -11,13 +12,19 @@ import groovy.transform.CompileStatic
  * Created by heinold on 05.12.16.
  */
 @CompileStatic
-class RNAseqLaneFileGroupSet {
-    private List<LaneFileGroup> laneFileGroupList = null
+class RNAseqLaneFileGroupSetForPairedEnd {
+    protected List<LaneFileGroup> laneFileGroupList = null
 
-    private Map<LaneFile, LaneFile> laneFiles
+    protected Map<LaneFile, LaneFile> laneFiles
 
-    RNAseqLaneFileGroupSet(List<LaneFileGroup> laneFileGroupList) {
+    protected ExecutionContext context
+
+    protected RNAseqConfig config
+
+    RNAseqLaneFileGroupSetForPairedEnd(List<LaneFileGroup> laneFileGroupList) {
         this.laneFileGroupList = laneFileGroupList
+        this.context = laneFileGroupList[0].executionContext
+        this.config = new RNAseqConfig(context)
         laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], lfg.filesInGroup[1]] }
     }
 
@@ -51,11 +58,10 @@ class RNAseqLaneFileGroupSet {
     }
 
     /**
-     * Example: ID:run150326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
+     * Example for paired end: ID:run150326_D00695_0025_BC6B2MACXX_D2826_GATCAGA_L002 LB:${sample}_${pid}PL:ILLUMINA SM:sample_${sample}_${pid} PU:BC6B2MACXX , ID:run... (space-comma-space separated)
      * @return
      */
     String getBamReadGroupLines() {
-
         laneFileGroupList.collect { LaneFileGroup lfg ->
             def pid = lfg.filesInGroup.first().getDataSet().getId()
             def sample = lfg.getSample().name
