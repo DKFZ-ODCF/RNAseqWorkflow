@@ -44,7 +44,7 @@ class RNAseqWorkflow extends Workflow {
 
             //STAR
             String readsSTARLeft = lfgs.getLeftLaneFilesAsCSVs()
-            String readsSTARRight = config.usePairedEndProcessing() ? lfgs.getRightLaneFilesAsCSVs() : ""
+            String readsSTARRight = config.usePairedEndProcessing() ? lfgs.getRightLaneFilesAsCSVs() : "n/a"
 
             // Kalisto
             String readsKallisto = lfgs.getLaneFilesAlternatingWithSpaceSep()
