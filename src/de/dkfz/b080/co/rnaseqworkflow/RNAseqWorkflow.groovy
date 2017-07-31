@@ -80,8 +80,12 @@ class RNAseqWorkflow extends Workflow {
             hasFiles = true
             laneFilesForSample.each {
                 LaneFileGroup lfg ->
-                    lfg.filesInGroup.each {
-                        hasFiles &= context.fileIsAccessible(it.path)
+                    if (new RNAseqConfig(context).usePairedEndProcessing()) {
+                        lfg.filesInGroup.each {
+                            hasFiles &= context.fileIsAccessible(it.path)
+                        }
+                    } else { // Single end. Just check the first file.
+                        hasFiles &= context.fileIsAccessible(lfg.filesInGroup[0].path)
                     }
             }
         }
