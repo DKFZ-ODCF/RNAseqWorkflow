@@ -5,12 +5,14 @@ set -vx
 ##################################################################
 ##								##
 ##  HIPO2 RNAseq workflow					##
-##  Authors: Naveed Ishaque, Barbara Hutter, Sebastian Uhrig	##
+##  Authors: Naveed Ishaque, Michael Heinold, Jeongbin Park	##
 ##								##
 ##################################################################
 
 # TODO : 21/03/2017 : a : (a.1) parse read length, (a.2) specificy sbjdOverhang based on read length and (a.2) pick appropiate genome index
 # TODO : 21/03/2017 : b : (b.1) parse strand specificity from RNAseQC, (b.2) only compute read counts for the correct direction using feature counts
+# TODO : 31/07/2017 : c : (c.1) add single end mode support "useSingleEndProcessing=true" https://eilslabs-phabricator.dkfz.de/T2787
+
 
 ##################################################################
 ##								##
@@ -84,7 +86,12 @@ then
 	cd $ALIGNMENT_DIR
 	## the STAR temp directory must not exist, otherwise STAR will fail
 	remove_directory $SCRATCH/${SAMPLE}_${pid}_STAR
-	echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+        if [ "$useSingleEndProcessing" == true ]
+        then
+		echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT}                     --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+        else
+		echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+        fi
 	check_or_die $STAR_SORTED_BAM alignment
 	check_or_die $STAR_NOTSORTED_BAM alignment
 	check_or_die $STAR_CHIMERA_SAM alignment
@@ -142,6 +149,13 @@ then
         then
 		DOC_FLAG="-noDoC"
 	fi
+        if [ "$useSingleEndProcessing" == true ]
+        then
+		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+        else
+		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+        fi
+
         echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
 fi
 
@@ -153,7 +167,12 @@ if [ "$RUN_QUALIMAP" == true ]
 then
 	make_directory $QUALIMAP_DIR/${SAMPLE}_${pid}
 	cd $QUALIMAP_DIR/${SAMPLE}_${pid}
-	echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+        if [ "$useSingleEndProcessing" == true ]
+        then
+		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s     --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+	else
+		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+	fi
 	check_or_die rnaseq_qc_results.txt qc-qualimap2
 fi
 
@@ -165,11 +184,16 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
 	make_directory $COUNT_DIR 
 	cd $COUNT_DIR
-	COUNT="-t exon -g gene_id -p -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts --donotsort"
+	COUNT="-t exon -g gene_id -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts --donotsort"
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
 	for S in {0..2} 
 	do
-		echo_run "$FEATURECOUNTS_BINARY $COUNT -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+	        if [ "$useSingleEndProcessing" == true ]
+       		then
+			echo_run "$FEATURECOUNTS_BINARY $COUNT    -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+		else
+			echo_run "$FEATURECOUNTS_BINARY $COUNT -p -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+		fi
 		check_or_die ${SAMPLE}_${pid}.featureCounts.s${S} gene-counting
 	done
 	## RPKM TPM calculations
@@ -190,11 +214,16 @@ if [ "$RUN_FEATURE_COUNTS_DEXSEQ" == true ]
 then
 	make_directory $COUNT_DIR_EXON
 	cd $COUNT_DIR_EXON
-	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -p -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons --donotsort "
+	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons --donotsort "
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
 	for S in {0..2}  
 	do
-		echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+		if [ "$useSingleEndProcessing" == true ]
+		then
+			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS  -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+		else
+			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -p -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+		fi
 		check_or_die ${SAMPLE}_${pid}.featureCounts.dexseq.s${S} exon-counting
 	done
 	## RPKM TPM calculations
@@ -212,6 +241,14 @@ fi
 ##
 
 KALLISTO_PARAMS="quant -i $GENOME_KALLISTO_INDEX -o . -t $CORES -b 100"
+if [ "$useSingleEndProcessing" == true ]
+then
+	RUN_KALLISTO=false
+	RUN_KALLISTO_RF=false
+	RUN_KALLISTO_FR=false
+	RUN_ARRIBA=false
+fi
+
 if [ "$RUN_KALLISTO" == true ]
 then
 	make_directory $KALLISTO_UN_DIR/${SAMPLE}_${pid}

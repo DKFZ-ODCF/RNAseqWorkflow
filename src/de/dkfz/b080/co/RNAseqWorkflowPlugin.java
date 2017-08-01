@@ -7,8 +7,8 @@ import de.dkfz.roddy.plugins.BasePlugin;
  */
 public class RNAseqWorkflowPlugin extends BasePlugin {
 
-    public static final String CURRENT_VERSION_STRING = "1.0.18";
-    public static final String CURRENT_VERSION_BUILD_DATE = "Mon Jul 31 17:57:30 CEST 2017";
+    public static final String CURRENT_VERSION_STRING = "1.0.19";
+    public static final String CURRENT_VERSION_BUILD_DATE = "Tue Aug 01 10:39:49 CEST 2017";
 
     @Override
     public String getVersionInfo() {
