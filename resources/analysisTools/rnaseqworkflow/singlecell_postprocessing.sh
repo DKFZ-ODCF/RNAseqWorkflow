@@ -24,6 +24,6 @@ if [ "$RUN_LIBRARY_QC" == true ]
 then
     mkdir -p ${LIBRARY_QC_DIR}
     for SAMPLE in ${SAMPLES}; do
-        ${RSCRIPT_BINARY} ${TOOL_SINGLE_CELL_LIBRARY_QC} ${COUNT_DIR}/${SAMPLE}_${PID}_featureCounts.count.tsv ${TOOL_MAKE_LIBRARY_QC_PLOT} ${LIBRARY_QC_DIR} ${SAMPLE}
+        ${PYTHON_BINARY} ${TOOL_SINGLE_CELL_LIBRARY_QC} ${SAMPLE} ${PID} ${COUNT_DIR} ${LIBRARY_QC_DIR}
     done
 fi

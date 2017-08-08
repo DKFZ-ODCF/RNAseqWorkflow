@@ -9,11 +9,9 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
-    <orderEntry type="jdk" jdkName="1.8.0_121" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="COWorkflows" />
     <orderEntry type="library" name="roddyBundledLibraries" level="project" />
-    <orderEntry type="module" module-name="AlignmentAndQCWorkflows" />
     <orderEntry type="module" module-name="DefaultPlugin" />
     <orderEntry type="module" module-name="PluginBase" />
     <orderEntry type="module" module-name="Roddy" />

@@ -18,13 +18,13 @@ IFS=$'\n\t'
 
 
     remove_directory $SCRATCH/*
-    remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/refGene.txt*
-    remove_file $RNASEQC_DIR/${SAMPLE}_${PID}/rRNA_intervals.list
-    if [[ -f "$RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz" ]]
+    remove_file $RNASEQC_DIR/${SAMPLE}_${pid}/refGene.txt*
+    remove_file $RNASEQC_DIR/${SAMPLE}_${pid}/rRNA_intervals.list
+    if [[ -f "$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_RNAseQC.tgz" ]]
     then
         echo "# RNAseQC results already archived... skipping"
     else
-        echo_run "tar --remove-files -czvf $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID}_RNAseQC.tgz $RNASEQC_DIR/${SAMPLE}_${PID}/${SAMPLE}_${PID} "
+        echo_run "tar --remove-files -czvf $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_RNAseQC.tgz $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid} "
     fi
     remove_file $ALIGNMENT_DIR/$STAR_SORTED_BAM
     remove_file $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM
@@ -32,11 +32,11 @@ IFS=$'\n\t'
     remove_file $ALIGNMENT_DIR/$STAR_CHIMERA_BAM
 	remove_file $ALIGNMENT_DIR/*fifo.read1
 	remove_file $ALIGNMENT_DIR/*fifo.read2
-	make_directory $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files
-	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${PID}*out $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${PID}*.tab $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${PID}_merged._STARgenome $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
-	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${PID}_merged._STARpass1 $ALIGNMENT_DIR/${SAMPLE}_${PID}_star_logs_and_files 2>/dev/null"
+	make_directory $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files
+	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}*out $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
+	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}*.tab $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
+	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}_merged._STARgenome $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
+	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}_merged._STARpass1 $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
 	remove_directory $SCRATCH
 
 
