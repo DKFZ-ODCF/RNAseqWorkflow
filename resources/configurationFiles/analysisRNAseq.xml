@@ -157,6 +157,34 @@
         <cvalue name='RUN_LIBRARY_QC' value='true' type='boolean'/>
         <cvalue name='LIBRARY_QC_DIR' value='${outputAnalysisBaseDirectory}/library_qc' type='string'/>
 
+        <cvalue name="Row"	                value="Row"                 tags="mandatory" />
+        <cvalue name="Col"	                value="Col"                 tags="mandatory" />
+        <cvalue name="Candidate"	        value="Candidate"	        tags="mandatory" />
+        <cvalue name="For.dispense"	        value="For.dispense"	    tags="mandatory" />
+        <cvalue name="Sample"	            value="Sample"	            tags="mandatory" />
+        <cvalue name="Barcode"	            value="Barcode"	            tags="mandatory" />
+        <cvalue name="State"	            value="State"	            tags="mandatory" />
+        <cvalue name="Cells1"	            value="Cells1"	            tags="mandatory" />
+        <cvalue name="Cells2"	            value="Cells2"	            tags="mandatory" />
+        <cvalue name="Signal1"	            value="Signal1"	            tags="mandatory" />
+        <cvalue name="Signal2"	            value="Signal2"	            tags="mandatory" />
+        <cvalue name="Integ.Signal1"	    value="Integ.Signal1"	    tags="mandatory" />
+        <cvalue name="Integ.Signal2"	    value="Integ.Signal2"	    tags="mandatory" />
+        <cvalue name="Circularity1"	        value="Circularity1"	    tags="mandatory" />
+        <cvalue name="Circularity2"	        value="Circularity2"	    tags="mandatory" />
+        <cvalue name="Confidence"	        value="Confidence"	        tags="mandatory" />
+        <cvalue name="Confidence1"	        value="SizConfidence1e2"	tags="mandatory" />
+        <cvalue name="Confidence2"	        value="Confidence2"	        tags="mandatory" />
+        <cvalue name="Dispense.tip"	        value="Dispense.tip"	    tags="mandatory" />
+        <cvalue name="Drop.index"	        value="Drop.index"	        tags="mandatory" />
+        <cvalue name="Global.drop.index"	value="Global.drop.index"	tags="mandatory" />
+        <cvalue name="Source.well"	        value="Source.well"	        tags="mandatory" />
+        <cvalue name="Sequencing.count"	    value="Sequencing.count"	tags="mandatory" />
+        <cvalue name="Image1"	            value="Size2"	            tags="mandatory" />
+        <cvalue name="Size2"	            value="Size2"	            tags="mandatory" />
+        
+        <cvalue name='metadataTableColumnIDs' value='Row,Col,Candidate,For.dispense,Sample,Barcode,State,Cells1,Cells2,Signal1,Signal2,Size1,Size2,Integ.Signal1,Integ.Signal2,Circularity1,Circularity2,Confidence,Confidence1,Confidence2,Dispense.tip,Drop.index,Global.drop.index,Source.well,Sequencing.count,Image1,Image2' type="string" />
+
     </configurationvalues>
 
     <processingTools>
