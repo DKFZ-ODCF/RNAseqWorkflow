@@ -38,7 +38,7 @@ class RNAseqLaneFileGroupSetTest {
     String f1l = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R1_001.fastq.gz"
     String f1r = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz"
 
-    private static setPrivateField(String name, Object object, Object value) {
+     static void setPrivateField(String name, Object object, Object value) {
         Field f = null
         Class cls = object.class
         while (!f && cls) {
@@ -119,4 +119,5 @@ class RNAseqLaneFileGroupSetTest {
         assert fileGroupSetMap[sample0].getBamReadGroupLines() == "${content[0]} , ${content[1]}"
         assert fileGroupSetMap[sample1].getBamReadGroupLines() == "${content[2]} , ${content[3]}"
     }
+
 }

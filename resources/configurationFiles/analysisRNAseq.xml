@@ -176,34 +176,6 @@
         <cvalue name='RUN_LIBRARY_QC' value='true' type='boolean'/>
         <cvalue name='LIBRARY_QC_DIR' value='${outputAnalysisBaseDirectory}/library_qc' type='string'/>
 
-        <cvalue name="Row"	                value="Row"                 tags="mandatory" />
-        <cvalue name="Col"	                value="Col"                 tags="mandatory" />
-        <cvalue name="Candidate"	        value="Candidate"	        tags="mandatory" />
-        <cvalue name="For.dispense"	        value="For.dispense"	    tags="mandatory" />
-        <cvalue name="Sample"	            value="Sample"	            tags="mandatory" />
-        <cvalue name="Barcode"	            value="Barcode"	            tags="mandatory" />
-        <cvalue name="State"	            value="State"	            tags="mandatory" />
-        <cvalue name="Cells1"	            value="Cells1"	            tags="mandatory" />
-        <cvalue name="Cells2"	            value="Cells2"	            tags="mandatory" />
-        <cvalue name="Signal1"	            value="Signal1"	            tags="mandatory" />
-        <cvalue name="Signal2"	            value="Signal2"	            tags="mandatory" />
-        <cvalue name="Integ.Signal1"	    value="Integ.Signal1"	    tags="mandatory" />
-        <cvalue name="Integ.Signal2"	    value="Integ.Signal2"	    tags="mandatory" />
-        <cvalue name="Circularity1"	        value="Circularity1"	    tags="mandatory" />
-        <cvalue name="Circularity2"	        value="Circularity2"	    tags="mandatory" />
-        <cvalue name="Confidence"	        value="Confidence"	        tags="mandatory" />
-        <cvalue name="Confidence1"	        value="SizConfidence1e2"	tags="mandatory" />
-        <cvalue name="Confidence2"	        value="Confidence2"	        tags="mandatory" />
-        <cvalue name="Dispense.tip"	        value="Dispense.tip"	    tags="mandatory" />
-        <cvalue name="Drop.index"	        value="Drop.index"	        tags="mandatory" />
-        <cvalue name="Global.drop.index"	value="Global.drop.index"	tags="mandatory" />
-        <cvalue name="Source.well"	        value="Source.well"	        tags="mandatory" />
-        <cvalue name="Sequencing.count"	    value="Sequencing.count"	tags="mandatory" />
-        <cvalue name="Image1"	            value="Size2"	            tags="mandatory" />
-        <cvalue name="Size2"	            value="Size2"	            tags="mandatory" />
-        
-        <cvalue name='metadataTableColumnIDs' value='Row,Col,Candidate,For.dispense,Sample,Barcode,State,Cells1,Cells2,Signal1,Signal2,Size1,Size2,Integ.Signal1,Integ.Signal2,Circularity1,Circularity2,Confidence,Confidence1,Confidence2,Dispense.tip,Drop.index,Global.drop.index,Source.well,Sequencing.count,Image1,Image2' type="string" />
-
     </configurationvalues>
 
     <processingTools>
@@ -226,17 +198,7 @@
         <tool name="splitBamByReadgroup" value="split_bam_by_readgroup.py" basepath="rnaseqworkflow"/>
         <tool name="parseBarcodeFile" value="parse_barcodefile.py" basepath="rnaseqworkflow"/>
         <tool name="makeLibraryQcPlot" value="new_makeQCplot.R" basepath="rnaseqworkflow"/>
-        <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
-        <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="5g" cores="5" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="15g" cores="10" nodes="1" walltime="10h"/>
-            </resourcesets>
-            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
-            <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
-            <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointDemultiplexing" scriptparameter="CHECKPOINT_DEMULTIPLEXING" />
-        </tool>
+
         <tool name="cutadaptWrapper" value="cutadapt_wrapper.py" basepath="rnaseqworkflow"/>
         <tool name="trimming" value="trimming_cutadapt.sh" basepath="rnaseqworkflow">
             <resourcesets>
@@ -248,16 +210,6 @@
             <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointTrimming" scriptparameter="CHECKPOINT_TRIMMING" />
-        </tool>
-
-        <tool name="singlecellAlignment" value="singlecell_alignment.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
-            </resourcesets>
-            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_TRIMMING"/>
-            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointAlignment" scriptparameter="CHECKPOINT_ALIGNMENT" />
         </tool>
 
         <tool name="starAlignment" value="HIPO2_rnaseq_alignment.sh" basepath="rnaseqworkflow">
@@ -287,14 +239,6 @@
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointProcessing" scriptparameter="CHECKPOINT_PROCESSING" />
         </tool>
 
-        <tool name="singlecellPostprocessing" value="singlecell_postprocessing.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="1g" cores="1" nodes="1" walltime="1h"/>
-            </resourcesets>
-            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_PROCESSING"/>
-            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointPostprocessing" scriptparameter="CHECKPOINT_POSTPROCESSING" />
-        </tool>
 
     </processingTools>
     <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>

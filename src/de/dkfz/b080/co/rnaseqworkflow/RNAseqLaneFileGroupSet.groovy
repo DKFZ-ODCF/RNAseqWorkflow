@@ -1,8 +1,11 @@
 package de.dkfz.b080.co.rnaseqworkflow
 
+import de.dkfz.b080.co.common.COProjectsRuntimeService
 import de.dkfz.b080.co.files.COFileStageSettings
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
+import de.dkfz.b080.co.files.Sample
+import de.dkfz.roddy.core.ExecutionContext
 import groovy.transform.CompileStatic
 
 /**
@@ -17,7 +20,7 @@ class RNAseqLaneFileGroupSet {
 
     RNAseqLaneFileGroupSet(List<LaneFileGroup> laneFileGroupList) {
         this.laneFileGroupList = laneFileGroupList
-        laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], (lfg.filesInGroup.size()>=2)?lfg.filesInGroup[1]:null] }
+        laneFiles = laneFileGroupList.collectEntries { LaneFileGroup lfg -> return [lfg.filesInGroup[0], (lfg.filesInGroup.size() >= 2) ? lfg.filesInGroup[1] : null] }
     }
 
     List<String> getLeftLaneFiles() {
@@ -70,6 +73,39 @@ class RNAseqLaneFileGroupSet {
 
     String getFlowCellAndLaneIDsWithSpaceSep() {
         laneFileGroupList.collect { "${it.getRun().split("[_]")[-1]} ${it.getId()}" }.join(" ")
+    }
+
+    /**
+     * Get the barcode file (aka welllist) from the configuration.
+     * @return
+     */
+    File getBarcodeFile() {
+        ExecutionContext context = getFirstLaneFile().executionContext
+        COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
+        Sample sample = ((COFileStageSettings)getFirstLaneFile().fileStage).sample
+
+        RNAseqLaneFileGroupSet lfgs = new RNAseqLaneFileGroupSet(runtimeService.loadLaneFilesForSample(context, sample))
+        LaneFile dummyFile = lfgs.getFirstLaneFile()
+
+        String barcodeFilename = context.getConfiguration().getConfigurationValues().get("rawBarcodeFilename")
+        File barcodeFile = new File(dummyFile.getPath().getParentFile().getParentFile(), barcodeFilename)
+        return barcodeFile
+    }
+
+    Map<String, List<LaneFile>> getSingleCellLaneFilesByRun() {
+        def runs = laneFileGroupList.collect { it.run }.sort().unique()
+        Map<String, List<LaneFile>> result = [:]
+
+        runs.each { String run ->
+            result[run] =
+                    laneFileGroupList.findAll { LaneFileGroup lfg ->
+                        lfg.run == run
+                    }.collect {
+                        LaneFileGroup group ->
+                            group.filesInGroup[0] // For single cell, the first one is always the valid file. The second one is a dummy
+                    } as List<LaneFile>
+        }
+        return result
     }
 
     /**

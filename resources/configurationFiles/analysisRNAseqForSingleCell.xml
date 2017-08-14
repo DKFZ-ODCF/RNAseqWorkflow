@@ -1,0 +1,97 @@
+<!--
+  ~ Copyright (c) 2017 eilslabs.
+  ~
+  ~ Distributed under the MIT License (license terms are at https://www.github.com/eilslabs/Roddy/LICENSE.txt).
+  -->
+
+<configuration name='RNAseqSingleCellAnalysis' description='paired end RNA seq analysis using STAR, feature counts, kallisto, arriba, RNAseQC and QualiMap2'
+               configurationType='analysis' class='de.dkfz.roddy.core.Analysis'
+               workflowClass='de.dkfz.b080.co.rnaseqworkflow.RNAseqWorkflowForSingleCell'
+               runtimeServiceClass='de.dkfz.b080.co.common.COProjectsRuntimeService'
+               listOfUsedTools=""
+               imports="RNAseqAnalysis"
+               usedToolFolders="rnaseqworkflow,tools"
+               cleanupScript="cleanupScript">
+
+    <configurationvalues>
+
+        <cvalue name="runSingleCellWorkflow" value="true" type="boolean" />
+        <cvalue name="chunkSize" value="64" type="integer" />
+
+        <!-- Metadata table for welllist. These are the defaults, but it needs to be adapted.
+             for each run. So this configuration is more like a stub. It will be overriden.
+        -->
+        <cvalue name="Chunk"	            value="Chunk"                 tags="mandatory"
+                description="This is a virtual column which is only used for chunking. It is automatically inserted and removed." />
+        <cvalue name="Row"	                value="Row"                 tags="mandatory" />
+        <cvalue name="Col"	                value="Col"                 tags="mandatory" />
+        <cvalue name="Candidate"	        value="Candidate"	        tags="mandatory" />
+        <cvalue name="For.dispense"	        value="For.dispense"	    tags="mandatory" />
+        <cvalue name="Sample"	            value="Sample"	            tags="mandatory" />
+        <cvalue name="Barcode"	            value="Barcode"	            tags="mandatory" />
+        <cvalue name="State"	            value="State"	            tags="mandatory" />
+        <cvalue name="Cells1"	            value="Cells1"	            tags="mandatory" />
+        <cvalue name="Cells2"	            value="Cells2"	            tags="mandatory" />
+        <cvalue name="Signal1"	            value="Signal1"	            tags="mandatory" />
+        <cvalue name="Signal2"	            value="Signal2"	            tags="mandatory" />
+        <cvalue name="Size1"	            value="Size1"	            tags="mandatory" />
+        <cvalue name="Size2"	            value="Size2"	            tags="mandatory" />
+        <cvalue name="Integ.Signal1"	    value="Integ.Signal1"	    tags="mandatory" />
+        <cvalue name="Integ.Signal2"	    value="Integ.Signal2"	    tags="mandatory" />
+        <cvalue name="Circularity1"	        value="Circularity1"	    tags="mandatory" />
+        <cvalue name="Circularity2"	        value="Circularity2"	    tags="mandatory" />
+        <cvalue name="Confidence"	        value="Confidence"	        tags="mandatory" />
+        <cvalue name="Confidence1"	        value="Confidence1"	        tags="mandatory" />
+        <cvalue name="Confidence2"	        value="Confidence2"	        tags="mandatory" />
+        <cvalue name="Dispense.tip"	        value="Dispense.tip"	    tags="mandatory" />
+        <cvalue name="Drop.index"	        value="Drop.index"	        tags="mandatory" />
+        <cvalue name="Global.drop.index"	value="Global.drop.index"	tags="mandatory" />
+        <cvalue name="Source.well"	        value="Source.well"	        tags="mandatory" />
+        <cvalue name="Sequencing.count"	    value="Sequencing.count"	tags="mandatory" />
+        <cvalue name="Image1"	            value="Image1"	            tags="mandatory" />
+        <cvalue name="Image2"	            value="Image2"	            tags="mandatory" />
+        
+        <!--<cvalue name='metadataTableColumnIDs' value='Chunk,Row,Col,Candidate,For.dispense,Sample,Barcode,State,Cells1,Cells2,Signal1,Signal2,Size1,Size2,Integ.Signal1,Integ.Signal2,Circularity1,Circularity2,Confidence,Confidence1,Confidence2,Dispense.tip,Drop.index,Global.drop.index,Source.well,Sequencing.count,Image1,Image2' type="string" />-->
+
+    </configurationvalues>
+
+    <processingTools>
+        <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
+        <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="5g" cores="5" nodes="1" walltime="3h" queue="devel"/>
+                <rset size="l" memory="15g" cores="10" nodes="1" walltime="10h"/>
+            </resourcesets>
+            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
+            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointDemultiplexing" scriptparameter="CHECKPOINT_DEMULTIPLEXING" />
+        </tool>
+                <tool name="singlecellAlignment" value="singlecell_alignment.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
+                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
+            </resourcesets>
+            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_TRIMMING"/>
+            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
+            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointAlignment" scriptparameter="CHECKPOINT_ALIGNMENT" />
+        </tool>
+
+        <tool name="singlecellPostprocessing" value="singlecell_postprocessing.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="1g" cores="1" nodes="1" walltime="1h"/>
+            </resourcesets>
+            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_PROCESSING"/>
+            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
+            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointPostprocessing" scriptparameter="CHECKPOINT_POSTPROCESSING" />
+        </tool>
+
+    </processingTools>
+    <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>
+        <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointDemultiplexing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_demultiplexing'/>
+        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointTrimming" pattern='${outputAnalysisBaseDirectory}/.checkpoint_trimming'/>
+        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointAlignment" pattern='${outputAnalysisBaseDirectory}/.checkpoint_alignment'/>
+        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing_${jobParameter,name="CHUNK_INDEX"}'/>
+        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointPostprocessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_postprocessing'/>
+    </filenames>
+</configuration>
