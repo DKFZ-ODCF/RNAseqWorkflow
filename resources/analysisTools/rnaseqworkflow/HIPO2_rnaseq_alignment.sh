@@ -81,7 +81,12 @@ then
 	cd $ALIGNMENT_DIR
 	## the STAR temp directory must not exist, otherwise STAR will fail
 	remove_directory $SCRATCH/${SAMPLE}_${PID}_STAR
-	echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+	if [ "$useSingleEndProcessing" == true ]
+	then
+	    echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+	else
+	    echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
+	fi
 	check_or_die $STAR_SORTED_BAM alignment
 	check_or_die $STAR_NOTSORTED_BAM alignment
 	check_or_die $STAR_CHIMERA_SAM alignment

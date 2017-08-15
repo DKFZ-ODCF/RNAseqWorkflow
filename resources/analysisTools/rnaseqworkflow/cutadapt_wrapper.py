@@ -94,13 +94,13 @@ def main(options):
             cmds.append("--overlap %d"%POLY_MINBASES)
 
             if POLYA:
-                cmds.append("-a A{100}")
+                cmds.append("-a A{1000}")
             if POLYT:
-                cmds.append("-a T{100}")
+                cmds.append("-a T{1000}")
             if POLYN:
-                cmds.append("-a N{100}")
+                cmds.append("-a N{1000}")
             if POLYG:
-                cmds.append("-a G{100}")
+                cmds.append("-a G{1000}")
 
         if MIN_LEN > 0:
             cmds.append("-m %d"%MIN_LEN)
