@@ -20,9 +20,8 @@ if [[ ${singleCellSequencingSystem} == "wafergen" || ${singleCellSequencingSyste
     rm -f ${CHECKPOINT_ALIGNMENT_MERGED}
     for s in ${SAMPLES}; do
         SAMPLE=${s}
-        READS_KALLISTO=`${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -s${SAMPLE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/ '{print P $0}'`
-        READS_STAR_LEFT=`echo ${READS_KALLISTO} | tr ' ' ','`
-        #READS_STAR_LEFT=${READS_STAR_LEFT%,} # Remove trailing comma
+        # READS_KALLISTO=(e `${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -s${SAMPLE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/ '{print P $0}'` )
+        READS_STAR_LEFT=`${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -s${SAMPLE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/ '{print P $0}' | paste -d, -s`
         PARM_READGROUPS=`${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -t1 -s${SAMPLE} ${BARCODE_FILE}`
         CHECKPOINT_ALIGNMENT=${outputAnalysisBaseDirectory}/.checkpoint_${SAMPLE}_alignment
 

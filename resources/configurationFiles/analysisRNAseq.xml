@@ -198,7 +198,17 @@
         <tool name="splitBamByReadgroup" value="split_bam_by_readgroup.py" basepath="rnaseqworkflow"/>
         <tool name="parseBarcodeFile" value="parse_barcodefile.py" basepath="rnaseqworkflow"/>
         <tool name="makeLibraryQcPlot" value="new_makeQCplot.R" basepath="rnaseqworkflow"/>
-
+        <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
+        <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="5g" cores="5" nodes="1" walltime="30h" queue="devel"/>
+                <rset size="l" memory="15g" cores="10" nodes="1" walltime="100h"/>
+            </resourcesets>
+            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
+            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointDemultiplexing" scriptparameter="CHECKPOINT_DEMULTIPLEXING" />
+        </tool>
         <tool name="cutadaptWrapper" value="cutadapt_wrapper.py" basepath="rnaseqworkflow"/>
         <tool name="trimming" value="trimming_cutadapt.sh" basepath="rnaseqworkflow">
             <resourcesets>

@@ -52,6 +52,7 @@ if not os.path.isdir("/tmp/tar_extracted"):
     os.mkdir("/tmp/tar_extracted")
 
 for idx, (tf, s0s) in enumerate(zip(tfs, s0ss)):
+    if not os.path.exists(tf): continue
     tar = tarfile.open(tf, "r:gz")
     for tarinfo in tar:
         if tarinfo.name == s0s:
