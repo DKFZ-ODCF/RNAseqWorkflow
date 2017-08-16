@@ -7,6 +7,7 @@
 package de.dkfz.b080.co.rnaseqworkflow
 
 import de.dkfz.b080.co.common.COProjectsRuntimeService
+import de.dkfz.b080.co.common.MetadataTable
 import de.dkfz.b080.co.files.*
 import de.dkfz.roddy.StringConstants
 import de.dkfz.roddy.config.Configuration
@@ -78,21 +79,16 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         File barcodeFile = lfgs.getBarcodeFile()
 
         // Parse welllist using a MetadataTable
-        def welllist = getBarcodeFileMDT(context, barcodeFile)
+        Map<String, Map<String, BaseMetadataTable>> barcodeMDTBySampleAndChunk = getChunkedBarcodeFileMDTablesBySample(context, barcodeFile)
 
         // Split the table first by its samples, then by the barcodes. This is
         // to get chunks, which are not too large for the Bash command size and for the Star parameters
 
-        // Get the CHUNK_SIZE from the configuration
-        final int CHUNK_SIZE = context.getConfiguration().getConfigurationValues().get("chunkSize", "64").toInt()
-        // Get the count of chunks, which is the # of record divided by the chunk size
-        final int countOfChunks = (int) (welllist.size() / CHUNK_SIZE)
-
-        // Loop over all the chunks, get sub tables by the chunk id
-        for (int chunk = 0; chunk < countOfChunks + 1; chunk++) {
-
-            // Create and write chunked barcode file
-            createAndWriteChunkedBarcodeFile(context, welllist, chunk)
+        for (String sampleID : barcodeMDTBySampleAndChunk.keySet()) {
+            for(String chunkID : barcodeMDTBySampleAndChunk[sampleID].keySet()) {
+                BaseFile barcodeFileBySampleAndChunk = createAndWriteChunkedBarcodeFile(context, barcodeMDTBySampleAndChunk[sampleID][chunkID], sampleID, chunkID)
+            }
+        }
 
             // Now comes your workflow. If you got any questions, don't hesitate asking me!
             // Please take a look at Naveeds resimplified RNAseq Workflow
@@ -112,7 +108,6 @@ class RNAseqWorkflowForSingleCell extends Workflow {
 //
 //                def checkpointfilegroup = new CheckpointFileGroup(checkpointfiles)
 //                call("singlecellPostprocessing", checkpointfile, "BARCODE_FILE=${barcodeFilepath}", checkpointfilegroup)
-        }
 
         return true
     }
@@ -126,9 +121,8 @@ class RNAseqWorkflowForSingleCell extends Workflow {
      * @param chunk
      * @return
      */
-    public BaseFile createAndWriteChunkedBarcodeFile(ExecutionContext context, BaseMetadataTable barcodeFile, int currentChunk) {
+    public BaseFile createAndWriteChunkedBarcodeFile(ExecutionContext context, BaseMetadataTable barcodeFile, String sampleID, String chunkID) {
         COProjectsRuntimeService runtimeService = ((COProjectsRuntimeService) context.runtimeService)
-        BaseMetadataTable subsetByChunk = barcodeFile.unsafeSubsetByColumn("Chunk", currentChunk.toString());
 
         // Assemble the table header for the new barcodeFile files
         final String HEADER = barcodeFile.header.join("\t")
@@ -138,11 +132,11 @@ class RNAseqWorkflowForSingleCell extends Workflow {
                 // Load the class TODO check if this is the right class, replace it with the class needed!
                 LibrariesFactory.instance.loadRealOrSyntheticClass("WelllistFile", BaseFile.class.name)
                 // Get the new barcodeFile file path
-                , new File(runtimeService.getTemporaryDirectory(context), "welllist_${currentChunk}.tsv")
+                , new File(runtimeService.getTemporaryDirectory(context), "welllist_${sampleID}_${chunkID}.tsv")
                 , context)
 
         // Get the records for the chunked table
-        List<Map<String, String>> records = subsetByChunk.records
+        List<Map<String, String>> records = barcodeFile.records
 
         // Get the new file text by:
         // Adding the header line
@@ -165,7 +159,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
      * @param barcodeFile
      * @return
      */
-    BaseMetadataTable getBarcodeFileMDT(ExecutionContext context, File barcodeFile) {
+    Map<String, Map<String, BaseMetadataTable>> getChunkedBarcodeFileMDTablesBySample(ExecutionContext context, File barcodeFile) {
         // We still need to adapt the columns to the actual headers.
 
         StringBuilder welllistText = new StringBuilder()
@@ -183,15 +177,32 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         context.configurationValues.put("metadataTableColumnIDs", columnHeaders.join(","))
 
         welllistText << "Chunk\t" << content[0] << "\n"// Add the chunk column. This is not in the file.
-        for (int i = 1; i < content.size(); i++) { // Add the chunk id and the rest of the row.
-            int chunk = (int) (i / CHUNK_SIZE)  // Align to CHUNK_SIZE block index (integer)
-            welllistText << "${chunk}\t" << content[i] << "\n"
+        for (int i = 1; i < content.size(); i++) { // Add zero as the chunk id
+            welllistText << "0\t" << content[i] << "\n"
         }
 
         String barcodeFileContents = welllistText.toString()
         Tuple2<Map<String, String>, List<String>> mdtSettings = extraceMetadataTableColumnsFromConfig(context)
 
-        return MetadataTableFactory.readTable(new InputStreamReader(IOUtils.toInputStream(barcodeFileContents)), "tsv", mdtSettings.x, mdtSettings.y)
+        BaseMetadataTable fullTable = MetadataTableFactory.readTable(new InputStreamReader(IOUtils.toInputStream(barcodeFileContents)), "tsv", mdtSettings.x, mdtSettings.y)
+
+        //Modify the records
+
+        Map<String, Map<String, BaseMetadataTable>> allTablesBySampleAndChunk = [:]
+        // Get all samples, then all sample tables, then set their chunk ids.
+        List<String> sampleIdentifiers = fullTable.listColumn("Sample").sort().unique()
+        for (String sample : sampleIdentifiers) {
+            BaseMetadataTable tableBySample = fullTable.unsafeSubsetByColumn("Sample", sample)
+            for (int i = 0; i < tableBySample.size(); i++) {
+                String chunkID = ((int)(i / CHUNK_SIZE)).toString()
+                tableBySample.records[i]["Chunk"] = chunkID
+            }
+            allTablesBySampleAndChunk[sample] = [:]
+            for (String chunk in tableBySample.listColumn("Chunk").sort().unique() ) {
+                allTablesBySampleAndChunk[sample][chunk] = tableBySample.unsafeSubsetByColumn("Chunk", chunk)
+            }
+        }
+        return allTablesBySampleAndChunk
     }
 
     @Override
