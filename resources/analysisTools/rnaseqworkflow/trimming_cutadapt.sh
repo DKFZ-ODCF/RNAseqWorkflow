@@ -10,6 +10,11 @@ then
 	CUTADAPT_BINARY=cutadapt
 fi
 
+echo "$FASTQ_FILES"
+echo "$SAMPLE"
+echo "$CHUNK_INDEX"
+exit 0
+
 mkdir -p ${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}
 mkdir -p ${SCRATCH}/${PID}_TRIMMING
 

@@ -16,7 +16,7 @@
     <configurationvalues>
 
         <cvalue name="runSingleCellWorkflow" value="true" type="boolean" />
-        <cvalue name="chunkSize" value="100" type="integer" />
+        <cvalue name="chunkSize" value="128" type="integer" />
         <cvalue name="useSingleEndProcessing" value="true" type="boolean" />
 
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_${CHUNK_INDEX}_merged' type='string'/>

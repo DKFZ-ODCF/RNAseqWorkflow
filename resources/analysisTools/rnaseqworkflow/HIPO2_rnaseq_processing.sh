@@ -25,6 +25,10 @@ source $TOOL_NAV_LIB
 
 echo_run $DO_FIRST
 
+echo "$BAM_FILE_NUM"
+echo "$SAMPLE"
+exit 0
+
 ##
 ## SOFTWARE STACK : load module # module load HIPO2_rna/v1 # loads default software versions for the HIPO2 RNAseq workflow
 ##

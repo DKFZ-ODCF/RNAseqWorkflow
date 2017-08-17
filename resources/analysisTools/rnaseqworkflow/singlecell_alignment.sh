@@ -5,6 +5,12 @@ set -vx
 source $CONFIG_FILE
 source $TOOL_NAV_LIB
 
+echo "$FASTQ_FILES"
+echo "$READ_GROUPS"
+echo "$SAMPLE"
+echo "$CHUNK_INDEX"
+exit 0
+
 if [[ ${singleCellSequencingSystem} == "wafergen" || ${singleCellSequencingSystem} == "fluidigm" ]]; then
     # TODO (Jeongbin): Ultimately, it would be better to merge 'parse_barcode.py' into Roddy workflow to avoid code duplication
     #export READS_KALLISTO=(e `${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -s${SAMPLE} ${BARCODE_FILE} | cut -f 4 | awk -v P=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/ '{print P $0}'` )

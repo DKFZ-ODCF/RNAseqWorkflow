@@ -2,7 +2,9 @@ export SAMPLE
 
 source $CONFIG_FILE
 
-SAMPLES=`${PYTHON_BINARY} ${TOOL_PARSE_BARCODE_FILE} -t2 ${BARCODE_FILE}`
+echo "$BAM_FILE_NUM"
+echo "$SAMPLE"
+exit 0
 
 if [ "$RUN_FEATURE_COUNTS" == true ]
 then
