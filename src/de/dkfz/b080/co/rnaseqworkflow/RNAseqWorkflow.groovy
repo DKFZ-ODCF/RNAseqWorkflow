@@ -58,7 +58,7 @@ class RNAseqWorkflow extends Workflow {
 
             TextFile checkpointfile = (TextFile) call("trimming", dummyFile, "READ1=${readsLeft}", "READ2=${readsRight}")
             checkpointfile = (TextFile) call("starAlignment", checkpointfile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
-            call("rnaseqProcessing", checkpointfile, "CHUNK_INDEX=1")
+            call("rnaseqProcessing", checkpointfile)
         }
         return true;
     }

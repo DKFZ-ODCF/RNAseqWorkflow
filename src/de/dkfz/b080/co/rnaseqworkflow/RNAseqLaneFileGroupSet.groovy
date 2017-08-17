@@ -75,6 +75,10 @@ class RNAseqLaneFileGroupSet {
         laneFileGroupList.collect { "${it.getRun().split("[_]")[-1]} ${it.getId()}" }.join(" ")
     }
 
+    String getPID() {
+        laneFileGroupList.first().filesInGroup.first().getDataSet().getId()
+    }
+
     /**
      * Get the barcode file (aka welllist) from the configuration.
      * @return

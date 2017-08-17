@@ -49,6 +49,7 @@
 
         <!-- # RUNTIME_CONFIG_OUTFILE DEFINITITIONS -->
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_merged' type='string'/>
+        <cvalue name='STAR_TMPDIR' value='$SCRATCH/${SAMPLE}_${pid}_STAR'/>
         <cvalue name='STAR_CHIMERA_PREFIX' value='${SAMPLE}_${pid}_chimeric_merged' type='string'/>
         <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFIX.Aligned.sortedByCoord.out.bam' type='string'/>
@@ -133,7 +134,7 @@
         <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
         <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${pid}_STAR"'
+                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
@@ -255,7 +256,7 @@
         <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointDemultiplexing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_demultiplexing'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointTrimming" pattern='${outputAnalysisBaseDirectory}/.checkpoint_trimming'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointAlignment" pattern='${outputAnalysisBaseDirectory}/.checkpoint_alignment'/>
-        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing_${jobParameter,name="CHUNK_INDEX"}'/>
+        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointPostprocessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_postprocessing'/>
     </filenames>
 </configuration>
