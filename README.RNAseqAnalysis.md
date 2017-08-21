@@ -92,6 +92,10 @@ ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencod
 ```
 == Changelist
 
+Release_1.0.21 [21st Aug 2017]
+- Added single end support via "useSingleEndProcessing:true"
+- featureCounts has issues with the native bam file produced by STAR. We now use the mdup bam file and read sort the PE file (SE are read as is)
+
 Release_1.0.11 [12th June 2017]
 
 - Added README
@@ -107,3 +111,4 @@ Release_1.0.10 [9th June 2017]
 Release_1.0.8
 
 - First official realease to OTP
+

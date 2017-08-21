@@ -184,15 +184,15 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
 	make_directory $COUNT_DIR 
 	cd $COUNT_DIR
-	COUNT="-t exon -g gene_id -B -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts --donotsort"
+	COUNT="-t exon -g gene_id -Q 255 -T $CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts "
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
 	for S in {0..2} 
 	do
 	        if [ "$useSingleEndProcessing" == true ]
        		then
-			echo_run "$FEATURECOUNTS_BINARY $COUNT    -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+			echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		else
-			echo_run "$FEATURECOUNTS_BINARY $COUNT -p -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+			echo_run "$FEATURECOUNTS_BINARY $COUNT -p -B       -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		fi
 		check_or_die ${SAMPLE}_${pid}.featureCounts.s${S} gene-counting
 	done
@@ -214,15 +214,15 @@ if [ "$RUN_FEATURE_COUNTS_DEXSEQ" == true ]
 then
 	make_directory $COUNT_DIR_EXON
 	cd $COUNT_DIR_EXON
-	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons --donotsort "
+	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
 	for S in {0..2}  
 	do
 		if [ "$useSingleEndProcessing" == true ]
 		then
-			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS  -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS--donotsort -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		else
-			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -p -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
+			echo_run "$FEATURECOUNTS_BINARY $COUNT_EXONS -p         -s $S -o ${SAMPLE}_${pid}.featureCounts.dexseq.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		fi
 		check_or_die ${SAMPLE}_${pid}.featureCounts.dexseq.s${S} exon-counting
 	done
