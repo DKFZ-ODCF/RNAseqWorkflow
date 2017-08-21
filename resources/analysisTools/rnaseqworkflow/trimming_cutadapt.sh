@@ -42,13 +42,13 @@ if [ "$TRIM_3P_POLYN" == true ]; then
 fi
 
 READ1_FILE=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/read1.txt
-echo ${READ1} | tr ' ' '\n' > ${READ1_FILE}
+echo ${READ1} | tr ',' '\n' > ${READ1_FILE}
 
 if [ "$runSingleCellWorkflow" == true ] || [ "$useSingleEndProcessing" == true ]; then
     trimOpts="${trimOpts} -1 ${READ1_FILE}"
 else
     READ2_FILE=${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}/read2.txt
-    echo ${READ2} | tr ' ' '\n' > ${READ2_FILE}
+    echo ${READ2} | tr ',' '\n' > ${READ2_FILE}
     trimOpts="${trimOpts} -1 ${READ1_FILE} -2 ${READ2_FILE}"
 fi
 

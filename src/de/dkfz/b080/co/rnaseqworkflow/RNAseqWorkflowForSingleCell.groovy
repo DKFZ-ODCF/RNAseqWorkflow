@@ -130,7 +130,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
                         ]
                 }
         ][0].transpose()
-        return [rtn[0].join(" "), rtn[1].join(","), rtn[2].join(" , ")]
+        return [rtn[0].join(","), rtn[1].join(","), rtn[2].join(" , ")]
     }
 
     public BaseFile createAndWriteJeInputFile(ExecutionContext context, String pid, Map<String, Map<String, BaseMetadataTable>> barcodeTables) {
