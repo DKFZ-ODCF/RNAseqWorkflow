@@ -133,8 +133,9 @@ print "{\n  \"all\": {";
 my $counter = 0;
 foreach my $key (sort keys %json){
   print "," unless $counter eq 0;
-  print "\n    \"$key\": $json{$key}" unless ($key eq "" ||  $key eq "NaN");
-  $counter = 1;
+  print "\n    \"$key\": $json{$key}" unless ($key eq "" || $json{$key} eq "NaN");
+  $counter = 1 unless ($key eq "" ||  $json{$key} eq "NaN");
+  $counter= 0 if  ($key eq "" ||  $json{$key} eq "NaN");
 }
 print "\n  }\n}\n";
 
