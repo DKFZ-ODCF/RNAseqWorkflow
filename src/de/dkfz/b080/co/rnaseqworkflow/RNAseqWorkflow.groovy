@@ -6,7 +6,6 @@ import de.dkfz.b080.co.files.TextFile
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
 import de.dkfz.b080.co.files.Sample
-import de.dkfz.b080.co.files.CheckpointFileGroup
 import de.dkfz.roddy.core.ExecutionContext
 import de.dkfz.roddy.core.ExecutionContextError
 import de.dkfz.roddy.core.Workflow
@@ -23,6 +22,8 @@ class RNAseqWorkflow extends Workflow {
     @Override
     boolean execute(ExecutionContext context) {
         COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
+        RNAseqConfig config = new RNAseqConfig(context)
+
         List<Sample> samples = runtimeService.getSamplesForContext(context)
 
         // The file dummy is used by Roddy. It is not actually needed by the starAlignment job itself
@@ -32,8 +33,16 @@ class RNAseqWorkflow extends Workflow {
             if (!laneFilesForSample)
                 continue
 
-            def lfgs = new RNAseqLaneFileGroupSet(laneFilesForSample)
+            def lfgs
 
+            if (config.useSingleEndProcessing()) {
+                lfgs = new RNAseqLaneFileGroupSetForSingleEnd(laneFilesForSample)
+            } else {
+                lfgs = new RNAseqLaneFileGroupSetForPairedEnd(laneFilesForSample)
+            }
+
+            // The file dummy is used by Roddy. It is not actually needed by the starAlignment job itself
+            // but Roddy needs one specific file for every created job to create dependencies between jobs.
             TextFile dummyFile = (TextFile) COBaseFile.constructManual(TextFile, lfgs.getFirstLaneFile())
 
             //STAR
@@ -42,16 +51,10 @@ class RNAseqWorkflow extends Workflow {
 
             // TODO: BELOW SHOULD BE FIXED
             String readsSTARLeft = lfgs.getTrimmedLeftLaneFilesAsCSVs(context.getConfiguration().getConfigurationValues().getString("trimmingOutputDirectory"))
-            String readsSTARRight = lfgs.getTrimmedRightLaneFilesAsCSVs(context.getConfiguration().getConfigurationValues().getString("trimmingOutputDirectory"))
+            String readsSTARRight = config.usePairedEndProcessing() ? lfgs.getTrimmedRightLaneFilesAsCSVs(context.getConfiguration().getConfigurationValues().getString("trimmingOutputDirectory")) : "n/a"
 
             // Kalisto
             String readsKallisto = lfgs.getLaneFilesAlternatingWithSpaceSep()
-
-            // Flowcell ids
-            String runIDs = lfgs.getFlowCellIDsWithSpaceSep()
-
-            // Lane ids
-            String laneIDs = lfgs.getLaneIDsWithSpaceSep()
 
             // Read groups per pair with " , " separation ( space comma space )
             String readGroups = lfgs.getBamReadGroupLines()
@@ -84,8 +87,12 @@ class RNAseqWorkflow extends Workflow {
             hasFiles = true
             laneFilesForSample.each {
                 LaneFileGroup lfg ->
-                    lfg.filesInGroup.each {
-                        hasFiles &= context.fileIsAccessible(it.path)
+                    if (new RNAseqConfig(context).usePairedEndProcessing()) {
+                        lfg.filesInGroup.each {
+                            hasFiles &= context.fileIsAccessible(it.path)
+                        }
+                    } else { // Single end. Just check the first file.
+                        hasFiles &= context.fileIsAccessible(lfg.filesInGroup[0].path)
                     }
             }
         }

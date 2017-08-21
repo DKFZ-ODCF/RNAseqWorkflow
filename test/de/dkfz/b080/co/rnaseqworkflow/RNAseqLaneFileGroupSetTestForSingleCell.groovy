@@ -35,7 +35,7 @@ class RNAseqLaneFileGroupSetTestForSingleCell {
 
     static ExecutionContext context = MockupExecutionContextBuilder.createSimpleContext(RNAseqLaneFileGroupSetTestForSingleCell, new Configuration(null), new COProjectsRuntimeService())
     static Sample sample = new Sample(context, SINGLECELL_SAMPLE)
-    static Map<Sample, RNAseqLaneFileGroupSet> fileGroupSetMap = [:]
+    static Map<Sample, RNAseqLaneFileGroupSetForPairedEnd> fileGroupSetMap = [:]
 
     // The test directory
     static String userDir = new File(System.getProperty("user.dir")).parent
@@ -46,6 +46,21 @@ class RNAseqLaneFileGroupSetTestForSingleCell {
     String g0r2 = pairedFolderSample1 + "run160319_D00133_0107_BC5YE7ACXX/sequence/D2826_GATCAGA_L007_R2_001.fastq.gz"
     String g0r3 = pairedFolderSample1 + "run160319_D00133_0107_BC5YE7ACXX/sequence/D2826_GATCAGA_L006_R2_001.fastq.gz"
 
+    static setPrivateField(String name, Object object, Object value) {
+        Field f = null
+        Class cls = object.class
+        while (!f && cls) {
+            try {
+                f = cls.getDeclaredField(name)
+            } catch (Exception ex) {
+            }
+            cls = cls.superclass
+        }
+        assert f
+        f.setAccessible(true)
+        f.set(object, value)
+    }
+    
     @BeforeClass
     static void setup() {
         // The setup is a bit complicated, because I want to load the fastq files from disk to simulate the full
@@ -63,7 +78,7 @@ class RNAseqLaneFileGroupSetTestForSingleCell {
         values.put(COConstants.FLAG_USE_SINGLE_END_PROCESSING, "true", "boolean")
 
         def filesForSample = new COProjectsRuntimeService().loadLaneFilesForSample(context, sample)
-        fileGroupSetMap[sample] = new RNAseqLaneFileGroupSet(filesForSample)
+        fileGroupSetMap[sample] = new RNAseqLaneFileGroupSetForPairedEnd(filesForSample)
     }
 
 

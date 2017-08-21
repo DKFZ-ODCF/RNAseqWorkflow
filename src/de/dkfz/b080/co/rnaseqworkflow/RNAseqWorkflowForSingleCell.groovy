@@ -71,7 +71,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         // Only one sample is allowed, see checks below.
         Sample sample = samples[0]
 
-        RNAseqLaneFileGroupSet lfgs = new RNAseqLaneFileGroupSet(runtimeService.loadLaneFilesForSample(context, sample))
+        RNAseqLaneFileGroupSetForPairedEnd lfgs = new RNAseqLaneFileGroupSetForPairedEnd(runtimeService.loadLaneFilesForSample(context, sample))
 
         // Just a dummy, which is needed as a first parameter to some jobs.
         LaneFile dummyFile = lfgs.getFirstLaneFile()
@@ -242,7 +242,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
 
         // Check welllist and see, if there is more than one entry (in addition to the header)
 
-        RNAseqLaneFileGroupSet lfgs = new RNAseqLaneFileGroupSet(runtimeService.loadLaneFilesForSample(context, samples[0]))
+        RNAseqLaneFileGroupSetForPairedEnd lfgs = new RNAseqLaneFileGroupSetForPairedEnd(runtimeService.loadLaneFilesForSample(context, samples[0]))
 
         File barcodeFile = lfgs.getBarcodeFile()
 

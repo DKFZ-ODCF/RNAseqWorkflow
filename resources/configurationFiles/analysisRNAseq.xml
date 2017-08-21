@@ -208,8 +208,6 @@
             <input type="string" setby="callingCode" scriptparameter="READS_STAR_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_STAR_RIGHT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_KALLISTO"/>
-            <input type="string" setby="callingCode" scriptparameter="PARM_RUNIDS"/>
-            <input type="string" setby="callingCode" scriptparameter="PARM_LANEIDS"/>
             <input type="string" setby="callingCode" scriptparameter="PARM_READGROUPS"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointProcessing" scriptparameter="CHECKPOINT_PROCESSING" />
         </tool>
