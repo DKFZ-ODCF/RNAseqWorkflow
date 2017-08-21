@@ -57,8 +57,7 @@ class RNAseqWorkflow extends Workflow {
             String readGroups = lfgs.getBamReadGroupLines()
 
             TextFile checkpointfile = (TextFile) call("trimming", dummyFile, "READ1=${readsLeft}", "READ2=${readsRight}")
-            checkpointfile = (TextFile) call("starAlignment", checkpointfile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_RUNIDS=${runIDs}", "PARM_LANEIDS=${laneIDs}", "PARM_READGROUPS=${readGroups}")
-            call("rnaseqProcessing", checkpointfile)
+            call("rnaseqProcessing", checkpointfile, "SAMPLE=${sample.name}", "READS_STAR_LEFT=${readsSTARLeft}", "READS_STAR_RIGHT=${readsSTARRight}", "READS_KALLISTO=${readsKallisto}", "PARM_READGROUPS=${readGroups}")
         }
         return true;
     }

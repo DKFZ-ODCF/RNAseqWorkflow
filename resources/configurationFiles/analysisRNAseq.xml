@@ -168,15 +168,6 @@
         <cvalue name='outputAccessRights' value='u+rw,g+rw,o-rwx'/>
         <cvalue name='outputAccessRightsForDirectories' value='u+rwx,g+rwx,o-rwx'/>
         <cvalue name='outputAllowAccessRightsModification' value='false' type="boolean"/>
-
-        <!-- ## Single cell analysis -->
-        <cvalue name="rawBarcodeFilename" value="welllist.txt" type="string"/>
-        <cvalue name='demultiplexOutputDirectory' value='demultiplex' type='string'/>
-        <cvalue name='singleCellSequencingSystem' value='wafergen' type='string' />
-        <cvalue name='numProcessingJobs' value='20' type='string' />
-        <cvalue name='RUN_LIBRARY_QC' value='true' type='boolean'/>
-        <cvalue name='LIBRARY_QC_DIR' value='${outputAnalysisBaseDirectory}/library_qc' type='string'/>
-
     </configurationvalues>
 
     <processingTools>
@@ -194,22 +185,6 @@
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
         <tool name='fingerprint' value="bsnp.py" basepath="qcPipeline"/>
-
-        <tool name="mergeFeaturecountsTables" value="merge_featurecounts_tables.py" basepath="rnaseqworkflow"/>
-        <tool name="splitBamByReadgroup" value="split_bam_by_readgroup.py" basepath="rnaseqworkflow"/>
-        <tool name="parseBarcodeFile" value="parse_barcodefile.py" basepath="rnaseqworkflow"/>
-        <tool name="makeLibraryQcPlot" value="new_makeQCplot.R" basepath="rnaseqworkflow"/>
-        <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
-        <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="5g" cores="5" nodes="1" walltime="30h" queue="devel"/>
-                <rset size="l" memory="15g" cores="10" nodes="1" walltime="100h"/>
-            </resourcesets>
-            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
-            <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
-            <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointDemultiplexing" scriptparameter="CHECKPOINT_DEMULTIPLEXING" />
-        </tool>
         <tool name="cutadaptWrapper" value="cutadapt_wrapper.py" basepath="rnaseqworkflow"/>
         <tool name="trimming" value="trimming_cutadapt.sh" basepath="rnaseqworkflow">
             <resourcesets>
@@ -217,16 +192,15 @@
                 <rset size="l" memory="1g" cores="8" nodes="1" walltime="10h"/>
             </resourcesets>
             <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_DEMULTIPLEXING"/>
-            <input type="string" setby="callingCode" scriptparameter="CHUNK_INDEX"/>
             <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointTrimming" scriptparameter="CHECKPOINT_TRIMMING" />
         </tool>
 
-        <tool name="starAlignment" value="HIPO2_rnaseq_alignment.sh" basepath="rnaseqworkflow">
+        <tool name="rnaseqProcessing" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="100g" cores="8" nodes="1" walltime="48h"/>
+                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
             </resourcesets>
             <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_TRIMMING"/>
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
@@ -237,26 +211,13 @@
             <input type="string" setby="callingCode" scriptparameter="PARM_RUNIDS"/>
             <input type="string" setby="callingCode" scriptparameter="PARM_LANEIDS"/>
             <input type="string" setby="callingCode" scriptparameter="PARM_READGROUPS"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointAlignment" scriptparameter="CHECKPOINT_ALIGNMENT" />
-        </tool>
-
-        <tool name="rnaseqProcessing" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="10g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="15g" cores="10" nodes="1" walltime="3h"/>
-            </resourcesets>
-            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_ALIGNMENT"/>
-            <input type="string" setby="callingCode" scriptparameter="CHUNK_INDEX"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointProcessing" scriptparameter="CHECKPOINT_PROCESSING" />
         </tool>
 
 
     </processingTools>
     <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>
-        <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointDemultiplexing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_demultiplexing'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointTrimming" pattern='${outputAnalysisBaseDirectory}/.checkpoint_trimming'/>
-        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointAlignment" pattern='${outputAnalysisBaseDirectory}/.checkpoint_alignment'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing'/>
-        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointPostprocessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_postprocessing'/>
     </filenames>
 </configuration>

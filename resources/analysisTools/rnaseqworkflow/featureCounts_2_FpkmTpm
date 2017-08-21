@@ -139,7 +139,7 @@ foreach my $fc_fh ($fc0_fh, $fc1_fh, $fc2_fh){
   $line = <$fc_fh>;
   while ($line = <$fc_fh>){
     chomp ($line);
-    my ($id,$chr,$start,$end,$strand,$length,$counts)=split /\t/, $line;   
+    my ($id,$chr,$start,$end,$strand,$length,$counts)=split /\t/, $line;
 
     $read_counts{$hash_index}{$id}=$counts                         unless (exists $ignore{$id});
     $read_counts_per_length{$hash_index}{$id}=$counts/$length unless (exists $ignore{$id});

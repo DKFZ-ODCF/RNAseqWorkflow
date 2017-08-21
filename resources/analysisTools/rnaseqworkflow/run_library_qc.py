@@ -42,30 +42,19 @@ with open(count_file) as f:
                 if c > 0:
                     coding_gene_cnt[i] += 1
 
-########################################################################################################################
-# TODO: below should not be necessary for future releases
-print "Processing tgz file..."
-tfs = [os.path.join(sys.argv[3], '_'.join([sample, pid, cell_id]) + "_merged.mdup.bam_featureCounts_raw.tgz") for cell_id in cell_ids]
-s0ss = ['_'.join([sample, pid, cell_id]) + "_merged.mdup.bam_featureCounts_raw" + '/' + '_'.join([sample, pid, cell_id]) + "_merged.mdup.bam.featureCounts.s0.summary" for cell_id in cell_ids]
-
-if not os.path.isdir("/tmp/tar_extracted"):
-    os.mkdir("/tmp/tar_extracted")
-
-for idx, (tf, s0s) in enumerate(zip(tfs, s0ss)):
-    if not os.path.exists(tf): continue
-    tar = tarfile.open(tf, "r:gz")
-    for tarinfo in tar:
-        if tarinfo.name == s0s:
-            tar.extract(tarinfo, "/tmp/tar_extracted/")
-            with open("/tmp/tar_extracted/" + s0s) as f:
-                for line in f:
-                    entries = line.strip().split()
-                    if entries[0] == "Unassigned_NoFeatures":
-                        non_genic_read_cnt[idx] += int(entries[1])
-                        break
-            break
-os.system("rm -fr /tmp/tar_extracted")
-########################################################################################################################
+if len(sys.argv) > 5:
+    ngcidx = 0
+    fns = sys.argv[5:]
+    for fn in fns:
+        with open(fn) as f:
+            for line in f:
+                entries = line.strip().split()
+                if entries[0] == "Unassigned_NoFeatures":
+                    ngcnts = map(int, entries[1:])
+                    for ngcnt in ngcnts:
+                        non_genic_read_cnt[ngcidx] = ngcnt
+                        ngcidx += 1
+                    break
 
 mito_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(mito_read_cnt, total_read_cnt)]
 non_genic_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(non_genic_read_cnt, total_read_cnt)]

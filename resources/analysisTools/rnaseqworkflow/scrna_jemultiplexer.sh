@@ -7,11 +7,6 @@ source $TOOL_NAV_LIB
 
 JE_OUTDIR=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}
 
-echo "$READS_LEFT"
-echo "$READS_RIGHT"
-echo "$BARCODE_JE"
-exit 0
-
 if [ "$LOAD_MODULE" == true ]
 then
 	module load $MODULE_ENV

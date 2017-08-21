@@ -14,11 +14,19 @@
                cleanupScript="cleanupScript">
 
     <configurationvalues>
+        <!-- ## Single cell analysis -->
+        <cvalue name="rawBarcodeFilename" value="welllist.txt" type="string"/>
+        <cvalue name='demultiplexOutputDirectory' value='demultiplex' type='string'/>
+        <cvalue name='singleCellSequencingSystem' value='wafergen' type='string' />
+        <cvalue name='numProcessingJobs' value='20' type='string' />
+        <cvalue name='RUN_LIBRARY_QC' value='true' type='boolean'/>
+        <cvalue name='LIBRARY_QC_DIR' value='${outputAnalysisBaseDirectory}/library_qc' type='string'/>
 
         <cvalue name="runSingleCellWorkflow" value="true" type="boolean" />
+        <cvalue name="useSingleEndProcessing" value="false" type="boolean" />
         <cvalue name="chunkSize" value="128" type="integer" />
-        <cvalue name="useSingleEndProcessing" value="true" type="boolean" />
 
+        <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${SAMPLE}_${CHUNK_INDEX}' type='string'/>
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_${CHUNK_INDEX}_merged' type='string'/>
         <cvalue name='STAR_TMPDIR' value='$SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_STAR'/>
         <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
@@ -28,7 +36,7 @@
                 value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
-                value='"--outSAMtype BAM Unsorted --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
+                value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
                 type='string'/>
         <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
 
@@ -70,6 +78,7 @@
     </configurationvalues>
 
     <processingTools>
+        <tool name="mergeFeaturecountsTables" value="merge_featurecounts_tables.py" basepath="rnaseqworkflow"/>
         <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
         <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
             <resourcesets>
@@ -81,22 +90,13 @@
             <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointDemultiplexing" scriptparameter="CHECKPOINT_DEMULTIPLEXING" />
         </tool>
-        <tool name="singlecellAlignment" value="singlecell_alignment.sh" basepath="rnaseqworkflow">
-            <resourcesets>
-                <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
-            </resourcesets>
-            <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_TRIMMING"/>
-            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
-            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointAlignment" scriptparameter="CHECKPOINT_ALIGNMENT" />
-        </tool>
-
         <tool name="singlecellPostprocessing" value="singlecell_postprocessing.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="1g" cores="1" nodes="1" walltime="1h"/>
             </resourcesets>
             <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_PROCESSING"/>
-            <input type="string" setby="callingCode" scriptparameter="BARCODE_FILE"/>
+            <input type="string" setby="callingCode" scriptparameter="BAM_FILE_NUM"/>
+            <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>
             <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointPostprocessing" scriptparameter="CHECKPOINT_POSTPROCESSING" />
         </tool>
 
@@ -104,8 +104,7 @@
     <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>
         <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointDemultiplexing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_demultiplexing'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointTrimming" pattern='${outputAnalysisBaseDirectory}/.checkpoint_trimming_${jobParameter,name="SAMPLE"}_${jobParameter,name="CHUNK_INDEX"}'/>
-        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointAlignment" pattern='${outputAnalysisBaseDirectory}/.checkpoint_alignment_${jobParameter,name="SAMPLE"}_${jobParameter,name="CHUNK_INDEX"}'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing_${jobParameter,name="SAMPLE"}_${jobParameter,name="CHUNK_INDEX"}'/>
-        <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointPostprocessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_postprocessing_${jobParameter,name="SAMPLE"}'/>
+        <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointPostprocessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_postprocessing_${jobParameter,name="SAMPLE"}'/>
     </filenames>
 </configuration>
