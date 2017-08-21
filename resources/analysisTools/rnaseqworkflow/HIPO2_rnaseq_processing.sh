@@ -22,7 +22,7 @@ set -vx
 
 source $CONFIG_FILE
 
-source $TOOL_NAV_LIB
+source $TOOL_BASH_LIB
 
 echo_run $DO_FIRST
 
@@ -145,7 +145,7 @@ then
     if [ "$runSingleCellWorkflow" == true ]; then
         make_directory $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts
         COUNT="$COUNT --byReadGroup --tmpDir $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
-        echo_run "$FEATURECOUNTS_BINARY $COUNT -s 0 -o ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
+        echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s 0 -o ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
         check_or_die ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 gene-counting
     else
         make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts

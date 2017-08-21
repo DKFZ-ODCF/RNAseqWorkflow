@@ -92,6 +92,9 @@ ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencod
 ```
 == Changelist
 
+Release_1.0.22 [21st Aug 2017]
+- Fixed errors is SE qc json file (removed empty value and NaN values)
+
 Release_1.0.21 [21st Aug 2017]
 - Added single end support via "useSingleEndProcessing:true"
 - featureCounts has issues with the native bam file produced by STAR. We now use the mdup bam file and read sort the PE file (SE are read as is)
