@@ -78,6 +78,8 @@
          <!-- ## MODULE OPTIONS -->
         <cvalue name='LOAD_MODULE' value='true' type='boolean'/>
         <cvalue name='MODULE_ENV' value='HIPO2_rna/v1' type='string'/>
+        <cvalue name='runSingleCellWorkflow' value='false' type='boolean'/>
+        <cvalue name='useSingleEndProcessing' value='false' type='boolean'/>
 
         <!-- ## -->
         <!-- ## WHAT TO RUN -->
