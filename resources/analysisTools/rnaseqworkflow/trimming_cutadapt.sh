@@ -21,6 +21,10 @@ mkdir -p ${CUTADAPTTMPDIR}
 
 trimOpts="-b ${CUTADAPT_BINARY} -t ${CUTADAPTTMPDIR} -a ${ADAPTER_SEQ} -c ${CORES} -q ${TRIM_3P_QUAL}"
 
+if [ "$runSingleCellWorkflow" == false ]; then
+    trimOpts="${trimOpts} -p"
+fi
+
 if [ "$TRIM_NEXTSEQ" == true ]; then
     trimOpts="${trimOpts} -n"
 fi

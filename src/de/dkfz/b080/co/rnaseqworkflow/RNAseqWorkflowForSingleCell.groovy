@@ -134,7 +134,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
                     Map<String, String> row ->
                         [
                                 outdir + "/" + demultiplexdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
-                                outdir + "/" + trimmingdir + "/" + runid + "_"+ pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
+                                outdir + "/" + trimmingdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
                                 "ID:" + runid + "_C" + row["_SampleNum"] + "_H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + " LB:" + row["Sample"] + "_" + pid + " PL:ILLUMINA SM:sample_" + row["Sample"] + "_" + pid + " PU:" + (runid.split("[_]")[-1])
                         ]
                 }

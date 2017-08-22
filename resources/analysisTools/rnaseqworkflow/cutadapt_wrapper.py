@@ -3,7 +3,7 @@
 from __future__ import division
 
 from glob import glob
-from os import system, path, mkdir
+from os import system, path, mkdir, environ
 from math import ceil
 from multiprocessing import Pool
 
@@ -58,15 +58,19 @@ def main(options):
     second_cutadapt = POLYA or POLYT or POLYN or POLYG
 
     for fns in files:
-        runid = fns[0].split('/')[-3]
-        prefix = runid + "_" + "'.'.join(path.basename(fns[0]).split(".")[:-2])
+        prefix = '.'.join(path.basename(fns[0]).split(".")[:-2])
+        if options.prefix:
+            runid = fns[0].split('/')[-3]
+            prefix = runid + "_" + prefix
         out_file = path.join(OUT_DIR, prefix + ".fastq.gz")
         fifo1 = path.join(tmpdir, prefix + ".fifo.fastq")
         fifos.append(fifo1)
 
         if options.read2:
-            runid = fns[0].split('/')[-3]
-            prefix = runid + "_" + '.'.join(path.basename(fns[1]).split(".")[:-2])
+            prefix = '.'.join(path.basename(fns[1]).split(".")[:-2])
+            if options.prefix:
+                runid = fns[0].split('/')[-3]
+                prefix = runid + "_" prefix
             out_file2 = path.join(OUT_DIR, prefix + ".fastq.gz")
             fifo2 = path.join(tmpdir, prefix + ".fifo.fastq")
             fifos.append(fifo2)
@@ -151,6 +155,7 @@ if __name__ == "__main__":
     parser.add_argument('-1', '--read1', dest='read1', type=str, required=True)
     parser.add_argument('-2', '--read2', dest='read2', type=str)
     parser.add_argument('-t', '--tmpdir', dest='tmpdir', type=str, default="")
+    parser.add_argument('-p', '--prefixrunid', dest='prefixrunid', action='store_true')
     parser.add_argument('OUT_DIR', type=str, nargs=1)
 
     options = parser.parse_args()
