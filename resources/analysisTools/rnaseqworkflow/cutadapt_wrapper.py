@@ -59,7 +59,7 @@ def main(options):
 
     for fns in files:
         prefix = '.'.join(path.basename(fns[0]).split(".")[:-2])
-        if options.prefix:
+        if options.prefixrunid:
             runid = fns[0].split('/')[-3]
             prefix = runid + "_" + prefix
         out_file = path.join(OUT_DIR, prefix + ".fastq.gz")
@@ -68,9 +68,9 @@ def main(options):
 
         if options.read2:
             prefix = '.'.join(path.basename(fns[1]).split(".")[:-2])
-            if options.prefix:
+            if options.prefixrunid:
                 runid = fns[0].split('/')[-3]
-                prefix = runid + "_" prefix
+                prefix = runid + "_" + prefix
             out_file2 = path.join(OUT_DIR, prefix + ".fastq.gz")
             fifo2 = path.join(tmpdir, prefix + ".fifo.fastq")
             fifos.append(fifo2)
