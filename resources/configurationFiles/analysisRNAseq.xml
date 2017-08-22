@@ -69,9 +69,9 @@
         <cvalue name='RNASEQC_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/RNA-SeQC/RNA-SeQC-1.1.8/rnaseqc' type='string'/>
         <cvalue name='KALLISTO_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/bin/kallisto-0.43.0' type='string'/>
         <cvalue name='QUALIMAP_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/qualimap/qualimap-2.2.1/qualimap' type='string'/>
-        <cvalue name='ARRIBA_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/arriba' type='string'/>
-        <cvalue name='ARRIBA_READTHROUGH_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/extract_read-through_fusions' type='string'/>
-        <cvalue name='ARRIBA_DRAW_FUSIONS' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/draw_fusions.R' type='string'/>
+        <cvalue name='ARRIBA_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.10/bin/arriba' type='string'/>
+        <cvalue name='ARRIBA_READTHROUGH_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.10/bin/extract_read-through_fusions' type='string'/>
+        <cvalue name='ARRIBA_DRAW_FUSIONS' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.10/bin/draw_fusions.R' type='string'/>
         <cvalue name="JOB_PROFILER_BINARY" value="strace.sh"/>
         <cvalue name='PYTHON_BINARY' value='python' type='string'/>
         <cvalue name="RSCRIPT_BINARY" value='Rscript-3.3.1' type='string'/>
@@ -117,8 +117,8 @@
         <cvalue name='GENOME_STAR_INDEX_100' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp' type='string'/>
         <cvalue name='GENOME_STAR_INDEX_200' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp' type='string'/>
         <cvalue name='GENOME_KALLISTO_INDEX' value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/>
-        <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz' type='string'/>
-        <cvalue name='ARRIBA_BLACKLIST' value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz' type='string'/>
+        <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-05-11.tsv.gz' type='string'/>
+        <cvalue name='ARRIBA_BLACKLIST' value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-05-11.tsv.gz' type='string'/>
 
         <!-- ## -->
         <!-- ## SOFTWARE PARAMS -->

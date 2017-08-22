@@ -34,6 +34,7 @@ if [ "$LOAD_MODULE" == true ]
 then
 	module load $MODULE_ENV
 	module load subread/1.5.3
+        module load arriba/0.10
 
 	STAR_BINARY=STAR
 	FEATURECOUNTS_BINARY=featureCounts
@@ -298,8 +299,9 @@ if [ "$runSingleCellWorkflow" == false ]; then
     then
         make_directory $ARRIBA_DIR
         cd $ARRIBA_DIR
-        echo_run "$ARRIBA_READTHROUGH_BINARY -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${pid}_merged_read_through.bam"
-        echo_run "$ARRIBA_BINARY -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${pid}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARRIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARRIBA_BLACKLIST -o ${SAMPLE}_${pid}.fusions.txt -O ${SAMPLE}_${pid}.discarded_fusions.txt "
+        echo_run "$ARRIBA_READTHROUGH_BINARY  -g $GENE_MODELS -i $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -o ${SAMPLE}_${pid}_merged_read_through.bam"
+        echo_run "$ARRIBA_BINARY -T -c $ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM -r ${SAMPLE}_${pid}_merged_read_through.bam -x $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM -a $GENOME_FA -k $ARRIBA_KNOWN_FUSIONS -g $GENE_MODELS -b $ARRIBA_BLACKLIST -o ${SAMPLE}_${pid}.fusions.txt -O ${SAMPLE}_${pid}.discarded_fusions.txt "
+	echo_run "gzip ${SAMPLE}_${pid}.discarded_fusions.txt"
         if [[ -f "${SAMPLE}_${pid}.fusions.txt" ]]
         then
             echo_run "$ARRIBA_DRAW_FUSIONS --annotation=$GENE_MODELS --fusions=${SAMPLE}_${pid}.fusions.txt --output=${SAMPLE}_${pid}.fusions.pdf"
