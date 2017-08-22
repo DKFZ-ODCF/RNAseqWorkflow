@@ -101,7 +101,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
             String jeInputFilePath = jeInputFile.absolutePath
             checkpointfile_jemultiplexer = (TextFile) call("jemultiplexer", dummyFile, "READS_LEFT=${readsLeft}", "READS_RIGHT=${readsRight}", "BARCODE_JE=${jeInputFilePath}")
         } else {
-            String stringForSymLinking = getStringForSymLinking(barcodeFile.absolutePath, pid, barcodeMDTBySampleAndChunk)
+            String stringForSymLinking = getStringForSymLinking(barcodeFile.parentFile.absolutePath, pid, barcodeMDTBySampleAndChunk)
             checkpointfile_jemultiplexer = (TextFile) call("fastqlinker", dummyFile, "SYMLINK_TARGETS=${stringForSymLinking}")
         }
         TextFile checkpointfile;
