@@ -59,11 +59,15 @@ class RNAseqLaneFileGroupSetForPairedEnd {
     }
 
     String getTrimmedLeftLaneFilesAsCSVs(String trimmingOutputDirectory) {
-        laneFiles.keySet().collect { new File(new File(it.path.parentFile.parentFile, trimmingOutputDirectory), it.path.getName()) }.join(",")
+        laneFileGroupList.collect {
+            def it -> it.getRun() + "_" + new File(new File(it.filesInGroup[0].path.parentFile.parentFile, trimmingOutputDirectory), it.filesInGroup[0].path.getName())
+        }.join(",")
     }
 
     String getTrimmedRightLaneFilesAsCSVs(String trimmingOutputDirectory) {
-        laneFiles.values().collect { new File(new File(it.path.parentFile.parentFile, trimmingOutputDirectory), it.path.getName()) }.join(",")
+        laneFileGroupList.collect {
+            def it -> it.getRun() + "_" + new File(new File(it.filesInGroup[1].path.parentFile.parentFile, trimmingOutputDirectory), it.filesInGroup[1].path.getName())
+        }.join(",")
     }
 
     String getLaneFilesAlternatingWithSpaceSep() {

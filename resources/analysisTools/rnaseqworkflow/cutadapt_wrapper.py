@@ -58,13 +58,15 @@ def main(options):
     second_cutadapt = POLYA or POLYT or POLYN or POLYG
 
     for fns in files:
-        prefix = '.'.join(path.basename(fns[0]).split(".")[:-2])
+        runid = fns[0].split('/')[-3]
+        prefix = runid + "_" + "'.'.join(path.basename(fns[0]).split(".")[:-2])
         out_file = path.join(OUT_DIR, prefix + ".fastq.gz")
         fifo1 = path.join(tmpdir, prefix + ".fifo.fastq")
         fifos.append(fifo1)
 
         if options.read2:
-            prefix = '.'.join(path.basename(fns[1]).split(".")[:-2])
+            runid = fns[0].split('/')[-3]
+            prefix = runid + "_" + '.'.join(path.basename(fns[1]).split(".")[:-2])
             out_file2 = path.join(OUT_DIR, prefix + ".fastq.gz")
             fifo2 = path.join(tmpdir, prefix + ".fifo.fastq")
             fifos.append(fifo2)
