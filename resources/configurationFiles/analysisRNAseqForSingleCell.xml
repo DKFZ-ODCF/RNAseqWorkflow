@@ -20,6 +20,7 @@
         <cvalue name='singleCellSequencingSystem' value='wafergen' type='string' />
         <cvalue name='numProcessingJobs' value='20' type='string' />
         <cvalue name='RUN_LIBRARY_QC' value='true' type='boolean'/>
+        <cvalue name='RUN_DEMULTIPLEXING' value='true' type='string'/>
         <cvalue name='LIBRARY_QC_DIR' value='${outputAnalysisBaseDirectory}/library_qc' type='string'/>
 
         <cvalue name="runSingleCellWorkflow" value="true" type="boolean" />
@@ -80,6 +81,15 @@
     <processingTools>
         <tool name="mergeFeaturecountsTables" value="merge_featurecounts_tables.py" basepath="rnaseqworkflow"/>
         <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
+        <tool name="fastqlinker" value="scrna_linker.sh" basepath="rnaseqworkflow">
+            <resourcesets>
+                <rset size="s" memory="100M" cores="1" nodes="1" walltime="1h" />
+            </resourcesets>
+            <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
+            <input type="string" setby="callingCode" scriptparameter="READS_RIGHT"/>
+            <output type="file" typeof="TextFile" fnpatternselectiontag="checkpointLinking" scriptparameter="CHECKPOINT_LINKING" />
+        </tool>
         <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="5g" cores="5" nodes="1" walltime="3h" queue="devel"/>
@@ -102,6 +112,7 @@
 
     </processingTools>
     <filenames package='de.dkfz.b080.co.files' filestagesbase='de.dkfz.b080.co.files.COFileStage'>
+        <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointLinking" pattern='${outputAnalysisBaseDirectory}/.checkpoint_linking'/>
         <filename class='TextFile' derivedFrom="LaneFile" selectiontag="checkpointDemultiplexing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_demultiplexing'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointTrimming" pattern='${outputAnalysisBaseDirectory}/.checkpoint_trimming_${jobParameter,name="SAMPLE"}_${jobParameter,name="CHUNK_INDEX"}'/>
         <filename class='TextFile' derivedFrom="TextFile" selectiontag="checkpointProcessing" pattern='${outputAnalysisBaseDirectory}/.checkpoint_processing_${jobParameter,name="SAMPLE"}_${jobParameter,name="CHUNK_INDEX"}'/>

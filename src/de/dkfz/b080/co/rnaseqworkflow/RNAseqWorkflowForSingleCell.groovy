@@ -66,12 +66,20 @@ class RNAseqWorkflowForSingleCell extends Workflow {
     @Override
     boolean execute(ExecutionContext context) {
         COProjectsRuntimeService runtimeService = (COProjectsRuntimeService) context.getRuntimeService()
+        RNAseqConfig config = new RNAseqConfig(context)
+
         List<Sample> samples = runtimeService.getSamplesForContext(context)
 
         // Only one sample is allowed, see checks below.
         Sample sample = samples[0]
 
-        RNAseqLaneFileGroupSetForPairedEnd lfgs = new RNAseqLaneFileGroupSetForPairedEnd(runtimeService.loadLaneFilesForSample(context, sample))
+        def laneFilesForSample = runtimeService.loadLaneFilesForSample(context, sample)
+        def lfgs
+        if (config.useSingleEndProcessing()) {
+            lfgs = new RNAseqLaneFileGroupSetForSingleEnd(laneFilesForSample)
+        } else {
+            lfgs = new RNAseqLaneFileGroupSetForPairedEnd(laneFilesForSample)
+        }
 
         // Just a dummy, which is needed as a first parameter to some jobs.
         LaneFile dummyFile = lfgs.getFirstLaneFile()
@@ -80,30 +88,31 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         String pid = lfgs.getPID()
         String runid = lfgs.getRuns().first()
 
-        // Parse welllist using a MetadataTable
-        Map<String, Map<String, BaseMetadataTable>> barcodeMDTBySampleAndChunk = getChunkedBarcodeFileMDTablesBySample(context, barcodeFile)
-
-        // Split the table first by its samples, then by the barcodes. This is
-        // to get chunks, which are not too large for the Bash command size and for the Star parameters
-
-        String barcodeFilePath = barcodeFile.absolutePath
+        TextFile checkpointfile_jemultiplexer
+        Map<String, Map<String, BaseMetadataTable>> barcodeMDTBySampleAndChunk
 
         String readsLeft = lfgs.getLeftLaneFilesAsCSVs()
         String readsRight = lfgs.getRightLaneFilesAsCSVs()
 
-        BaseFile jeInputFile = createAndWriteJeInputFile(context, pid, barcodeMDTBySampleAndChunk)
-        String jeInputFilePath = jeInputFile.absolutePath
-        TextFile checkpointfile_jemultiplexer = (TextFile) call("jemultiplexer", dummyFile, "READS_LEFT=${readsLeft}", "READS_RIGHT=${readsRight}", "BARCODE_JE=${jeInputFilePath}")
-
+        // Parse welllist using a MetadataTable
+        barcodeMDTBySampleAndChunk = getChunkedBarcodeFileMDTablesBySample(context, barcodeFile)
+        if (context.getConfiguration().getConfigurationValues().getBoolean("RUN_DEMULTIPLEXING", true)) {
+            BaseFile jeInputFile = createAndWriteJeInputFile(context, pid, barcodeMDTBySampleAndChunk)
+            String jeInputFilePath = jeInputFile.absolutePath
+            checkpointfile_jemultiplexer = (TextFile) call("jemultiplexer", dummyFile, "READS_LEFT=${readsLeft}", "READS_RIGHT=${readsRight}", "BARCODE_JE=${jeInputFilePath}")
+        } else {
+            String stringForSymLinking = getStringForSymLinking(barcodeFile.absolutePath, pid, barcodeMDTBySampleAndChunk)
+            checkpointfile_jemultiplexer = (TextFile) call("fastqlinker", dummyFile, "SYMLINK_TARGETS=${stringForSymLinking}")
+        }
         TextFile checkpointfile;
         for (String sampleID : barcodeMDTBySampleAndChunk.keySet()) {
             List<TextFile> checkpointfiles_alignment = []
-            for(String chunkID : barcodeMDTBySampleAndChunk[sampleID].keySet()) {
+            for (String chunkID : barcodeMDTBySampleAndChunk[sampleID].keySet()) {
                 if (chunkID.equals("all"))
                     continue
-                List<String> strs = createInputFileStringAndReadGroups(context, pid, runid, chunkID, barcodeMDTBySampleAndChunk[sampleID][chunkID])
+                List<String> strs = createInputFileStringAndReadGroups(context, pid, runid, barcodeMDTBySampleAndChunk[sampleID][chunkID])
                 checkpointfile = (TextFile) call("trimming", checkpointfile_jemultiplexer, "READ1=${strs[0]}", "SAMPLE=${sampleID}", "CHUNK_INDEX=${chunkID}")
-                checkpointfile = (TextFile) call("rnaseqProcessing", checkpointfile, "SAMPLE=${sampleID}", "READS_STAR_LEFT=${strs[1]}", "PARM_READGROUPS=${strs[2]}","CHUNK_INDEX=${chunkID}")
+                checkpointfile = (TextFile) call("rnaseqProcessing", checkpointfile, "SAMPLE=${sampleID}", "READS_STAR_LEFT=${strs[1]}", "PARM_READGROUPS=${strs[2]}", "CHUNK_INDEX=${chunkID}")
                 checkpointfiles_alignment.add(checkpointfile)
             }
             int numChunks = barcodeMDTBySampleAndChunk[sampleID].keySet().size() - 1
@@ -113,7 +122,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         return true
     }
 
-    public List<String> createInputFileStringAndReadGroups(ExecutionContext context, String pid, String runid, String chunkID, BaseMetadataTable barcodeTable) {
+    public List<String> createInputFileStringAndReadGroups(ExecutionContext context, String pid, String runid, BaseMetadataTable barcodeTable) {
         // Creates input fastq file, read group
         COProjectsRuntimeService runtimeService = ((COProjectsRuntimeService) context.runtimeService)
         String outdir = context.getOutputDirectory().absolutePath
@@ -124,9 +133,9 @@ class RNAseqWorkflowForSingleCell extends Workflow {
                 records.collect {
                     Map<String, String> row ->
                         [
-                            outdir + "/" + demultiplexdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
-                            outdir + "/" + trimmingdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
-                            "ID:" + runid + "_C" + row["_SampleNum"] + "_H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + " LB:" + row["Sample"] + "_" + pid + " PL:ILLUMINA SM:sample_" + row["Sample"] + "_" + pid + " PU:" + (runid.split("[_]")[-1])
+                                outdir + "/" + demultiplexdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
+                                outdir + "/" + trimmingdir + "/" + pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz",
+                                "ID:" + runid + "_C" + row["_SampleNum"] + "_H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + " LB:" + row["Sample"] + "_" + pid + " PL:ILLUMINA SM:sample_" + row["Sample"] + "_" + pid + " PU:" + (runid.split("[_]")[-1])
                         ]
                 }
         ][0].transpose()
@@ -145,17 +154,36 @@ class RNAseqWorkflowForSingleCell extends Workflow {
             List<Map<String, String>> records = barcodeTable.records
             fileContent += [
                     records.collect {
-                        Map<String, String> row -> [
-                                row["Sample"]+"-R"+row["Row"]+"C"+row["Col"],
-                                row["Barcode"],
-                                pid+"-"+row["Sample"]+"-C"+row["_SampleNum"]+"-H"+sprintf('%03d', row["_CellNum"].toInteger())+"_"+row["Barcode"]+"_R1.fastq.gz",
-                                pid+"-"+row["Sample"]+"-C"+row["_SampleNum"]+"-H"+sprintf('%03d', row["_CellNum"].toInteger())+"_"+row["Barcode"]+"_R2.fastq.gz"
-                        ].join("\t")
+                        Map<String, String> row ->
+                            [
+                                    (row.containsKey("Row") && row.containsKey("Col")) ? (row["Sample"] + "-R" + row["Row"] + "C" + row["Col"]) : (row["Sample"] + "-" + row["Barcode"]),
+                                    row["Barcode"],
+                                    pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R1.fastq.gz",
+                                    pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz"
+                            ].join("\t")
                     }
             ].flatten().join("\n") + "\n"
         }
         FileSystemAccessProvider.instance.writeTextFile(inputFile.path, fileContent)
         return inputFile
+    }
+
+    String getStringForSymLinking(String barcodeFilePath, String pid, Map<String, Map<String, BaseMetadataTable>> barcodeTables) {
+        String rtnString = ""
+        for (String sampleID : barcodeTables.keySet()) {
+            BaseMetadataTable barcodeTable = barcodeTables[sampleID]["all"]
+            List<Map<String, String>> records = barcodeTable.records
+            rtnString += [
+                    records.collect {
+                        Map<String, String> row ->
+                            [
+                                    barcodeFilePath + "/sequence/" + row["FastqFile"],
+                                    pid + "-" + row["Sample"] + "-C" + row["_SampleNum"] + "-H" + sprintf('%03d', row["_CellNum"].toInteger()) + "_" + row["Barcode"] + "_R2.fastq.gz"
+                            ].join(",")
+                    }
+            ].flatten().join(" ")
+        }
+        return rtnString
     }
 
     /**
@@ -171,7 +199,8 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         String[] content = FileSystemAccessProvider.instance.loadTextFile(barcodeFile)
 
         final int CHUNK_SIZE = context.getConfiguration().getConfigurationValues().get("chunkSize", "512").toInt()
-        String[] columnHeaders = ("_Chunk\t_SampleNum\t_CellNum\t" + content[0]).split("[\t]") // Get the real headers and create the MetadataTable column configuration
+        String[] columnHeaders = ("_Chunk\t_SampleNum\t_CellNum\t" + content[0]).split("[\t]")
+        // Get the real headers and create the MetadataTable column configuration
 
         // Prepare the configuration to use the current input for the welllist.
         context.configurationValues.putAll(
@@ -181,7 +210,8 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         )
         context.configurationValues.put("metadataTableColumnIDs", columnHeaders.join(","))
 
-        welllistText << "_Chunk\t_SampleNum\t_CellNum\t" << content[0] << "\n"// Add the chunk column. This is not in the file.
+        welllistText << "_Chunk\t_SampleNum\t_CellNum\t" << content[0] << "\n"
+// Add the chunk column. This is not in the file.
         for (int i = 1; i < content.size(); i++) { // Add zero as the chunk id
             welllistText << "0\t0\t0\t" << content[i] << "\n"
         }
@@ -203,7 +233,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
             allTablesBySampleAndChunk[sample] = [:]
             // Chunk for STAR / Salmon
             for (int i = 0; i < tableBySample.size(); i++) {
-                int chunkID = (int)(i / CHUNK_SIZE)
+                int chunkID = (int) (i / CHUNK_SIZE)
                 tableBySample.records[i]["_Chunk"] = chunkID.toString()
                 tableBySample.records[i]["_SampleNum"] = sampleNum.toString()
                 tableBySample.records[i]["_CellNum"] = (cellNum++).toString()

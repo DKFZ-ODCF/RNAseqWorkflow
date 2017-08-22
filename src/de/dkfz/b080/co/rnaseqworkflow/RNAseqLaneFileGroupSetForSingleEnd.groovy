@@ -41,6 +41,14 @@ class RNAseqLaneFileGroupSetForSingleEnd extends RNAseqLaneFileGroupSetForPaired
         return ""
     }
 
+    String getTrimmedLeftLaneFilesAsCSVs(String trimmingOutputDirectory) {
+        laneFilesList.collect { new File(new File(it.path.parentFile.parentFile, trimmingOutputDirectory), it.path.getName()) }.join(",")
+    }
+
+    String getTrimmedRightLaneFilesAsCSVs(String trimmingOutputDirectory) {
+        return ""
+    }
+
     @Override
     String getLaneFilesAlternatingWithSpaceSep() {
         laneFileGroupList.collect { return "${it.filesInGroup[0].path}" }.join(" ")

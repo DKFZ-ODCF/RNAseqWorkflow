@@ -28,7 +28,7 @@ def main(argv):
     header = "gene_id\tgene_name"
     for tsv in tsvs:
         tsv.readline() # discard header line
-        header += '\t' + ''\t'.join(["_".join(e.split("_")[-3:]) for e in tsv.readline().strip().split("\t")[6:]])
+        header += '\t' + '\t'.join(["_".join(e.split("_")[-3:]) for e in tsv.readline().strip().split("\t")[6:]])
 
     fo.write("#" + header + '\n')
 

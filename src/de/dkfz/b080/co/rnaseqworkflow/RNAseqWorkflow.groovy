@@ -47,7 +47,7 @@ class RNAseqWorkflow extends Workflow {
 
             //STAR
             String readsLeft = lfgs.getLeftLaneFilesAsCSVs()
-            String readsRight = lfgs.getRightLaneFilesAsCSVs()
+            String readsRight = config.usePairedEndProcessing() ? lfgs.getRightLaneFilesAsCSVs() : "n/a"
 
             // TODO: BELOW SHOULD BE FIXED
             String readsSTARLeft = lfgs.getTrimmedLeftLaneFilesAsCSVs(context.getConfiguration().getConfigurationValues().getString("trimmingOutputDirectory"))
