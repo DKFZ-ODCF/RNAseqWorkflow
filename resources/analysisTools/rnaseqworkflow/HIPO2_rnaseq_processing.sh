@@ -33,8 +33,6 @@ echo_run $DO_FIRST
 if [ "$LOAD_MODULE" == true ]
 then
 	module load $MODULE_ENV
-	module load subread/1.5.3
-        module load arriba/0.10
 
 	STAR_BINARY=STAR
 	FEATURECOUNTS_BINARY=featureCounts

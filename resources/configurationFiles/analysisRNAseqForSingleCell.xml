@@ -27,6 +27,8 @@
         <cvalue name="useSingleEndProcessing" value="false" type="boolean" />
         <cvalue name="chunkSize" value="128" type="integer" />
 
+        <cvalue name="JE_BINARY" value="jemultiplexer" type="string"/>
+
         <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${SAMPLE}_${CHUNK_INDEX}' type='string'/>
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_${CHUNK_INDEX}_merged' type='string'/>
         <cvalue name='STAR_TMPDIR' value='$SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_STAR'/>

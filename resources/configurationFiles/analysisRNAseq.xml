@@ -77,7 +77,7 @@
         <cvalue name="RSCRIPT_BINARY" value='Rscript-3.3.1' type='string'/>
          <!-- ## MODULE OPTIONS -->
         <cvalue name='LOAD_MODULE' value='true' type='boolean'/>
-        <cvalue name='MODULE_ENV' value='HIPO2_rna/v1' type='string'/>
+        <cvalue name='MODULE_ENV' value='HIPO2_rna/v2' type='string'/>
         <cvalue name='runSingleCellWorkflow' value='false' type='boolean'/>
         <cvalue name='useSingleEndProcessing' value='false' type='boolean'/>
 

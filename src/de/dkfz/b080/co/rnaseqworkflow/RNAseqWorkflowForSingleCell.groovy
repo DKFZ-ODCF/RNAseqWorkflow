@@ -173,6 +173,8 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         for (String sampleID : barcodeTables.keySet()) {
             BaseMetadataTable barcodeTable = barcodeTables[sampleID]["all"]
             List<Map<String, String>> records = barcodeTable.records
+            if (rtnString.length() > 0)
+                rtnString += " "
             rtnString += [
                     records.collect {
                         Map<String, String> row ->

@@ -6,8 +6,8 @@ import de.dkfz.roddy.plugins.BasePlugin;
  * * TODO Recreate class. Put in dependencies to other workflows, descriptions, capabilities (like ui settings, components) etc.
  */
 public class RNAseqWorkflowPlugin extends BasePlugin {
-    public static final String CURRENT_VERSION_STRING = "1.0.26";
-    public static final String CURRENT_VERSION_BUILD_DATE = "Tue Aug 22 22:58:42 CEST 2017";
+    public static final String CURRENT_VERSION_STRING = "1.0.27";
+    public static final String CURRENT_VERSION_BUILD_DATE = "Thu Aug 24 14:20:13 CEST 2017";
 
     @Override
     public String getVersionInfo() {

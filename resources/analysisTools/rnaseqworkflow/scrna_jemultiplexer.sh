@@ -10,7 +10,6 @@ JE_OUTDIR=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}
 if [ "$LOAD_MODULE" == true ]
 then
 	module load $MODULE_ENV
-    JE_BINARY="jemultiplexer"
 fi
 
 #check_executable "$JE_BINARY"
