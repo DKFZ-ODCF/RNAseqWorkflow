@@ -89,13 +89,11 @@ then
 	    echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
 	fi
 
-	check_or_die $STAR_NOTSORTED_BAM alignment
-	remove_directory ${STAR_TMPDIR}
+    check_or_die $STAR_NOTSORTED_BAM alignment
+    check_or_die $STAR_SORTED_BAM alignment
+    remove_directory ${STAR_TMPDIR}
 
-    if [ "$runSingleCellWorkflow" == true ]; then
-        STAR_BAM=$STAR_NOTSORTED_BAM
-    else
-    	check_or_die $STAR_SORTED_BAM alignment
+    if [ "$runSingleCellWorkflow" == false ]; then
     	check_or_die $STAR_CHIMERA_SAM alignment
     	echo_run "mv ${SAMPLE}_${pid}_merged.Chimeric.out.junction ${SAMPLE}_${pid}_chimeric_merged.junction"
     	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
@@ -107,13 +105,13 @@ then
     	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
     	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_CHIMERA_MKDUP_BAM"
     	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
-
-        STAR_BAM=$STAR_SORTED_BAM
+    	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
+	    check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
     fi
 
 	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
 	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_BAM $STAR_SORTED_MKDUP_BAM"
+	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
 	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
 
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
@@ -123,8 +121,6 @@ then
     ## md5sum
 	echo_run "md5sum $STAR_SORTED_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_SORTED_MKDUP_BAM.md5"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.md5 alignment-md5sums
-	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
-	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
 
 	## flagstats (requires 4MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY flagstat -t $CORES $STAR_SORTED_MKDUP_BAM > ${STAR_SORTED_MKDUP_BAM}.flagstat"
