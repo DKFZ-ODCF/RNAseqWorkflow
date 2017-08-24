@@ -188,8 +188,8 @@
         <tool name="cutadaptWrapper" value="cutadapt_wrapper.py" basepath="rnaseqworkflow"/>
         <tool name="trimming" value="trimming_cutadapt.sh" basepath="rnaseqworkflow">
             <resourcesets>
-                <rset size="s" memory="1g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="1g" cores="8" nodes="1" walltime="10h"/>
+                <rset size="s" memory="1g" cores="8" nodes="1" walltime="3h" queue="devel"/>
+                <rset size="l" memory="1g" cores="16" nodes="1" walltime="10h"/>
             </resourcesets>
             <input type="file" typeof="TextFile" scriptparameter="CHECKPOINT_DEMULTIPLEXING"/>
             <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>
