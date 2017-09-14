@@ -28,6 +28,8 @@ def main(options):
     POLYG = options.polyg3 # False # 3'
     POLYN = options.polyn3 # False # 3'
 
+    CUT = options.cut      # 0 by default
+
     POLY_MINBASES = options.polyminbases # 6
     MIN_LEN = options.minlen #20 # minimum read length after trimming
 
@@ -54,7 +56,8 @@ def main(options):
     cmd_lines = []
     fifos = []
 
-    first_cutadapt = options.adapter or QUAL > 0
+    # Cutadapt is splitted into 2 parts due to 'overlap'. It should be applied to POLY? but not for adapter, etc.
+    first_cutadapt = options.adapter or QUAL > 0 or CUT != 0
     second_cutadapt = POLYA or POLYT or POLYN or POLYG
 
     for fns in files:
@@ -86,6 +89,10 @@ def main(options):
                     cmds.append("--nextseq-trim=%d"%QUAL)
                 else:
                     cmds.append("-q %d"%QUAL)
+
+            if CUT != 0:
+                cmds.append("-u %d"%CUT)
+
             if second_cutadapt:
                 cmds.append("-o " + fifo1)
                 if options.read2:
@@ -149,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('-P', '--polyminbases', dest='polyminbases', type=int, default=6)
     parser.add_argument('-l', '--minlen', dest='minlen', type=int, default=20)
     parser.add_argument('-b', '--cutadapt', dest='cutadapt', type=str, default='cutadapt')
+    parser.add_argument('-u', '--cut', dest='cut', type=int, default=0)
     #parser.add_argument('-j', '--jobs', dest='jobs', type=int, default=1)
     #parser.add_argument('-k', '--chunk', dest='chunk', type=int, default=0)
     parser.add_argument('-c', '--cores', dest='cores', type=int, default=1)

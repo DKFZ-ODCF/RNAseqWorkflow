@@ -163,6 +163,7 @@
         <cvalue name='TRIM_3P_POLYT' value='false' type='boolean'/>
         <cvalue name='TRIM_3P_POLYG' value='false' type='boolean'/>
         <cvalue name='TRIM_3P_POLYN' value='false' type='boolean'/>
+        <cvalue name='TRIM_BASES' value='0' type='string'/> <!-- set positive to cut from 5', negative to cut from 3' side -->
 
         <!-- ## Default file acces -->
         <cvalue name='outputFileGroup' value='B080'/>
