@@ -56,28 +56,32 @@ if len(sys.argv) > 5:
                         ngcidx += 1
                     break
 
-mito_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(mito_read_cnt, total_read_cnt)]
-non_genic_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(non_genic_read_cnt, total_read_cnt)]
+rrna_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(rrna_read_cnt, map(sum, zip(total_read_cnt, non_genic_read_cnt)))]
+mito_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(mito_read_cnt, map(sum, zip(total_read_cnt, non_genic_read_cnt)))]
+non_genic_read_ratio = [0 if b == 0 else a/float(b)*100 for a, b in zip(non_genic_read_cnt, map(sum, zip(total_read_cnt, non_genic_read_cnt)))]
 
 with open(os.path.join(sys.argv[4], "qc_%s_%s.txt"%(sample, pid)), "w") as fo:
     fo.write('qc_metric\t' + '\t'.join(cell_ids) + '\n')
     fo.write('total_read_cnt\t' + '\t'.join(map(str, total_read_cnt)) + '\n')
     fo.write('coding_gene_cnt\t' + '\t'.join(map(str, coding_gene_cnt)) + '\n')
-    fo.write('rrna_read_cnt\t' + '\t'.join(map(str, rrna_read_cnt)) + '\n')
+    fo.write('rrna_read_ratio\t' + '\t'.join(map(str, rrna_read_ratio)) + '\n')
     fo.write('mito_read_ratio\t' + '\t'.join(map(str, mito_read_ratio)) + '\n')
     fo.write('non_genic_read_ratio\t' + '\t'.join(map(str, non_genic_read_ratio)) + '\n')
 
-def plot_counts(entries, cell_ids, title, axis):
+def plot_counts(entries, cell_ids, title, axis, isratio):
     sorted_cell_ids, sorted_cnts = zip(*sorted(zip(cell_ids, entries), key=lambda e: e[1]))
     y_pos = np.arange(len(sorted_cell_ids))
     axis.bar(y_pos, sorted_cnts, align='center')
     axis.set_xticks([])
-    axis.set_ylabel(title)
-    axis.set_xlim([0, len(sorted_cnts)])
-    axis.set_ylim([0, sorted_cnts[-1]])
+    axis.set_ylabel(title, fontsize=10.0)
+    axis.set_xlim([-1, len(sorted_cnts)])
+    axis.set_ylim([0, sorted_cnts[-1] + sorted_cnts[-1]*0.1])
 
-fig, axes = plt.subplots(5, 1)
-for idx, (title, cnts) in enumerate(zip(["Total reads", "Coding genes", "rRNA reads", "Mito. reads %", "Non-genic reads %"], [total_read_cnt, coding_gene_cnt, rrna_read_cnt, mito_read_ratio, non_genic_read_ratio])):
-    plot_counts(cnts, cell_ids, title, axes[idx])
-
+fig, axes = plt.subplots(5, 1, figsize=(10, 15))
+fig.suptitle("QC plot for " + sample + " of " + pid)
+for idx, (title, cnts) in enumerate(zip(["Total reads", "Coding genes"], [total_read_cnt, coding_gene_cnt])):
+    plot_counts(cnts, cell_ids, title, axes[idx], False)
+for idx, (title, cnts) in enumerate(zip(["rRNA reads %", "Mito. reads %", "Non-genic reads %"], [rrna_read_ratio, mito_read_ratio, non_genic_read_ratio])):
+    plot_counts(cnts, cell_ids, title, axes[idx+2], True)
+fig.tight_layout(rect=[0, 0, 1, 0.96])
 fig.savefig(os.path.join(sys.argv[4], "qc_%s_%s.pdf"%(sample, pid)))
