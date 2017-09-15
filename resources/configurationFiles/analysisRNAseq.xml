@@ -26,6 +26,7 @@
         <!-- ## SOME RUNTIME_CONFIG PARMS -->
         <!-- ## -->
         <cvalue name='CORES' value='8' type='string'/>
+        <cvalue name='FEATURE_COUNT_CORES' value='${CORES}' type='string'/>
         <cvalue name='TEST_RUN' value='false' type='boolean' description="only print the commands and doesnt execute them"/>
         <cvalue name='DO_FIRST' value='echo "Do something first"' type='string' description="increase something needs to be run at the start of the workflow"/>
 
