@@ -136,7 +136,7 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
     make_directory $COUNT_DIR
     cd $COUNT_DIR
-    COUNT="-t exon -g gene_id -Q 255 -T $CORES -a $GENE_MODELS -F GTF"
+    COUNT="-t exon -g gene_id -Q 255 -T $FEATURE_COUNT_CORES -a $GENE_MODELS -F GTF"
     if [ "$runSingleCellWorkflow" == true ]; then
         make_directory $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts
         COUNT="$COUNT --byReadGroup --tmpDir $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
@@ -223,7 +223,7 @@ if [ "$runSingleCellWorkflow" == false ]; then
     then
         make_directory $COUNT_DIR_EXON
         cd $COUNT_DIR_EXON
-        COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
+        COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $FEATURE_COUNT_CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
         make_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
         for S in {0..2}
         do
