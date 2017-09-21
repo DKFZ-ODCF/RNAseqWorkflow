@@ -35,8 +35,8 @@
         <cvalue name='alignmentOutputDirectory' value='alignment' type='string'/>
         <cvalue name='qcOutputDirectory' value='qualitycontrol' type='string'/>
         <cvalue name='ALIGNMENT_DIR' value='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}' type='string'/>
-        <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${sample}_${pid}' type='string'/>-->
-        <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp' type='string'/>
+        <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${sample}_${pid}' type='string'/>
+        <--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp' type='string'/>-->
         <cvalue name='COUNT_DIR' value='${outputAnalysisBaseDirectory}/featureCounts' type='string'/>
         <cvalue name='COUNT_DIR_EXON' value='${outputAnalysisBaseDirectory}/featureCounts_dexseq' type='string'/>
         <cvalue name='KALLISTO_UN_DIR' value='${outputAnalysisBaseDirectory}/kallisto_un' type='string'/>
