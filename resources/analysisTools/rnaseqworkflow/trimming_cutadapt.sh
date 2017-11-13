@@ -45,6 +45,10 @@ if [ "$TRIM_3P_POLYN" == true ]; then
     trimOpts="${trimOpts} -N3"
 fi
 
+if [ "$TRIM_BASES" -ne 0 ]; then
+    trimOpts="${trimOpts} -u ${TRIM_BASES}"
+fi
+
 READ1_FILE=${CUTADAPTTMPDIR}/read1.txt
 echo ${READ1} | tr ',' '\n' > ${READ1_FILE}
 

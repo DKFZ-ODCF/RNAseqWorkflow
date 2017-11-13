@@ -146,7 +146,7 @@ class RNAseqWorkflowForSingleCell extends Workflow {
         COProjectsRuntimeService runtimeService = ((COProjectsRuntimeService) context.runtimeService)
         BaseFile inputFile = BaseFile.constructSourceFile(
                 LibrariesFactory.instance.loadRealOrSyntheticClass("TextFile", BaseFile.class.name)
-                , new File(runtimeService.getTemporaryDirectory(context), "jemultiplexer.in")
+                , new File(runtimeService.getDirectory("demultiplex", context), "jemultiplexer.in")
                 , context)
         String fileContent = ""
         for (String sampleID : barcodeTables.keySet()) {
