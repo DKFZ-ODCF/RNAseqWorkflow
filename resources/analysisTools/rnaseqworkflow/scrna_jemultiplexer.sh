@@ -2,7 +2,6 @@
 
 set -vx
 
-source $CONFIG_FILE
 source $TOOL_BASH_LIB
 
 JE_OUTDIR=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}

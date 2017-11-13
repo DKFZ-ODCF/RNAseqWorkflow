@@ -18,7 +18,6 @@ import de.dkfz.roddy.execution.io.ExecutionService
 import de.dkfz.roddy.execution.io.LocalExecutionService
 import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.plugins.LibrariesFactory
-import static de.dkfz.b080.co.rnaseqworkflow.RNAseqLaneFileGroupSetTest.setPrivateField
 import groovy.transform.CompileStatic
 import org.junit.BeforeClass
 import org.junit.Test

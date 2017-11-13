@@ -9,19 +9,16 @@ package de.dkfz.b080.co.rnaseqworkflow
 import de.dkfz.b080.co.common.COProjectsRuntimeService
 import de.dkfz.b080.co.files.COConstants
 import de.dkfz.b080.co.files.Sample
-import de.dkfz.roddy.RunMode
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.config.ConfigurationConstants
 import de.dkfz.roddy.core.ExecutionContext
 import de.dkfz.roddy.core.MockupExecutionContextBuilder
-import de.dkfz.roddy.execution.io.ExecutionService
-import de.dkfz.roddy.execution.io.LocalExecutionService
-import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.plugins.LibrariesFactory
 import groovy.transform.CompileStatic
 import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
+
 import static RNAseqLaneFileGroupSetTestForPairedEnd.setPrivateField
 
 /**
