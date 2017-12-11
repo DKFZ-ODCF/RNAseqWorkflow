@@ -8,6 +8,26 @@
 import sys, os, glob
 from collections import OrderedDict
 
+coding_types = "IG_C_gene;IG_D_gene;IG_J_gene;IG_LV_gene;IG_V_gene;TR_C_gene;" \
+               "TR_J_gene;TR_V_gene;TR_D_gene;IG_pseudogene;IG_C_pseudogene;" \
+               "IG_J_pseudogene;IG_V_pseudogene;TR_V_pseudogene;TR_J_pseudogene;" \
+               "protein_coding;pseudogene;polymorphic_pseudogene"
+
+model = os.environ.get("GENE_MODELS", "")
+coding_types = os.environ.get("CODING_TYPES", coding_types).split(";")
+if model == "":
+    print("Error: environment variable GENE_MODELS is not set!")
+
+coding_genes = []
+with open(model) as f:
+    for line in f:
+        if line[0] == "#": continue
+        entries = line.rstrip().split("\t")
+        if entries[2] == "gene":
+            features = dict([i.strip().replace('"', '').split() for i in entries[-1].rstrip(';').split(";")])
+            if features["gene_type"] in coding_types:
+                coding_genes.append(features["gene_id"])
+
 def main(argv):
     tsvs = []
     gndic = {}
@@ -24,6 +44,7 @@ def main(argv):
         tsvs += [open(gfn) for gfn in glob.glob(fn)]
 
     fo = open("%s_%s_featureCounts.count.tsv"%(os.environ['SAMPLE'], os.environ['PID']), "w")
+    foc = open("%s_%s_featureCounts.coding_genes.count.tsv"%(os.environ['SAMPLE'], os.environ['PID']), "w")
 
     header = "gene_id\tgene_name"
     for tsv in tsvs:
@@ -31,6 +52,7 @@ def main(argv):
         header += '\t' + '\t'.join(["_".join(e.split("_")[-3:]) for e in tsv.readline().strip().split("\t")[6:]])
 
     fo.write("#" + header + '\n')
+    foc.write("#" + header + '\n')
 
     while True:
         lines = [tsv.readline().strip().split('\t') for tsv in tsvs]
@@ -46,8 +68,12 @@ def main(argv):
         for line in lines:
             entries += line[6:]
         fo.write('\t'.join(entries) + '\n')
+        if gid in coding_genes:
+            foc.write('\t'.join(entries) + '\n')
 
     fo.close()
+    foc.close()
+
     for tsv in tsvs:
         tsv.close()
 
