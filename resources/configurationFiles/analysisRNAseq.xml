@@ -76,7 +76,6 @@
         <!-- ## Alternative environment script using a composite module definition -->
         <!-- ## -->
         <!--<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiClusterCompositeModule" type="string"/>-->
-        <!--<cvalue name='LOAD_MODULE' value='true' type='boolean'/>-->
         <!--<cvalue name="MODULE_ENV" value="HIPO2_rna/v1" type="string"/>-->
 
         <!-- ## -->

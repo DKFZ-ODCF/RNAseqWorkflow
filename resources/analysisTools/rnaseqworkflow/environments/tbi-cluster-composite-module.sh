@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-module load ""
+module load "${MODULE_ENV:?MODULE_ENV variable is undefined}"
 export STAR_BINARY=STAR
 export FEATURECOUNTS_BINARY=featureCounts
 export SAMBAMBA_BINARY=sambamba
