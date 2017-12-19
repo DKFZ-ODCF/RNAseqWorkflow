@@ -76,9 +76,9 @@ class RNAseqLaneFileGroupSetTestForSingleCell {
         def mapByRun = fileGroupSetMap[sample].getSingleCellLaneFilesByRun()
         assert mapByRun.size() == 1
         assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"].size() == 4
-        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][0].path.name == "D2826_GATCAGA_L002_R1_001.fastq.gz"
-        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][1].path.name == "D2826_GATCAGA_L002_R1_003.fastq.gz"
-        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][2].path.name == "D2826_GATCAGA_L002_R1_006.fastq.gz"
-        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][3].path.name == "D2826_GATCAGA_L002_R1_007.fastq.gz"
+        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][0].path.name == "D2826_GATCAGA_L002_R2_001.fastq.gz"
+        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][1].path.name == "D2826_GATCAGA_L003_R2_001.fastq.gz"
+        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][2].path.name == "D2826_GATCAGA_L006_R2_001.fastq.gz"
+        assert mapByRun["run160319_D00133_0107_BC5YE7ACXX"][3].path.name == "D2826_GATCAGA_L007_R2_001.fastq.gz"
     }
 }
