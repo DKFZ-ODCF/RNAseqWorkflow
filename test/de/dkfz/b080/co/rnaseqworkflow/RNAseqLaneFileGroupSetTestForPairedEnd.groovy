@@ -17,8 +17,6 @@ import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
 
-import java.lang.reflect.Field
-
 import static de.dkfz.b080.co.rnaseqworkflow.Helper.setPrivateField
 
 /**

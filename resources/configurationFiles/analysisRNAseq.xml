@@ -60,21 +60,24 @@
         <!-- ## -->
         <!-- ## SOFTWARE STACK -->
         <!-- ## -->
-        <cvalue name='PYTHON_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/bin/python' type='string'/>
-        <cvalue name='STAR_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/STAR/STAR-2.5.2b/bin/STAR' type='string'/>
-        <cvalue name='FEATURECOUNTS_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/subread/1.5.1/bin/featureCounts' type='string'/>
-        <cvalue name='SAMBAMBA_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/sambamba/sambamba-0.6.5/sambamba' type='string'/>
-        <cvalue name='SAMTOOLS_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/bin/samtools-1.3.1' type='string'/>
-        <cvalue name='RNASEQC_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/RNA-SeQC/RNA-SeQC-1.1.8/rnaseqc' type='string'/>
-        <cvalue name='KALLISTO_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/bin/kallisto-0.43.0' type='string'/>
-        <cvalue name='QUALIMAP_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/qualimap/qualimap-2.2.1/qualimap' type='string'/>
-        <cvalue name='ARRIBA_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/arriba' type='string'/>
-        <cvalue name='ARRIBA_READTHROUGH_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/extract_read-through_fusions' type='string'/>
-        <cvalue name='ARRIBA_DRAW_FUSIONS' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.8/bin/draw_fusions.R' type='string'/>
-        <cvalue name="JOB_PROFILER_BINARY" value="strace.sh"/>
-         <!-- ## MODULE OPTIONS -->
-        <cvalue name='LOAD_MODULE' value='true' type='boolean'/>
-        <cvalue name='MODULE_ENV' value='HIPO2_rna/v1' type='string'/>
+        <cvalue name='PYTHON_VERSION' value='2.7.9' type='string'/>
+        <cvalue name='STAR_VERSION' value='2.5.2b' type='string'/>
+        <cvalue name='SUBREAD_VERSION' value='1.5.1' type='string'/>
+        <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
+        <cvalue name='SAMTOOLS_VERSION' value='1.3.1' type='string'/>
+        <cvalue name='RNASEQC_VERSION' value='1.1.8' type='string'/>
+        <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
+        <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
+        <cvalue name='ARRIBA_VERSION' value='0.8' type='string'/>
+
+        <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+
+        <!-- ## -->
+        <!-- ## Alternative environment script using a composite module definition -->
+        <!-- ## -->
+        <!--<cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiClusterCompositeModule" type="string"/>-->
+        <!--<cvalue name='LOAD_MODULE' value='true' type='boolean'/>-->
+        <!--<cvalue name="MODULE_ENV" value="HIPO2_rna/v1" type="string"/>-->
 
         <!-- ## -->
         <!-- ## WHAT TO RUN -->
@@ -159,6 +162,8 @@
     </configurationvalues>
 
     <processingTools>
+        <tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="rnaseqworkflow/environments"/>
+        <tool name="workflowEnvironment_tbiClusterCompositeModule" value="tbi-cluster-composite-module.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="navLib" value="navBashLib.sh" basepath="rnaseqworkflow"/>
         <tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>
         <tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>

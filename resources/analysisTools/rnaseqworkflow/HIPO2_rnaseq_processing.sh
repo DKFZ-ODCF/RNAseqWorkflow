@@ -24,26 +24,6 @@ source $TOOL_NAV_LIB
 
 echo_run $DO_FIRST
 
-##
-## SOFTWARE STACK : load module # module load HIPO2_rna/v1 # loads default software versions for the HIPO2 RNAseq workflow
-##
-
-if [ "$LOAD_MODULE" == true ]
-then
-	module load $MODULE_ENV
-
-	STAR_BINARY=STAR
-	FEATURECOUNTS_BINARY=featureCounts
-	SAMBAMBA_BINARY=sambamba
-	SAMTOOLS_BINARY=samtools # samtools_bin defaults to v0.0.19 despite the RNAseq.XML!!!!!!!!!!!!!!!!!!!!!!!!!!
-	RNASEQC_BINARY=rnaseqc
-	KALLISTO_BINARY=kallisto
-	QUALIMAP_BINARY=qualimap
-	ARRIBA_BINARY=arriba
-	ARRIBA_READTHROUGH_BINARY=extract_read-through_fusions
-	ARRIBA_DRAW_FUSIONS=draw_fusions.R
-fi
-
 # Check software stack before running workflow
 check_executable "$STAR_BINARY"
 check_executable "$FEATURECOUNTS_BINARY"
