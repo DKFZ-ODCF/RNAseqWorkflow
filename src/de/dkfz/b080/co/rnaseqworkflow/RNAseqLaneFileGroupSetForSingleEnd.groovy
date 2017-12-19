@@ -9,9 +9,7 @@ package de.dkfz.b080.co.rnaseqworkflow
 import de.dkfz.b080.co.files.COFileStageSettings
 import de.dkfz.b080.co.files.LaneFile
 import de.dkfz.b080.co.files.LaneFileGroup
-import de.dkfz.roddy.core.ExecutionContext
 import groovy.transform.CompileStatic
-import org.junit.Ignore
 
 /**
  * Extend the LaneFileGroup list from QCPipeline

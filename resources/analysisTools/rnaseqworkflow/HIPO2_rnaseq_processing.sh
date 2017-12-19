@@ -20,8 +20,6 @@ set -vx
 ##								##
 ##################################################################
 
-source $CONFIG_FILE
-
 source $TOOL_NAV_LIB
 
 echo_run $DO_FIRST
@@ -72,7 +70,7 @@ set -u
 ## PRINT env
 ##
 
-env | sort > $DIR_EXECUTION/${PBS_JOBNAME}.env_dump.txt
+env | sort > $DIR_EXECUTION/${RODDY_JOBNAME}.env_dump.txt
 
 ##
 ## STAR 2-PASS ALIGNMENT: 12 core, 50Gb, 6 hours
@@ -151,12 +149,12 @@ then
 	fi
         if [ "$useSingleEndProcessing" == true ]
         then
-		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
         else
-		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
         fi
 
-        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
 fi
 
 ##
@@ -319,10 +317,10 @@ then
 		exit 1
 	fi
 
-        if [[ -f "$DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log" ]]
+        if [[ -f "$DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log" ]]
 	then
-        check_text_and_die $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "org.broadinstitute.sting.gatk.walkers.coverage.DepthOfCoverageWalker.onTraversalDone" "rerun with \$disableDoC_GATK=TRUE"
-        check_text_or_die $DIR_EXECUTION/${PBS_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "Finished Successfully"
+        check_text_and_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "org.broadinstitute.sting.gatk.walkers.coverage.DepthOfCoverageWalker.onTraversalDone" "rerun with \$disableDoC_GATK=TRUE"
+        check_text_or_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "Finished Successfully"
 	fi
 	echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
 	check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json
