@@ -11,9 +11,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="roddyBundledLibraries" level="project" />
     <orderEntry type="module" module-name="DefaultPlugin" />
     <orderEntry type="module" module-name="PluginBase" />
-    <orderEntry type="module" module-name="Roddy" />
+    <orderEntry type="module" module-name="COWorkflows_1.2.76" />
+    <orderEntry type="module" module-name="COWorkflows_1.2.76_test" />
+    <orderEntry type="module" module-name="Roddy_main" />
+    <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.9" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
+    <orderEntry type="module" module-name="AlignmentAndQCWorkflows_1.2.73" />
+    <orderEntry type="module" module-name="Roddy_test" />
   </component>
 </module>
