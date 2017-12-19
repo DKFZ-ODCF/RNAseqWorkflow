@@ -23,6 +23,7 @@ import org.junit.BeforeClass
 import org.junit.Ignore
 import org.junit.Test
 import static RNAseqLaneFileGroupSetTestForPairedEnd.setPrivateField
+import static de.dkfz.b080.co.rnaseqworkflow.Helper.setPrivateField
 
 /**
  * Created by heinold on 05.12.16.

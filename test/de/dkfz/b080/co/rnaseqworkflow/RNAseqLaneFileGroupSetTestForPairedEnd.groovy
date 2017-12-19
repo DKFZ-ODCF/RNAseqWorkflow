@@ -19,6 +19,8 @@ import org.junit.Test
 
 import java.lang.reflect.Field
 
+import static de.dkfz.b080.co.rnaseqworkflow.Helper.setPrivateField
+
 /**
  * Created by heinold on 05.12.16.
  */
@@ -38,21 +40,6 @@ class RNAseqLaneFileGroupSetTestForPairedEnd {
     String f0r = pairedFolderSample0 + "run160319_D00133_0107_BC5YE7ACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz"
     String f1l = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R1_001.fastq.gz"
     String f1r = pairedFolderSample0 + "run160326_D00695_0025_BC6B2MACXX/sequence/D2826_GATCAGA_L002_R2_001.fastq.gz"
-
-    static setPrivateField(String name, Object object, Object value) {
-        Field f = null
-        Class cls = object.class
-        while (!f && cls) {
-            try {
-                f = cls.getDeclaredField(name)
-            } catch (Exception ex) {
-            }
-            cls = cls.superclass
-        }
-        assert f
-        f.setAccessible(true)
-        f.set(object, value)
-    }
 
     static synchronized void setupServices() {
         if (servicesSetup) return
