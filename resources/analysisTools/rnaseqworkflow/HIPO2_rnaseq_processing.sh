@@ -107,12 +107,18 @@ then
     	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
     	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
 	    check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
+	else if [[ ${processUMI} == true ]]; then
+        echo_run "$UMITOOLS_BINARY umi_tools dedup -I $STAR_SORTED_BAM --output-stats=deduplicated_${SAMPLE}_${pid}_${CHUNK_INDEX} -S $UMI_DEDUP_BAM"
+        check_or_die $UMI_DEDUP_BAM umi-dedup
+    	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $UMI_DEDUP_BAM $STAR_SORTED_MKDUP_BAM"
+	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups-after-umi-dedup
+    else
+    	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+	    #echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
+	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
+	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
     fi
-
-	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
-	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
 
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
