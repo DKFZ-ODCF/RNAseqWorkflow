@@ -2,8 +2,6 @@
 
 set -vx
 
-source $CONFIG_FILE
-
 if [ "$RUN_FEATURE_COUNTS" == true ]
 then
     cd $COUNT_DIR

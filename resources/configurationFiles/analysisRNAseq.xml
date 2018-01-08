@@ -75,13 +75,11 @@
         <cvalue name='ARRIBA_READTHROUGH_BINARY' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.10/bin/extract_read-through_fusions' type='string'/>
         <cvalue name='ARRIBA_DRAW_FUSIONS' value='/ibios/tbi_cluster/13.1/x86_64/arriba/arriba-0.10/bin/draw_fusions.R' type='string'/>
         <cvalue name="JOB_PROFILER_BINARY" value="strace.sh"/>
-        <cvalue name='PYTHON_BINARY' value='python' type='string'/>
         <cvalue name="RSCRIPT_BINARY" value='Rscript-3.3.1' type='string'/>
          <!-- ## MODULE OPTIONS -->
         <cvalue name='LOAD_MODULE' value='true' type='boolean'/>
         <cvalue name='MODULE_ENV' value='HIPO2_rna/v2' type='string'/>
         <cvalue name='runSingleCellWorkflow' value='false' type='boolean'/>
-        <cvalue name='useSingleEndProcessing' value='false' type='boolean'/>
 
         <!-- ## -->
         <!-- ## WHAT TO RUN -->
