@@ -22,7 +22,6 @@ set -vx
 
 # source $CONFIG_FILE # Due to def order (1): parameters and config file
 # source $CONFIG_FILE # Due to def order (2): def order within config file
-
 source $TOOL_BASH_LIB
 
 echo_run $DO_FIRST
