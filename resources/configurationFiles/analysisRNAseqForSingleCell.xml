@@ -27,15 +27,18 @@
         <cvalue name="useSingleEndProcessing" value="false" type="boolean" />
         <cvalue name="chunkSize" value="128" type="integer" />
 
-        <cvalue name="JE_BINARY" value="jemultiplexer" type="string"/>
-        <cvalue name="PYPY_BINARY" value="/home/parkj/opt/pypy-5.7.1-linux_x86_64-portable/bin/pypy" type="string"/>
-        <cvalue name="UMITOOLS_BINARY" value="/home/parkj/.local/bin/umi_tools" type="string"/>
+        <cvalue name="PYPY_BINARY" value="/icgc/dkfzlsdf/analysis/B080/parkj/opt/pypy-5.10.0-linux_x86_64-portable/bin/pypy" type="string" />
+        <cvalue name='JEMULTIPLEXER_VERSION' value='1.0.6' type='string'/>
+        <!-- <cvalue name='JE_VERSION' value='1.0' type='string'/> -->
+
+        <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster_singleCell" type="string"/>
+
         <cvalue name="JE_PARAMS_WAFERGEN" value="BARCODE_READ_POS=READ_1 BARCODE_FOR_SAMPLE_MATCHING=BOTH REDUNDANT_BARCODES=true STRICT=false MAX_MISMATCHES=1 MIN_MISMATCH_DELTA=1 MIN_BASE_QUALITY=10 XTRIMLEN=0 ZTRIMLEN=0 CLIP_BARCODE=false ADD_BARCODE_TO_HEADER=false QUALITY_FORMAT=Standard KEEP_UNASSIGNED_READ=true FORCE=true    UNASSIGNED_FILE_NAME_1=unassigned_1.txt UNASSIGNED_FILE_NAME_2=unassigned_2.txt METRICS_FILE_NAME=jemultiplexer_out_stats.txt GZIP_OUTPUTS=true WRITER_FACTORY_USE_ASYNC_IO=true STATS_ONLY=false VERBOSITY=INFO QUIET=false VALIDATION_STRINGENCY=STRICT COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false"
                 type="string"/>
 
-        <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${SAMPLE}_${CHUNK_INDEX}' type='string'/>
+        <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${SAMPLE}_${CHUNK_INDEX}' type='string'/>-->
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_${CHUNK_INDEX}_merged' type='string'/>
-        <cvalue name='STAR_TMPDIR' value='$SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_STAR'/>
+        <cvalue name='STAR_TMPDIR' value='$RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_STAR'/>
         <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFIX.Aligned.sortedByCoord.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_MKDUP_BAM' value='$STAR_PREFIX.mdup.bam' type='string'/>
@@ -86,7 +89,8 @@
     </configurationvalues>
 
     <processingTools>
-        <tool name ="extractUmi" value="extract_umi.py" basepath="rnaseqworkflow"/>
+        <tool name="workflowEnvironment_tbiCluster_singleCell" value="tbi-cluster-scrnaseq.sh" basepath="rnaseqworkflow/environments"/>
+        <tool name="extractUmi" value="extract_umi.py" basepath="rnaseqworkflow"/>
         <tool name="mergeFeaturecountsTables" value="merge_featurecounts_tables.py" basepath="rnaseqworkflow"/>
         <tool name="singleCellLibraryQc" value="run_library_qc.py" basepath="rnaseqworkflow"/>
         <tool name="fastqlinker" value="scrna_linker.sh" basepath="rnaseqworkflow">

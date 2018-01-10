@@ -2,7 +2,8 @@
 
 set -vx
 
-source $CONFIG_FILE
+# source $CONFIG_FILE
+# source $CONFIG_FILE
 
 if [ "$RUN_FEATURE_COUNTS" == true ]
 then

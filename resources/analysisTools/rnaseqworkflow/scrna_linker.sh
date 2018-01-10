@@ -2,7 +2,8 @@
 
 set -vx
 
-source $CONFIG_FILE
+# source $CONFIG_FILE
+# source $CONFIG_FILE
 
 OUTDIR=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}
 

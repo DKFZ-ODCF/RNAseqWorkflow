@@ -2,7 +2,8 @@
 
 set -vx
 
-source $CONFIG_FILE
+# source $CONFIG_FILE
+# source $CONFIG_FILE
 source $TOOL_BASH_LIB
 
 JE_OUTDIR=${outputAnalysisBaseDirectory}/${demultiplexOutputDirectory}
@@ -49,6 +50,7 @@ else
 fi
 
 make_directory $JE_OUTDIR
+# echo_run "$JE_BINARY demultiplex FASTQ_FILE1=${READ_LEFT_JE_INPUT} FASTQ_FILE2=${READ_RIGHT_JE_INPUT} OUTPUT_DIR=${JE_OUTDIR} $JE_PARAMS"
 echo_run "$JE_BINARY FASTQ_FILE1=${READ_LEFT_JE_INPUT} FASTQ_FILE2=${READ_RIGHT_JE_INPUT} OUTPUT_DIR=${JE_OUTDIR} $JE_PARAMS"
 
 rm -f ${READ_LEFT_COMBINED}

@@ -2,20 +2,15 @@
 
 set -vx
 
-source $CONFIG_FILE
-
-if [ "$LOAD_MODULE" == true ]
-then
-	module load $MODULE_ENV
-	CUTADAPT_BINARY=cutadapt
-fi
+# source $CONFIG_FILE
+# source $CONFIG_FILE
 
 mkdir -p ${outputAnalysisBaseDirectory}/${trimmingOutputDirectory}
 
 if [ -z "${CHUNK_INDEX}" ]; then
-    CUTADAPTTMPDIR=${SCRATCH}/${PID}_${SAMPLE}_TRIMMING
+    CUTADAPTTMPDIR=${RODDY_SCRATCH}/${PID}_${SAMPLE}_TRIMMING
 else
-    CUTADAPTTMPDIR=${SCRATCH}/${PID}_${SAMPLE}_${CHUNK_INDEX}_TRIMMING
+    CUTADAPTTMPDIR=${RODDY_SCRATCH}/${PID}_${SAMPLE}_${CHUNK_INDEX}_TRIMMING
 fi
 mkdir -p ${CUTADAPTTMPDIR}
 

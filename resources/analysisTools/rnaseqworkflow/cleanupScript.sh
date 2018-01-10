@@ -8,7 +8,7 @@ IFS=$'\n\t'
 ##                                                                    ##
 ########################################################################
 
- source $TOOL_NAV_LIB
+ source $TOOL_BASH_LIB
 
 ########################################################################
 ##                                                                    ##
@@ -17,7 +17,7 @@ IFS=$'\n\t'
 ########################################################################
 
 
-    remove_directory $SCRATCH/*
+    remove_directory $RODDY_SCRATCH/*
     remove_file $RNASEQC_DIR/${SAMPLE}_${pid}/refGene.txt*
     remove_file $RNASEQC_DIR/${SAMPLE}_${pid}/rRNA_intervals.list
     if [[ -f "$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_RNAseQC.tgz" ]]
@@ -37,6 +37,6 @@ IFS=$'\n\t'
 	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}*.tab $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
 	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}_merged._STARgenome $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
 	echo_run "mv $ALIGNMENT_DIR/${SAMPLE}_${pid}_merged._STARpass1 $ALIGNMENT_DIR/${SAMPLE}_${pid}_star_logs_and_files 2>/dev/null"
-	remove_directory $SCRATCH
+	# remove_directory $SCRATCH
 
 
