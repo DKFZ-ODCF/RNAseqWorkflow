@@ -44,21 +44,21 @@
         <cvalue name='KALLISTO_UN_DIR' value='${outputAnalysisBaseDirectory}/kallisto_un' type='string'/>
         <cvalue name='KALLISTO_FR_DIR' value='${outputAnalysisBaseDirectory}/kallisto_fr' type='string'/>
         <cvalue name='KALLISTO_RF_DIR' value='${outputAnalysisBaseDirectory}/kallisto_rf' type='string'/>
-        <cvalue name='QC_DIR' value='${outputAnalysisBaseDirectory}/$qcOutputDirectory' type='string'/>
+        <cvalue name='QC_DIR' value='${outputAnalysisBaseDirectory}/${qcOutputDirectory}' type='string'/>
         <cvalue name='RNASEQC_DIR' value='${QC_DIR}/RNAseQC' type='string'/>
         <cvalue name='QUALIMAP_DIR' value='${QC_DIR}/QualiMap2' type='string'/>
         <cvalue name='ARRIBA_DIR' value='${outputAnalysisBaseDirectory}/fusions_arriba' type='string'/>
 
         <!-- # RUNTIME_CONFIG_OUTFILE DEFINITITIONS -->
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_merged' type='string'/>
-        <cvalue name='STAR_TMPDIR' value='$SCRATCH/${SAMPLE}_${pid}_STAR'/>
+        <cvalue name='STAR_TMPDIR' value='${SCRATCH}/${SAMPLE}_${pid}_STAR'/>
         <cvalue name='STAR_CHIMERA_PREFIX' value='${SAMPLE}_${pid}_chimeric_merged' type='string'/>
-        <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFIX.Aligned.sortedByCoord.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_MKDUP_BAM' value='$STAR_PREFIX.mdup.bam' type='string'/>
-        <cvalue name='STAR_CHIMERA_SAM' value='$STAR_PREFIX.Chimeric.out.sam' type='string'/>
-        <cvalue name='STAR_CHIMERA_BAM_PREF' value='$STAR_PREFIX.Chimeric.out' type='string'/>
-        <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='$STAR_CHIMERA_PREFIX.mdup.bam' type='string'/>
+        <cvalue name='STAR_NOTSORTED_BAM' value='${STAR_PREFIX}.Aligned.out.bam' type='string'/>
+        <cvalue name='STAR_SORTED_BAM' value='${STAR_PREFIX}.Aligned.sortedByCoord.out.bam' type='string'/>
+        <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>
+        <cvalue name='STAR_CHIMERA_SAM' value='${STAR_PREFIX}.Chimeric.out.sam' type='string'/>
+        <cvalue name='STAR_CHIMERA_BAM_PREF' value='${STAR_PREFIX}.Chimeric.out' type='string'/>
+        <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='${STAR_CHIMERA_PREFIX}.mdup.bam' type='string'/>
 
         <!-- ## -->
         <!-- ## SOFTWARE STACK -->
@@ -134,9 +134,9 @@
         <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
         <cvalue name='ADAPTER_SEQ' value='"${ADAPTER_SEQ_TRUSEQ_LT_HT}"' type='string'/>
         <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
-        <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX' value='"${GENOME_STAR_INDEX_200}"' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"'
+                value='"--sjdbOverhang 200 --runThreadN ${CORES} --outFileNamePrefix ${STAR_PREFIX}. --genomeDir ${GENOME_STAR_INDEX} --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
@@ -145,7 +145,7 @@
         <cvalue name='STAR_PARAMS_CHIMERIC' value='"--chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15  --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5"' type='string'/>
         <cvalue name='STAR_PARAMS_INTRONS' value='"--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20"' type='string'/>
         <cvalue name='STAR_PARAMS_ADDITIONAL' value='" "'  type='string'/>
-        <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
+        <cvalue name='STAR_PARAMS' value='"${STAR_PARAMS_BASIC} ${STAR_PARAMS_OUT} ${STAR_PARAMS_2PASS} ${STAR_PARAMS_CHIMERIC} ${STAR_PARAMS_INTRONS} ${STAR_PARAMS_CLIP} ${STAR_PARAMS_ADDITIONAL}"' type='string'/>
         <cvalue name='disableDoC_GATK' value='"true"' type='boolean'/>
         <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${pid}_"' type='string'/>
 
