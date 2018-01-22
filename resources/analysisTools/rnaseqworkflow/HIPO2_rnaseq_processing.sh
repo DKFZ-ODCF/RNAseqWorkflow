@@ -72,7 +72,7 @@ set -u
 
 env | sort > $DIR_EXECUTION/${RODDY_JOBNAME}.processing.env_dump.txt
 
-make_directory $SCRATCH
+# make_directory $RODDY_SCRATCH
 
 if [ "$RUN_STAR" == true ]
 then
@@ -97,20 +97,28 @@ then
     	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
     	echo_run "$SAMTOOLS_BINARY view -Sbh $STAR_CHIMERA_SAM | $SAMTOOLS_BINARY sort - -o $STAR_CHIMERA_BAM_PREF.bam"
     	check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
-    	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
-    	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
+    	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
+    	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
     	check_or_die $STAR_CHIMERA_MKDUP_BAM chimera-post-markdups
     	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
     	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_CHIMERA_MKDUP_BAM"
     	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
     	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
 	    check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
+	elif [[ ${processUMI} == true ]]; then
+    	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_BAM"
+    	check_or_die ${STAR_SORTED_BAM}.bai star-sorted-index
+        echo_run "${UMITOOLS_BINARY} dedup -I $STAR_SORTED_BAM --output-stats=deduplicated_${SAMPLE}_${pid}_${CHUNK_INDEX} -S $UMI_DEDUP_BAM"
+        check_or_die $UMI_DEDUP_BAM umi-dedup
+    	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $UMI_DEDUP_BAM $STAR_SORTED_MKDUP_BAM"
+	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups-after-umi-dedup
+    else
+    	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+	    #echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
+	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
+	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
     fi
-
-	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
-	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
 
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
@@ -136,13 +144,13 @@ then
     cd $COUNT_DIR
     COUNT="-t exon -g gene_id -Q 255 -T $FEATURE_COUNT_CORES -a $GENE_MODELS -F GTF"
     if [ "$runSingleCellWorkflow" == true ]; then
-        make_directory $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts
-        COUNT="$COUNT --byReadGroup --tmpDir $SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
+        make_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts
+        COUNT="$COUNT --byReadGroup --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
         echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s 0 -o ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
         check_or_die ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 gene-counting
     else
-        make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
-        COUNT="$COUNT --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts "
+        make_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts
+        COUNT="$COUNT --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts "
         for S in {0..2}
         do
             if [ "$useSingleEndProcessing" == true ]
@@ -160,7 +168,7 @@ then
         make_directory ${SAMPLE}_${pid}_featureCounts_raw
         echo_run "mv ${SAMPLE}_${pid}.featureCounts* ${SAMPLE}_${pid}_featureCounts_raw"
         echo_run "tar --remove-files -czvf ${SAMPLE}_${pid}_featureCounts_raw.tgz ${SAMPLE}_${pid}_featureCounts_raw"
-        #remove_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
+        #remove_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts
     fi
 fi
 
@@ -221,8 +229,8 @@ if [ "$runSingleCellWorkflow" == false ]; then
     then
         make_directory $COUNT_DIR_EXON
         cd $COUNT_DIR_EXON
-        COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $FEATURE_COUNT_CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
-        make_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
+        COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $FEATURE_COUNT_CORES --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
+        make_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCountsExons
         for S in {0..2}
         do
             if [ "$useSingleEndProcessing" == true ]
@@ -240,7 +248,7 @@ if [ "$runSingleCellWorkflow" == false ]; then
         make_directory ${SAMPLE}_${pid}_featureCounts_dexseq_raw
         echo_run "mv ${SAMPLE}_${pid}.featureCounts* ${SAMPLE}_${pid}_featureCounts_dexseq_raw"
         echo_run "tar --remove-files -czvf ${SAMPLE}_${pid}_featureCounts_dexseq_raw.tgz ${SAMPLE}_${pid}_featureCounts_dexseq_raw"
-        #remove_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
+        #remove_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCountsExons
     fi
 
     ##
@@ -361,10 +369,10 @@ then
     echo_run "mv -f $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}*.tab $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}_star_logs_and_files 2>/dev/null"
     echo_run "mv -f $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}_merged._STARgenome $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}_star_logs_and_files 2>/dev/null"
     echo_run "mv -f $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}_merged._STARpass1 $ALIGNMENT_DIR/${STAR_LOGS_AND_FILES_PREFIX}_star_logs_and_files 2>/dev/null"
-    remove_file ${SCRATCH}/*fifo.read1
-    remove_file ${SCRATCH}/*fifo.read2
-    remove_directory $SCRATCH/*
-    remove_directory $SCRATCH
+    remove_file ${RODDY_SCRATCH}/*fifo.read1
+    remove_file ${RODDY_SCRATCH}/*fifo.read2
+    remove_directory $RODDY_SCRATCH/*
+    # remove_directory $RODDY_SCRATCH
 fi
 
 touch "${CHECKPOINT_PROCESSING}"
