@@ -122,7 +122,7 @@
         <!-- ## SOFTWARE PARAMS -->
         <!-- ## -->
         <!-- ## STAR -->
-        <cvalue name='READ_COMMAND' value='"${UNZIPTOOL} ${UNZIPTOOL_OPTIONS}"' type='string'/>
+        <cvalue name='READ_COMMAND' value='${UNZIPTOOL} ${UNZIPTOOL_OPTIONS}' type='string'/>
         <!-- ## Adapter sequence for 3' should be reverse compliment of the 5'sequencing adapter: https://support.illumina.com/bulletins/2016/12/what-sequences-do-i-use-for-adapter-trimming.html -->
         <cvalue name='ADAPTER_SEQ_TRUSEQ_LT_HT' value="AGATCGGAAGAGCACACGTCTGAACTCCAGTCA AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" type='string' description="TruSeq LT and TruSeq HT"/>
         <cvalue name='ADAPTER_SEQ_TRUSEQ_DNAME' value="AGATCGGAAGAGCACACGTCTGAAC AGATCGGAAGAGCGTCGTGTAGGGA" type='string' description="ScriptSeq and TruSeq DNA Methylation"/>
@@ -130,22 +130,22 @@
         <cvalue name='ADAPTER_SEQ_TRUSEQ_RIBO'  value="AGATCGGAAGAGCACACGTCT" type='string' description="TruSeq Ribo Profile"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA'      value="CTGTCTCTTATACACATCT" type='string' description="Nextera, Nextera XT, Nextera Enrichment, Nextera Rapid Capture Enrichment, TruSight Enrichment, TruSight Rapid Capture Enrichment, TruSight HLA"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
-        <cvalue name='ADAPTER_SEQ' value='"${ADAPTER_SEQ_TRUSEQ_LT_HT}"' type='string'/>
-        <cvalue name='STAR_PARAMS_CLIP' value='"--clip3pAdapterSeq ${ADAPTER_SEQ}"' type='string'/>
-        <cvalue name='GENOME_STAR_INDEX' value='"$GENOME_STAR_INDEX_200"' type='string'/>
+        <cvalue name='ADAPTER_SEQ' value='${ADAPTER_SEQ_TRUSEQ_LT_HT}' type='string'/>
+        <cvalue name='STAR_PARAMS_CLIP' value='--clip3pAdapterSeq ${ADAPTER_SEQ}' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX' value='$GENOME_STAR_INDEX_200' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value='"--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${pid}_STAR"'
+                value='--sjdbOverhang 200 --runThreadN $CORES --outFileNamePrefix $STAR_PREFIX. --genomeDir $GENOME_STAR_INDEX --runRNGseed 1234 --outTmpDir $SCRATCH/${SAMPLE}_${pid}_STAR'
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
-                value='"--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"'
+                value='--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3'
                 type='string'/>
-        <cvalue name='STAR_PARAMS_2PASS' value='"--twopassMode Basic --twopass1readsN -1 --genomeLoad NoSharedMemory"' type='string'/>
-        <cvalue name='STAR_PARAMS_CHIMERIC' value='"--chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15  --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5"' type='string'/>
-        <cvalue name='STAR_PARAMS_INTRONS' value='"--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20"' type='string'/>
-        <cvalue name='STAR_PARAMS_ADDITIONAL' value='" "'  type='string'/>
-        <cvalue name='STAR_PARAMS' value='"$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL"' type='string'/>
-        <cvalue name='disableDoC_GATK' value='"true"' type='boolean'/>
-        <cvalue name='JSON_PREFIX' value='"${SAMPLE}_${pid}_"' type='string'/>
+        <cvalue name='STAR_PARAMS_2PASS' value='--twopassMode Basic --twopass1readsN -1 --genomeLoad NoSharedMemory' type='string'/>
+        <cvalue name='STAR_PARAMS_CHIMERIC' value='--chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15  --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5' type='string'/>
+        <cvalue name='STAR_PARAMS_INTRONS' value='--alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20' type='string'/>
+        <cvalue name='STAR_PARAMS_ADDITIONAL' value=' '  type='string'/>
+        <cvalue name='STAR_PARAMS' value='$STAR_PARAMS_BASIC $STAR_PARAMS_OUT $STAR_PARAMS_2PASS $STAR_PARAMS_CHIMERIC $STAR_PARAMS_INTRONS $STAR_PARAMS_CLIP $STAR_PARAMS_ADDITIONAL' type='string'/>
+        <cvalue name='disableDoC_GATK' value='true' type='boolean'/>
+        <cvalue name='JSON_PREFIX' value='${SAMPLE}_${pid}_' type='string'/>
 
         <!-- Fingerprinting -->
         <cvalue name="runFingerprinting" value="true" type="boolean"/>
@@ -165,8 +165,8 @@
         <tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="workflowEnvironment_tbiClusterCompositeModule" value="tbi-cluster-composite-module.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="navLib" value="navBashLib.sh" basepath="rnaseqworkflow"/>
-        <tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>
-        <tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>
+        <!--<tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>-->
+        <!--<tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>-->
         <tool name="cleanupScript" value="cleanupScript.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="l" memory="0.1" cores="1" nodes="1" walltime="1"/>
