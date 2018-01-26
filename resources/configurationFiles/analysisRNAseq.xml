@@ -64,7 +64,7 @@
         <cvalue name='STAR_VERSION' value='2.5.2b' type='string'/>
         <cvalue name='SUBREAD_VERSION' value='1.5.1' type='string'/>
         <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
-        <cvalue name='SAMTOOLS_VERSION' value='1.3.1' type='string'/>
+        <cvalue name='SAMTOOLS_VERSION' value='1.6' type='string'/>
         <cvalue name='RNASEQC_VERSION' value='1.1.8' type='string'/>
         <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
         <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
