@@ -73,6 +73,7 @@
         <cvalue name='R_VERSION' value='3.0.0' type='string'/>
 
         <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
+        <cvalue name="condaEnvironmentName" value="RNAseqWorkflow" type="string"/>
 
         <!-- ## -->
         <!-- ## Alternative environment script using a composite module definition -->
@@ -167,6 +168,7 @@
     <processingTools>
         <tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="workflowEnvironment_tbiClusterCompositeModule" value="tbi-cluster-composite-module.sh" basepath="rnaseqworkflow/environments"/>
+        <tool name="workflowEnvironment_conda" value="conda.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="navLib" value="navBashLib.sh" basepath="rnaseqworkflow"/>
         <!--<tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>-->
         <!--<tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>-->
