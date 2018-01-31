@@ -53,6 +53,7 @@
         <cvalue name='STAR_NOTSORTED_BAM' value='$STAR_PREFIX.Aligned.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_BAM' value='$STAR_PREFIX.Aligned.sortedByCoord.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_MKDUP_BAM' value='$STAR_PREFIX.mdup.bam' type='string'/>
+        <cvalue name='STAR_SORTED_MKDUP_BAM2' value='$STAR_PREFIX.mdup.bam' type='string'/>
         <cvalue name='STAR_CHIMERA_SAM' value='$STAR_PREFIX.Chimeric.out.sam' type='string'/>
         <cvalue name='STAR_CHIMERA_BAM_PREF' value='$STAR_PREFIX.Chimeric.out' type='string'/>
         <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='$STAR_CHIMERA_PREFIX.mdup.bam' type='string'/>
@@ -191,8 +192,8 @@
             <input type="string" setby="callingCode" scriptparameter="READS_STAR_RIGHT"/>
             <input type="string" setby="callingCode" scriptparameter="READS_KALLISTO"/>
             <input type="string" setby="callingCode" scriptparameter="PARM_READGROUPS"/>
-            <output type="file" typeof="BamFile" scriptparameter="STAR_SORTED_MKDUP_BAM">
-                <output type="file" variable="indexFile" typeof="BamIndexFile" scriptparameter="STAR_SORTED_MKDUP_BAM_INDEX"/>
+            <output type="file" typeof="BamFile" scriptparameter="STAR_SORTED_MKDUP_BAM2">
+                <!--<output type="file" variable="indexFile" typeof="BamIndexFile" scriptparameter="STAR_SORTED_MKDUP_BAM_INDEX"/>-->
             </output>
         </tool>
 
