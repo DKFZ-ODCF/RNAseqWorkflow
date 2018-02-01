@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="NewModuleRootManager">
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="AlignmentAndQCWorkflows_1.2.73" />
+    <orderEntry type="module" module-name="PluginBase" />
+    <orderEntry type="module" module-name="Roddy_main" />
+    <orderEntry type="module" module-name="Roddy_test" />
+  </component>
+</module>

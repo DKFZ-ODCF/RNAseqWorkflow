@@ -30,4 +30,6 @@ export ARRIBA_BINARY=arriba
 export ARRIBA_READTHROUGH_BINARY=extract_read-through_fusions
 export ARRIBA_DRAW_FUSIONS=draw_fusions.R
 
+module load "R/${R_VERSION:?No R_VERSION}"
+
 export JOB_PROFILER_BINARY="strace.sh"
