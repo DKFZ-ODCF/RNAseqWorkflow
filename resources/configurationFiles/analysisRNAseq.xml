@@ -62,14 +62,15 @@
         <!-- ## SOFTWARE STACK -->
         <!-- ## -->
         <cvalue name='PYTHON_VERSION' value='2.7.9' type='string'/>
-        <cvalue name='STAR_VERSION' value='2.5.2b' type='string'/>
+        <cvalue name='STAR_VERSION' value='2.5.3a' type='string'/>
         <cvalue name='SUBREAD_VERSION' value='1.5.1' type='string'/>
         <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
         <cvalue name='SAMTOOLS_VERSION' value='1.6' type='string'/>
+        <cvalue name='HTSLIB_VERSION' value='1.6' type='string'/>
         <cvalue name='RNASEQC_VERSION' value='1.1.8' type='string'/>
         <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
         <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
-        <cvalue name='ARRIBA_VERSION' value='0.8' type='string'/>
+        <cvalue name='ARRIBA_VERSION' value='0.12' type='string'/>
 
         <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
 
@@ -131,7 +132,7 @@
         <cvalue name='ADAPTER_SEQ_TRUSEQ_RIBO'  value="AGATCGGAAGAGCACACGTCT" type='string' description="TruSeq Ribo Profile"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA'      value="CTGTCTCTTATACACATCT" type='string' description="Nextera, Nextera XT, Nextera Enrichment, Nextera Rapid Capture Enrichment, TruSight Enrichment, TruSight Rapid Capture Enrichment, TruSight HLA"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
-        <cvalue name='ADAPTER_SEQ' value='${ADAPTER_SEQ_TRUSEQ_LT_HT}' type='string'/>
+        <cvalue name='ADAPTER_SEQ' value='$ADAPTER_SEQ_TRUSEQ_LT_HT' type='string'/>
         <cvalue name='STAR_PARAMS_CLIP' value='--clip3pAdapterSeq ${ADAPTER_SEQ}' type='string'/>
         <cvalue name='GENOME_STAR_INDEX' value='$GENOME_STAR_INDEX_200' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'

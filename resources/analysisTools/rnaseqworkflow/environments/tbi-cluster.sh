@@ -16,6 +16,11 @@ export SAMBAMBA_BINARY=sambamba
 module load "samtools/${SAMTOOLS_VERSION:?No SAMTOOLS_VERSION}"
 export SAMTOOLS_BINARY=samtools
 
+if [ $SAMTOOLS_VERSION = "1.3.1" ]
+then
+	module load "htslib/${HTSLIB_VERSION:?No HTSLIB_VERSION}"
+fi
+
 module load "rnaseqc/${RNASEQC_VERSION:?No RNASEQC_VERSION}"
 export RNASEQC_BINARY=rnaseqc
 
