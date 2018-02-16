@@ -92,6 +92,28 @@ ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencod
 ```
 == Changelist
 
+
+Release_1.2.23-2 [15th Feb 2018]
+- Tested on PBS and LSF clusters with Roddy 2.4.26
+- Version for testing on hipo-021... if agreeable then this will become the main working version
+- Updated software stack (samtools 1.6, star 2.5.3a and arriba 0.12)
+
+Release_1.2.23 [Feb 2018]
+- Tested on PBS and LSF clusters with Roddy 2.4.11
+- All new projects should use this version
+- Fixed issue with Adapter sequence not being parsed by the workflow, but by Roddy (i.e. the ADAPTER_SEQ variable could never change from default)
+
+Release_1.2.22-3 [Feb 2018]
+- Tested on PBS and LSF clusters with Roddy 2.4.11
+- This is the first fully working port of 1.0.22-1 to LSF
+- Fixed issues with Roddy parsing output variables, so file paths were pre-pended twice (fixed by creating an alternitve output file for Roddy)
+
+Release_1.2.22-1 [Jan 2018]
+- DO NOT USE
+- Tested on PBS and LSF clusters with Roddy 2.4.11
+- First port of the 1.0.22-1 workflow for LSF support
+- Use of modules added
+
 Release_1.0.22 [21st Aug 2017]
 - Fixed errors is SE qc json file (removed empty value and NaN values)
 
