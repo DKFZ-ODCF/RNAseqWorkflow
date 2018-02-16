@@ -92,7 +92,6 @@ ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencod
 ```
 == Changelist
 
-
 Release_1.2.23-2 [15th Feb 2018]
 - Tested on PBS and LSF clusters with Roddy 2.4.26
 - Version for testing on hipo-021... if agreeable then this will become the main working version
