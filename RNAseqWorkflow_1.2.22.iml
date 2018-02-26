@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources/analysisTools" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources/configurationFiles" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
@@ -24,5 +25,8 @@
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="COWorkflows_1.2.76" />
     <orderEntry type="library" name="Python 2.7 (AlignmentAndQCWorkflows) interpreter library" level="application" />
+    <orderEntry type="library" name="groovy-2.4.9" level="application" />
+    <orderEntry type="module" module-name="BatchEuphoria" />
+    <orderEntry type="module" module-name="RoddyToolLib" />
   </component>
 </module>
