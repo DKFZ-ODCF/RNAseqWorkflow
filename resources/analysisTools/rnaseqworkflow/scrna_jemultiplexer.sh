@@ -68,7 +68,7 @@ fi
 for ((i=startidx;i<nchunks;i++)); do
     BARCODE_FILE=${JE_OUTDIR}/jemultiplexer_chunk$(($i+1)).in
     tail -n+$((${i}*${chunksize}+1)) ${BARCODE_JE} | head -n ${chunksize} > ${BARCODE_FILE}
-    echo_run "$JE_BINARY BARCODE_FILE=${BARCODE_FILE} FASTQ_FILE1=unassigned_chunk${i}_1.fasta.gz FASTQ_FILE2=unassigned_chunk${i}_2.fasta.gz UNASSIGNED_FILE_NAME_1=unassigned_chunk$(($i+1))_1.fasta UNASSIGNED_FILE_NAME_2=unassigned_chunk$(($i+1))_2.fasta METRICS_FILE_NAME=jemultiplexer_out_chunk$(($i+1))_stats.txt $JE_PARAMS"
+    echo_run "$JE_BINARY BARCODE_FILE=${BARCODE_FILE} FASTQ_FILE1=${JE_OUTDIR}/unassigned_chunk${i}_1.fasta.gz FASTQ_FILE2=${JE_OUTDIR}/unassigned_chunk${i}_2.fasta.gz UNASSIGNED_FILE_NAME_1=unassigned_chunk$(($i+1))_1.fasta UNASSIGNED_FILE_NAME_2=unassigned_chunk$(($i+1))_2.fasta METRICS_FILE_NAME=jemultiplexer_out_chunk$(($i+1))_stats.txt $JE_PARAMS"
     rm -f ${JE_OUTDIR}/unassigned_chunk${i}_1.fasta.gz ${JE_OUTDIR}/unassigned_chunk${i}_2.fasta.gz
     echo ${i} > ${JE_OUTDIR}/resume.txt
 done

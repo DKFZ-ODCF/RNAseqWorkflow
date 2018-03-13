@@ -105,7 +105,7 @@
         <tool name="jemultiplexer" value="scrna_jemultiplexer.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="5g" cores="5" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="15g" cores="10" nodes="1" walltime="100h"/>
+                <rset size="l" memory="15g" cores="10" nodes="1" walltime="1000h"/>
             </resourcesets>
             <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
             <input type="string" setby="callingCode" scriptparameter="READS_LEFT"/>

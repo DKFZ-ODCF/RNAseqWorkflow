@@ -91,6 +91,10 @@ then
     check_or_die $STAR_SORTED_BAM alignment
     remove_directory ${STAR_TMPDIR}
 
+    if [[ `$SAMTOOLS_BINARY view $STAR_NOTSORTED_BAM | head | wc -l` == 0 ]]; then
+        cp -f $STAR_NOTSORTED_BAM $STAR_SORTED_BAM
+    fi
+
     if [ "$runSingleCellWorkflow" == false ]; then
     	check_or_die $STAR_CHIMERA_SAM alignment
     	echo_run "mv ${SAMPLE}_${pid}_merged.Chimeric.out.junction ${SAMPLE}_${pid}_chimeric_merged.junction"
@@ -108,7 +112,11 @@ then
 	elif [[ ${processUMI} == true ]]; then
     	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_BAM"
     	check_or_die ${STAR_SORTED_BAM}.bai star-sorted-index
-        echo_run "${UMITOOLS_BINARY} dedup -I $STAR_SORTED_BAM --output-stats=deduplicated_${SAMPLE}_${pid}_${CHUNK_INDEX} -S $UMI_DEDUP_BAM"
+    	if [[ `$SAMTOOLS_BINARY view $STAR_NOTSORTED_BAM | head | wc -l` == 0 ]]; then
+            cp -f $STAR_NOTSORTED_BAM $UMI_DEDUP_BAM
+        else
+            echo_run "${UMITOOLS_BINARY} dedup -I $STAR_SORTED_BAM --output-stats=deduplicated_${SAMPLE}_${pid}_${CHUNK_INDEX} -S $UMI_DEDUP_BAM"
+        fi
         check_or_die $UMI_DEDUP_BAM umi-dedup
     	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
 	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $UMI_DEDUP_BAM $STAR_SORTED_MKDUP_BAM"
