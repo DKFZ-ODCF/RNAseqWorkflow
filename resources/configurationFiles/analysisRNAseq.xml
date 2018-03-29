@@ -109,6 +109,7 @@
         <cvalue name='mm10BaseDirectory' value='/icgc/ngs_share/assemblies/mm10/' type='string'/>
         <cvalue name='mm10DatabaseDirectory' value='${mm10BaseDirectory}/databases' type='string'/>
         <cvalue name='mm10IndexDirectory' value='${mm10BaseDirectory}/indexes/' type='string'/>
+
         <cvalue name='databaseDirectory' value='${hg19DatabaseDirectory}' type='string'/>
         <cvalue name='indexDirectory' value='${hg19IndexDirectory}' type='string'/>
         <cvalue name='GENOME_FA' value='${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
@@ -139,8 +140,9 @@
         <cvalue name='ADAPTER_SEQ' value="${ADAPTER_SEQ_TRUSEQ_LT_HT}" type='string'/>
         <cvalue name='STAR_PARAMS_CLIP' value="--clip3pAdapterSeq ${ADAPTER_SEQ}" type='string'/>
         <cvalue name='GENOME_STAR_INDEX' value="${GENOME_STAR_INDEX_200}" type='string'/>
+        <cvalue name='STAR_INDEX_OVERHANG' value="200" type="string" />
         <cvalue name='STAR_PARAMS_BASIC'
-                value="--sjdbOverhang 200 --runThreadN ${CORES} --outFileNamePrefix ${STAR_PREFIX}. --genomeDir ${GENOME_STAR_INDEX} --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"
+                value="--sjdbOverhang ${STAR_INDEX_OVERHANG} --runThreadN ${CORES} --outFileNamePrefix ${STAR_PREFIX}. --genomeDir ${GENOME_STAR_INDEX} --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value="--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"

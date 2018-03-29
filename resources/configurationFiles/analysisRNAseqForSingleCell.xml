@@ -44,7 +44,7 @@
         <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>
         <cvalue name='UMI_DEDUP_BAM' value='${STAR_PREFIX}.UMIdedup.bam' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
-                value="--sjdbOverhang 200 --runThreadN ${CORES} --outFileNamePrefix ${STAR_PREFIX}. --genomeDir ${GENOME_STAR_INDEX} --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"
+                value="--sjdbOverhang ${STAR_INDEX_OVERHANG} --runThreadN ${CORES} --outFileNamePrefix ${STAR_PREFIX}. --genomeDir ${GENOME_STAR_INDEX} --runRNGseed 1234 --outTmpDir ${STAR_TMPDIR}"
                 type='string'/>
         <cvalue name='STAR_PARAMS_OUT'
                 value="--outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3"

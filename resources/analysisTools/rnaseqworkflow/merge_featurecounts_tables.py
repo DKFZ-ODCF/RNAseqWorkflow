@@ -25,7 +25,7 @@ with open(model) as f:
         entries = line.rstrip().split("\t")
         if entries[2] == "gene":
             features = dict([i.strip().replace('"', '').split() for i in entries[-1].rstrip(';').split(";")])
-            if features["gene_type"] in coding_types:
+            if features.get("gene_type", features["gene_biotype"]) in coding_types:
                 coding_genes.append(features["gene_id"])
 
 def main(argv):
@@ -38,8 +38,11 @@ def main(argv):
             entries_as_dic = { k: v.strip('"') for k, v in filter(lambda e: len(e) == 2, entries)}
             gid = entries_as_dic.get("gene_id", "")
             gname = entries_as_dic.get("gene_name", "")
-            if len(gid) > 0 and len(gname) > 0:
-                gndic[gid] = gname
+            if len(gid) > 0:
+                if len(gname) > 0:
+                    gndic[gid] = gname
+                else:
+                    gndic[gid] = gid
     for fn in argv[2:]:
         tsvs += [open(gfn) for gfn in glob.glob(fn)]
 
