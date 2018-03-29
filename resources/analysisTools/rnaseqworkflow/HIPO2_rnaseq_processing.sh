@@ -150,15 +150,15 @@ if [ "$RUN_FEATURE_COUNTS" == true ]
 then
     make_directory $COUNT_DIR
     cd $COUNT_DIR
-    COUNT="-t exon -g gene_id -Q 255 -T $FEATURE_COUNT_CORES -a $GENE_MODELS -F GTF"
+    COUNT="-g gene_id -Q 255 -T $FEATURE_COUNT_CORES -a $GENE_MODELS -F GTF"
     if [ "$runSingleCellWorkflow" == true ]; then
         make_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts
-        COUNT="$COUNT --byReadGroup --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
+        COUNT="$COUNT -t gene --byReadGroup --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_${CHUNK_INDEX}_featureCounts"
         echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s 0 -o ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
         check_or_die ${SAMPLE}_${pid}_${CHUNK_INDEX}.featureCounts.s0 gene-counting
     else
         make_directory $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts
-        COUNT="$COUNT --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts "
+        COUNT="$COUNT -t exon --tmpDir $RODDY_SCRATCH/${SAMPLE}_${pid}_featureCounts "
         for S in {0..2}
         do
             if [ "$useSingleEndProcessing" == true ]
