@@ -71,6 +71,7 @@
         <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
         <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
         <cvalue name='ARRIBA_VERSION' value='0.12' type='string'/>
+        <cvalue name='R_VERSION' value='3.0.0' type='string'/>
 
         <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
 
