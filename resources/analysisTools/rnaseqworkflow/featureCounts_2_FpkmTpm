@@ -33,7 +33,7 @@ my $fc2_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : mis
 
 my %files = ();
 $files{0}="$fc0_file";
-$files{1}="$fc2_file";
+$files{1}="$fc1_file";
 $files{2}="$fc2_file";
 
 my $gtf_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing full GTF file!\n$usage";
@@ -249,7 +249,6 @@ while (<$fh>){
   print "$read_counts_all{1}{$_}\t";
   print "$read_counts_all{2}{$_}\t";
 
-  if (length $ignore_gtf_file > 0){
     # print RPKMS exclude
     print "".($read_counts_all_per_length{0}{$_})*($BILLION/$ignore_read_counts{0})."\t";
     print "".($read_counts_all_per_length{1}{$_})*($BILLION/$ignore_read_counts{1})."\t";
@@ -259,7 +258,6 @@ while (<$fh>){
     print "".($read_counts_all_per_length{0}{$_})*($BILLION/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/$MILLION)."\t";
     print "".($read_counts_all_per_length{1}{$_})*($BILLION/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/$MILLION)."\t";
     print "".($read_counts_all_per_length{2}{$_})*($BILLION/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/$MILLION)."\t";
-  }
 
   # print RPKMS legacy
   print "".($read_counts_all_per_length{0}{$_})*($BILLION/$all_read_counts{0})."\t";
