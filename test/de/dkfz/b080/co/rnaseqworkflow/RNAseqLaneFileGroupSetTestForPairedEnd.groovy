@@ -6,14 +6,15 @@ import de.dkfz.b080.co.files.Sample
 import de.dkfz.roddy.RunMode
 import de.dkfz.roddy.config.Configuration
 import de.dkfz.roddy.config.ConfigurationConstants
+import de.dkfz.roddy.core.ContextResource
 import de.dkfz.roddy.core.ExecutionContext
-import de.dkfz.roddy.core.MockupExecutionContextBuilder
 import de.dkfz.roddy.execution.io.ExecutionService
 import de.dkfz.roddy.execution.io.LocalExecutionService
 import de.dkfz.roddy.execution.io.fs.FileSystemAccessProvider
 import de.dkfz.roddy.plugins.LibrariesFactory
 import groovy.transform.CompileStatic
 import org.junit.BeforeClass
+import org.junit.ClassRule
 import org.junit.Ignore
 import org.junit.Test
 
@@ -23,9 +24,13 @@ import static de.dkfz.b080.co.rnaseqworkflow.Helper.setPrivateField
  * Created by heinold on 05.12.16.
  */
 @CompileStatic
-class RNAseqLaneFileGroupSetTestForPairedEnd {
+class RNAseqLaneFileGroupSetTestForPairedEnd extends ContextResource {
 
-    static ExecutionContext context = MockupExecutionContextBuilder.createSimpleContext(RNAseqLaneFileGroupSetTestForPairedEnd, new Configuration(null), new COProjectsRuntimeService())
+    @ClassRule
+    public static final ContextResource contextResource = new ContextResource()
+
+    static ExecutionContext context
+
     static Sample sample0 = new Sample(context, "tumor0")
     static Sample sample1 = new Sample(context, "tumor02")
     static Map<Sample, RNAseqLaneFileGroupSetForPairedEnd> fileGroupSetMap = [:]
@@ -48,6 +53,8 @@ class RNAseqLaneFileGroupSetTestForPairedEnd {
 
     @BeforeClass
     static void setup() {
+        context = contextResource.createSimpleContext(RNAseqLaneFileGroupSetTestForPairedEnd, new Configuration(null), new COProjectsRuntimeService())
+
         // The setup is a bit complicated, because I want to load the fastq files from disk to simulate the full
         // fastq loading behaviour
         def resourceDirectory = LibrariesFactory.getGroovyClassLoader().getResource("resources/testdata_pairedEnd").file
