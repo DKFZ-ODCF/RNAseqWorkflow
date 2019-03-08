@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows).
+#
 
 module load "python/${PYTHON_VERSION:?No PYTHON_VERSION}"
 if [ -f ${PYTHON2_VENV:?PYTHON2_VENV variable is undefined} ]; then
