@@ -1,15 +1,15 @@
-== RNAseq processing workflow
+## RNAseq processing workflow
 
 Author (current): ?
 Author (until 2018): Naveed Ishaque
 
 This workflow does the primary data processing for RNAseq data: alignment, QC, read counting, reference free quantification, fusion detection. It was originally developed in the "eilslabs" at the German Cancer Research Center (DKFZ), Heidelberg. The workflow uses the workflow management system [Roddy](https://github.com/TheRoddyWMS/Roddy). Roddy manages workflow runs on cluster environments (as of 2019-12-02 this is LSF and PBS). 
 
-=== Description
+### Description
 
 The following is kind of a template protocol for a methods section. You will probably need to adapt it to your specific settings and we can not guarantee to always keep this up to date.
 
-==== Example Protocol
+#### Example Protocol
 
 The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, version; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, version; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, version; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, version; https://github.com/TheRoddyWMS/Roddy, version). The workflow performs the following analysis steps.
 
@@ -37,17 +37,17 @@ A custom script was used to calculate RPKM and TPM expression values. For total 
 
 Gene fusions were identified using the arriba algorithm (version, https://github.com/suhrig/arriba/).
 
-=== Installation of ...
+### Installation of ...
 
-==== ... the workflow management system
+#### ... the workflow management system
 
 Please see the [Roddy documentation](https://roddy-documentation.readthedocs.io/) for details on the installation of Roddy and the [DefaultPlugin](https://github.com/TheRoddyWMS/Roddy-Default-Plugin) and [PluginBase](https://github.com/TheRoddyWMS/Roddy-Base-Plugin) plugins.
 
-==== ... plugins
+#### ... plugins
 
 The RNA-seq plugin depends on the [AlignmentAndQCWorkflows](https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows) plugin and its dependencies. You need to install these plugins manually. Although that is somewhat inconvenient, it is also not terribly hard. The key is to understand that each plugin contains a `buildinfo.txt` file in its root directory that lists the compatible major and the minimum compatible minor versions of all directly dependent plugins. After having installed the direct dependencies, one needs to check the indirect dependencies, and so forth, until the [DefaultPlugin](https://github.com/TheRoddyWMS/Roddy-Default-Plugin) and [PluginBase](https://github.com/TheRoddyWMS/Roddy-Base-Plugin) are installed. The Roddy version to use is the same major version number and at least highest minor version number of all plugins in the chain. 
 
-==== ... the workflow
+#### ... the workflow
 
 You can install the workflow by downloading the release tarball from Github Releases, or by cloning the repository. In both cases the workflow plugin root directory should be in a direct subdirectory of your plugins directory that you register, e.g. via the `applicationProperties.ini` of Roddy.
 
@@ -62,9 +62,9 @@ git -C RNAseqWorkflow_1.2.22-6 checkout ReleaseBranch_1.2.22-6
 
 Note that the workflow directory can be suffixed by the version tag to allow for the installation of multiple versions of the workflow. The workflow additionally needs the [AlignmentAndQCWorkflow](https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows) as the next plugin in the dependency chain.
 
-==== ... the software stack
+#### ... the software stack
 
-===== Manual Installation
+##### Manual Installation
 
 Software stack version and citations for RNAseq workflow (not all tools may be used, dependent on your configuration):
 
@@ -80,11 +80,11 @@ Software stack version and citations for RNAseq workflow (not all tools may be u
 * [kallisto 0.43.0](https://pachterlab.github.io/kallisto/about)
 * [Jemultiplexer 1.0.6](https://gbcs.embl.de/portal/tiki-index.php?page=Jemultiplexer) 
 
-===== Conda Environment
+##### Conda Environment
 
 The [Conda](https://conda.io/docs/)-environment is work in progress. 
 
-==== ... the reference data
+#### ... the reference data
 
 ```
 GENOME_FA			${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa
@@ -119,9 +119,9 @@ ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencod
 | ARRIBA_BLACKLIST | GZipped TSV | value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz' type='string'/> |
 |---------------------|-------------|---------| 
 
-=== Running the workflow
+### Running the workflow
 
-== Configuration Values
+## Configuration Values
 
 The authoritative documentation of the configuration is the configuration itself at [resources/configurationFiles/analysisRNAseq.xml](https://www.github.com/RNAseqWorkflow/master/resources/configurationFiles/analysisRNAseq.xml). Please look at the specific version of the workflow that you are using! 
 
@@ -152,7 +152,7 @@ The following is merely on overview over the most important parameters.
 | ARRIBA_BLACKLIST | | Only needed if arriba is used for fusion detection. ${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz |
 |--------------------|--------|-------------|
 
-== Example Call
+## Example Call
 
 Run the RNAseq workflow, setting the plugin directory to /home/ishaque/roddy_dev/roddyPlugins/ using the version 1.0.22-2
 Use these are your basic XML/ini files: /home/ishaque/temp/roddyLocalTest/testproject/configs/
@@ -169,13 +169,13 @@ Release 1.0.19 - 01/08/17
 
 ```
 
-== ToDos
+## ToDos
 
 * Single-cell data (Jeongbin Park)
 * UMIs
 * Quantification with 3'-biased protocols
 
-== Change Log
+## Change Log
  
 * Github release [yet to come]
 
