@@ -39,11 +39,13 @@ Gene fusions were identified using the arriba algorithm (version, https://github
 
 === Installation of ...
 
-Currently, dependencies of Roddy plugins need to managed manually. Although that is somewhat inconvenient, it is also not terribly hard. The key is to understand that each plugin contains a `buildinfo.txt` file in its root directory that lists the compatible major and the minimum compatible minor versions of all directly dependent plugins. After having installed the direct dependencies, one needs to check the indirect dependencies, and so forth, until the [DefaultPlugin](https://github.com/TheRoddyWMS/Roddy-Default-Plugin) and [PluginBase](https://github.com/TheRoddyWMS/Roddy-Base-Plugin) are installed. The Roddy version to use is the same major version number and at least highest minor version number of all plugins in the chain. 
-
 ==== ... the workflow management system
 
 Please see the [Roddy documentation](https://roddy-documentation.readthedocs.io/) for details on the installation of Roddy and the [DefaultPlugin](https://github.com/TheRoddyWMS/Roddy-Default-Plugin) and [PluginBase](https://github.com/TheRoddyWMS/Roddy-Base-Plugin) plugins.
+
+==== ... plugins
+
+The RNA-seq plugin depends on the [AlignmentAndQCWorkflows](https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows) plugin and its dependencies. You need to install these plugins manually. Although that is somewhat inconvenient, it is also not terribly hard. The key is to understand that each plugin contains a `buildinfo.txt` file in its root directory that lists the compatible major and the minimum compatible minor versions of all directly dependent plugins. After having installed the direct dependencies, one needs to check the indirect dependencies, and so forth, until the [DefaultPlugin](https://github.com/TheRoddyWMS/Roddy-Default-Plugin) and [PluginBase](https://github.com/TheRoddyWMS/Roddy-Base-Plugin) are installed. The Roddy version to use is the same major version number and at least highest minor version number of all plugins in the chain. 
 
 ==== ... the workflow
 
@@ -167,15 +169,36 @@ Release 1.0.19 - 01/08/17
 
 ```
 
-== Change Log
+== ToDos
 
-* 1.2.23
+* Single-cell data (Jeongbin Park)
+* UMIs
+* Quantification with 3'-biased protocols
+
+== Change Log
+ 
+* Github release [yet to come]
+
+* 1.3.0-1 [7th Nov 7 2018]
+  - Added single quotes around `$ADAPTER_SEQ` parameter in `--clip3pAdapterSeq` to allow for separate first and second read adapters.
+  - Changed all plain "$varName" references in the configuration file to "${varName}" references. Roddy only unknows the latter.
+
+* 1.3.0 [9th Ap 2018]
+  - works with Roddy 3
+
+* 1.2.23-2 [15th Feb 2018]
+  - Modified software defaults to samtools 1.6, star 2.5.3a, arriba 0.12.
+  - Added exception for loading htslib if samtools version is too low. 
+  - Modified output file check of BAM file
+  
+* 1.2.23-1 [26th Jan 2018]
+  - changed default samtools to v1.6 from v1.3.1
+
+* 1.2.23 [25th Jan 2018]
   - Update to Roddy 3.5 that fixes a non-quoting error with the Bash environment and spaces in referenced variables (relevant for adapter variables).
     Note that if you did set your adapter sequences by reference to another variable, e.g. "ADAPTER_SEQ=${ADAPTER_SEQ_TRUSEQ_LT_HT}", the previous
     Roddy versions inserted the second adapter correctly, but did not quote it. Therefore, Bash interpreted the `ADAPTER_SEQ` variable as array, and 
     failed -- for at least Bash < 4.2 -- to export both adapters correctly to the called job script.
- 
-* Github release [12nd Feb 2019]
 
 * 1.2.22-7 [7th Nov 2018]
   - Fixed a number of variable references that were without braces (now everywhere `${...}` is used to allow Roddy to resolve the references and order the parameter file correctly)
