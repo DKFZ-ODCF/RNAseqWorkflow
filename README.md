@@ -179,6 +179,9 @@ Release 1.0.19 - 01/08/17
  
 * Github release [yet to come]
 
+* 1.3.0-2 [26th Nov 2019]
+  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
+
 * 1.3.0-1 [7th Nov 7 2018]
   - Added single quotes around `$ADAPTER_SEQ` parameter in `--clip3pAdapterSeq` to allow for separate first and second read adapters.
   - Changed all plain "$varName" references in the configuration file to "${varName}" references. Roddy only unknows the latter.
@@ -199,6 +202,9 @@ Release 1.0.19 - 01/08/17
     Note that if you did set your adapter sequences by reference to another variable, e.g. "ADAPTER_SEQ=${ADAPTER_SEQ_TRUSEQ_LT_HT}", the previous
     Roddy versions inserted the second adapter correctly, but did not quote it. Therefore, Bash interpreted the `ADAPTER_SEQ` variable as array, and 
     failed -- for at least Bash < 4.2 -- to export both adapters correctly to the called job script.
+
+* 1.2.22-8 [26th Nov 2019]
+  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
 
 * 1.2.22-7 [7th Nov 2018]
   - Fixed a number of variable references that were without braces (now everywhere `${...}` is used to allow Roddy to resolve the references and order the parameter file correctly)
