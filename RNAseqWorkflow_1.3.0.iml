@@ -20,5 +20,6 @@
     <orderEntry type="library" name="Python 2.7 (AlignmentAndQCWorkflows) interpreter library" level="application" />
     <orderEntry type="library" name="R User Library" level="project" />
     <orderEntry type="library" name="R Skeletons" level="application" />
+    <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.4.9" level="project" />
   </component>
 </module>
