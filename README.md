@@ -11,31 +11,59 @@ The following is kind of a template protocol for a methods section. You will pro
 
 #### Example Protocol
 
-The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, version; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, version; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, version; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, version; https://github.com/TheRoddyWMS/Roddy, version). The workflow performs the following analysis steps.
+The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, version; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, **version**; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy, version). The workflow performs the following analysis steps.
 
-   NOTE: You should also list the other plugins in the dependency chain and the Roddy version you used to ensure reproducibility. Use the short commit hash if the version you used was not tagged.
+> NOTE: You should also list the other plugins in the dependency chain and the Roddy version you used to ensure reproducibility. Use the short commit hash if the version you used was not tagged. You can get the canonical version numbers from the `roddyExecutionStore/exec_*/versionInfo.txt` file.
 
-FASTQ reads for individual samples were aligned by a 2 pass alignment using the STAR aligner (version, https://www.ncbi.nlm.nih.gov/pubmed/23104886). Reads were aligned to a STAR index generated from the 1000 genomes assembly, gencode 19 gene models and for asjbdOverhang of 200. The alignment call parameters were -
+FASTQ reads for individual samples were aligned by a 2 pass alignment using the STAR aligner (**version**, https://www.ncbi.nlm.nih.gov/pubmed/23104886). Reads were aligned to a STAR index generated from the 1000 genomes assembly, gencode 19 gene models and for asjbdOverhang of 200. The alignment call parameters were -
 
 ```
---sjdbOverhang 200 --runThreadN 8 --outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3 --twopassMode Basic --twopass1readsN -1 --genomeLoad NoSharedMemory --chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15 --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5 --alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20 --clip3pAdapterSeq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --readFilesCommand gunzip -c
+--sjdbOverhang 200 \
+--runThreadN 8 \
+--outSAMtype BAM Unsorted SortedByCoordinate \
+--limitBAMsortRAM 100000000000 \
+--outBAMsortingThreadN=1 \
+--outSAMstrandField intronMotif \
+--outSAMunmapped Within KeepPairs \
+--outFilterMultimapNmax 1 \
+--outFilterMismatchNmax 5 \
+--outFilterMismatchNoverLmax 0.3 \
+--twopassMode Basic \
+--twopass1readsN -1 \
+--genomeLoad NoSharedMemory \
+--chimSegmentMin 15 \
+--chimScoreMin 1 \
+--chimScoreJunctionNonGTAG 0 \
+--chimJunctionOverhangMin 15 \
+--chimSegmentReadGapMax 3 \
+--alignSJstitchMismatchNmax 5 -1 5 5 \
+--alignIntronMax 1100000 \
+--alignMatesGapMax 1100000 \
+--alignSJDBoverhangMin 3 \
+--alignIntronMin 20 \
+--clip3pAdapterSeq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+--readFilesCommand gunzip -c
 ```
+
+> Note: The effective parameters of your specific analysis run may differ. Please grep them from the with something like `cat roddyExecutionStore/exec_*/*_starAlignment.o* | grep -P "^STAR "`.
 
 Other parameters were as default, or only pertinent for particular samples (e.g. list of FASTQ files or definitions of the RG line).
 
-Duplicate marking of the resultant main alignment file was performed using sambamba (version, https://www.ncbi.nlm.nih.gov/pubmed/25697820) using 8 threads.
+> Note: Identifying the software versions from the logs is unfortunately yet somewhat complicated. If you used `module` to load a composite environment, please inspect your composite module with `module display $moduleName`. Otherwise, you may be lucky and your software contained version numbers in their names. As a last resort, you need to check all individual software tools manually.
 
-The Chimeric file was sorted using samtools sort (version, https://www.ncbi.nlm.nih.gov/pubmed/19505943), and then duplicates were marked using sambamba.
+Duplicate marking of the resultant main alignment file was performed using sambamba (**version**, https://www.ncbi.nlm.nih.gov/pubmed/25697820) using 8 threads.
+
+The Chimeric file was sorted using samtools sort (**version**, https://www.ncbi.nlm.nih.gov/pubmed/19505943), and then duplicates were marked using sambamba.
 
 BAM indexes were generated using sambamba.
 
-Quality control analysis was performed using the `samtools flagstat` command, and the rnaseqc tool (version, https://www.ncbi.nlm.nih.gov/pubmed/22539670) with the 1000 genomes assembly and gencode 19 gene models. Depth of Coverage analysis for rnaseqc was turned off.
+Quality control analysis was performed using the `samtools flagstat` command, and the rnaseqc tool (**version**, https://www.ncbi.nlm.nih.gov/pubmed/22539670) with the 1000 genomes assembly and gencode 19 gene models. Depth of Coverage analysis for rnaseqc was turned off.
 
-Featurecounts (version, https://www.ncbi.nlm.nih.gov/pubmed/24227677​) was used to perform gene specific read counting over exon features based on the gencode 19 gene models. Both reads of a paired fragment were used for counting and the quality threshold was set to 255 (which indicates that STAR found a unique alignment). Strand unspecific counting was used.
+Featurecounts (**version**, https://www.ncbi.nlm.nih.gov/pubmed/24227677) was used to perform gene specific read counting over exon features based on the gencode 19 gene models. Both reads of a paired fragment were used for counting and the quality threshold was set to 255 (which indicates that STAR found a unique alignment). Strand unspecific counting was used.
 
 A custom script was used to calculate RPKM and TPM expression values. For total library abundance calculations, all genes on chromosomes X, Y, MT and rRNA and tRNA genes were omitted as they are likely to introduce library size estimation biases.
 
-Gene fusions were identified using the arriba algorithm (version, https://github.com/suhrig/arriba/).
+Gene fusions were identified using the arriba algorithm (**version**, https://github.com/suhrig/arriba/).
 
 ### Installation of ...
 
