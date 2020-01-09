@@ -49,8 +49,6 @@ FASTQ reads for individual samples were aligned by a 2 pass alignment using the 
 
 Other parameters were as default, or only pertinent for particular samples (e.g. list of FASTQ files or definitions of the RG line).
 
-> Note: Identifying the software versions from the logs is unfortunately yet somewhat complicated. If you used `module` to load a composite environment, please inspect your composite module with `module display $moduleName`. Otherwise, you may be lucky and your software contained version numbers in their names. As a last resort, you need to check all individual software tools manually.
-
 Duplicate marking of the resultant main alignment file was performed using sambamba (**version**, https://www.ncbi.nlm.nih.gov/pubmed/25697820) using 8 threads.
 
 The Chimeric file was sorted using samtools sort (**version**, https://www.ncbi.nlm.nih.gov/pubmed/19505943), and then duplicates were marked using sambamba.
@@ -100,13 +98,15 @@ Software stack version and citations for RNAseq workflow (not all tools may be u
 * [star 2.5.2b](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
 * [samtools 1.3.1](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
 * [arriba 0.8](https://github.com/suhrig/arriba/)
-* [featurecounts 1.5.1](https://www.ncbi.nlm.nih.gov/pubmed/24227677​)
+* [featurecounts 1.5.1](https://www.ncbi.nlm.nih.gov/pubmed/24227677)
 * [rnaseqc 1.1.8](https://www.ncbi.nlm.nih.gov/pubmed/22539670)
 * [sambamba 0.6.5](https://www.ncbi.nlm.nih.gov/pubmed/25697820)
 * [qualimap 2.2.1](http://qualimap.bioinfo.cipf.es/)
 * [subread 1.5.1](http://subread.sourceforge.net/) 
 * [kallisto 0.43.0](https://pachterlab.github.io/kallisto/about)
 * [Jemultiplexer 1.0.6](https://gbcs.embl.de/portal/tiki-index.php?page=Jemultiplexer) 
+
+> Note: Note that these versions may be different in your specific environment. Identifying the software versions from the logs is unfortunately yet somewhat complicated. If you used `module` to load a composite environment, please inspect your composite module with `module display $moduleName`. Otherwise, you may be lucky and your software contained version numbers in their names. As a last resort, you need to check all individual software tools manually.
 
 ##### Conda Environment
 
