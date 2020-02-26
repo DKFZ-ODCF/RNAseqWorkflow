@@ -51,13 +51,13 @@ The RNA-seq plugin depends on the [AlignmentAndQCWorkflows](https://github.com/D
 
 You can install the workflow by downloading the release tarball from Github Releases, or by cloning the repository. In both cases the workflow plugin root directory should be in a direct subdirectory of your plugins directory that you register, e.g. via the `applicationProperties.ini` of Roddy.
 
-Create a plugin directory, e.g. called `plugins`, and clone the repository into that directory. The following commands create the plugins directory and clone the repository with checked out branch "ReleaseBranch_1.2.22-6" into a correspondly named subdirectory:
+Create a plugin directory, e.g. called `plugins`, and clone the repository into that directory. The following commands create the plugins directory and clone the repository with checked out branch "ReleaseBranch_1.3.0-2" into a correspondingly named subdirectory:
 
 ```bash
 mkdir plugins
 cd plugins
-git clone -- https://https://github.com/DKFZ-ODCF/RNAseqWorkflow RNAseqWorkflow_1.2.22-6
-git -C RNAseqWorkflow_1.2.22-6 checkout ReleaseBranch_1.2.22-6
+git clone -- https://https://github.com/DKFZ-ODCF/RNAseqWorkflow RNAseqWorkflow_2.0.0
+git -C RNAseqWorkflow_2.0.0 checkout 2.0.0
 ```
 
 Note that the workflow directory can be suffixed by the version tag to allow for the installation of multiple versions of the workflow. The workflow additionally needs the [AlignmentAndQCWorkflow](https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows) as the next plugin in the dependency chain.
@@ -69,20 +69,25 @@ Note that the workflow directory can be suffixed by the version tag to allow for
 Software stack version and citations for RNAseq workflow (not all tools may be used, dependent on your configuration):
 
 * Python 2.7.9
-* [star 2.5.2b](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
-* [samtools 1.3.1](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
-* [arriba 0.8](https://github.com/suhrig/arriba/)
-* [featurecounts 1.5.1](https://www.ncbi.nlm.nih.gov/pubmed/24227677​)
+* [star 2.5.3a](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
+* [samtools 1.6](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
+* [arriba 1.2.0](https://github.com/suhrig/arriba/)
+* [subread 1.5.3](http://subread.sourceforge.net/) providing [featurecounts 1.5.3](https://www.ncbi.nlm.nih.gov/pubmed/24227677​)
 * [rnaseqc 1.1.8](https://www.ncbi.nlm.nih.gov/pubmed/22539670)
 * [sambamba 0.6.5](https://www.ncbi.nlm.nih.gov/pubmed/25697820)
 * [qualimap 2.2.1](http://qualimap.bioinfo.cipf.es/)
-* [subread 1.5.1](http://subread.sourceforge.net/) 
 * [kallisto 0.43.0](https://pachterlab.github.io/kallisto/about)
 * [Jemultiplexer 1.0.6](https://gbcs.embl.de/portal/tiki-index.php?page=Jemultiplexer) 
 
 ##### Conda Environment
 
-The [Conda](https://conda.io/docs/)-environment is work in progress. 
+The [Conda](https://conda.io/docs/)-environment is work in progress. The current version of the file than is delivered as an outlook differs from our current production environment is some aspects:
+
+  * Jemultiplexer is yet missing from Conda
+  * qualimap is not available in version 2.2.1 in Conda. Instead the environment contains version 2.2.2a.
+  * Rather than R 3.0.0 the conda environment uses R 3.1.2.
+  
+The environment is not tested. 
 
 #### ... the reference data
 
@@ -166,6 +171,10 @@ set GENOME_GATK_INDEX to point to the new fasta file (1), for which you have cre
 Release 1.0.19 - 01/08/17
 
 ## Change Log
+
+* 2.0.0 [Feb 2020]
+  - Update Arriba to version 1.2.0
+  - Added draft Conda environment (incomplete)
 
 * 1.3.0-2 [26th Nov 2019]
   - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
