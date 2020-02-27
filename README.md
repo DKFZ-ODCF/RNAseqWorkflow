@@ -159,16 +159,11 @@ The following is merely on overview over the most important parameters.
 
 ## Example Call
 
-Run the RNAseq workflow, setting the plugin directory to /home/ishaque/roddy_dev/roddyPlugins/ using the version 1.0.22-2
-Use these are your basic XML/ini files: /home/ishaque/temp/roddyLocalTest/testproject/configs/
-You have to set:
-
-change the basic stuff like inputbase and outputbase directories
-set RUN_FEATURE_COUNTS_DEXSEQ, RUN_RNASEQC, RUN_KALLISTO, RUN_ARRIBA, runFingerprinting to FALSE
-check if your sample type is in possibleTumorSampleNamePrefixes
-set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) parameters to what your created for (1) and (2)
-set GENOME_GATK_INDEX to point to the new fasta file (1), for which you have created a dict file. The dict file should be in the same directory as the fasta.
-Release 1.0.19 - 01/08/17
+* Change the basic stuff like inputbase and outputbase directories
+set RUN_FEATURE_COUNTS_DEXSEQ, RUN_RNASEQC, RUN_KALLISTO, RUN_ARRIBA, runFingerprinting to FALSE.
+* Check if your sample type is in possibleTumorSampleNamePrefixes
+G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) parameters to what your created for (1) and (2).
+* Set GENOME_GATK_INDEX to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
 
 ## Change Log
 
