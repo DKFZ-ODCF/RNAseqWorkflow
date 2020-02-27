@@ -100,6 +100,8 @@ then
         cp -f $STAR_NOTSORTED_BAM $STAR_SORTED_BAM
     fi
 
+## This part has been changed on Jan 275th because was not working before. 
+
     if [ "$runSingleCellWorkflow" == false ]; then
     	check_or_die $STAR_CHIMERA_SAM alignment
     	echo_run "mv ${SAMPLE}_${pid}_merged.Chimeric.out.junction ${SAMPLE}_${pid}_chimeric_merged.junction"
@@ -114,7 +116,12 @@ then
     	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
     	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
 	    check_or_die ${STAR_CHIMERA_MKDUP_BAM}.md5 alignment-md5sums
-	elif [[ ${processUMI} == true ]]; then
+        ## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
+            #echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
+        echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
+        check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
+
+    elif [[ ${processUMI} == true ]]; then
     	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_BAM"
     	check_or_die ${STAR_SORTED_BAM}.bai star-sorted-index
     	if [[ `$SAMTOOLS_BINARY view $STAR_NOTSORTED_BAM | head | wc -l` == 0 ]]; then
@@ -126,11 +133,6 @@ then
     	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
 	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $UMI_DEDUP_BAM $STAR_SORTED_MKDUP_BAM"
 	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups-after-umi-dedup
-    else
-    	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	    #echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
-	    echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$RODDY_SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
-	    check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
     fi
 
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
@@ -209,12 +211,12 @@ if [ "$runSingleCellWorkflow" == false ]; then
         fi
         if [ "$useSingleEndProcessing" == true ]
         then
-            echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+            echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
         else
-            echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+            echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
         fi
 
-        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
     fi
 
     ##
