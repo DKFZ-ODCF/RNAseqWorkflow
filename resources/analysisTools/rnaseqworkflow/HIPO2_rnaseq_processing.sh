@@ -33,7 +33,6 @@ check_executable "$RNASEQC_BINARY"
 check_executable "$KALLISTO_BINARY"
 check_executable "$QUALIMAP_BINARY"
 check_executable "$ARRIBA_BINARY"
-check_executable "$ARRIBA_READTHROUGH_BINARY"
 check_executable "$ARRIBA_DRAW_FUSIONS"
 
 ########################################################################
@@ -109,7 +108,7 @@ fi
 # Run the fingerprinting. This requires the .bai file.
 if [[ "${runFingerprinting:-false}" == true ]]
 then
-        cd $ALIGNMENT_DIR
+    cd $ALIGNMENT_DIR
 	echo_run "$PYTHON_BINARY $TOOL_FINGERPRINT $fingerprintingSitesFile $STAR_SORTED_MKDUP_BAM > $STAR_SORTED_MKDUP_BAM.fp.tmp"
 	mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
 fi
@@ -145,8 +144,8 @@ if [ "$RUN_QUALIMAP" == true ]
 then
 	make_directory $QUALIMAP_DIR/${SAMPLE}_${pid}
 	cd $QUALIMAP_DIR/${SAMPLE}_${pid}
-        if [ "$useSingleEndProcessing" == true ]
-        then
+    if [ "$useSingleEndProcessing" == true ]
+    then
 		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s     --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
 	else
 		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
@@ -166,8 +165,8 @@ then
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
 	for S in {0..2} 
 	do
-	        if [ "$useSingleEndProcessing" == true ]
-       		then
+	    if [ "$useSingleEndProcessing" == true ]
+        then
 			echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		else
 			echo_run "$FEATURECOUNTS_BINARY $COUNT -p -B       -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
@@ -260,23 +259,22 @@ fi
 
 if [ "$RUN_ARRIBA" == true ]
 then
-	make_directory $ARRIBA_DIR
-	cd $ARRIBA_DIR
+	make_directory "$ARRIBA_DIR"
+	cd "$ARRIBA_DIR"
 
-	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -T -P -o '${SAMPLE}_$pid.fusions.txt' -O '${SAMPLE}_$pid.discarded_fusions.txt'"
+	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -T -P -o '$ALIGNMENT_DIR/${SAMPLE}_$pid.fusions.txt' -I -O '$ALIGNMENT_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
-    if [ "$useSingleEndProcessing" == true ]; then
-        arribaCommand="$arribaCommand -s yes"
-    else
-        arribaCommand="$arribaCommand -s no"
-    fi
+	echo "$arribaCommand" > /dev/stderr
 
     echo_run "$arribaCommand"
 
-	if [[ -f "${SAMPLE}_$pid.fusions.txt" ]]
+	if [[ -f "$ALIGNMENT_DIR/${SAMPLE}_$pid.fusions.txt" ]]
 	then
-		echo_run "$ARRIBA_DRAW_FUSIONS --annotation='$GENE_MODELS' --fusions='${SAMPLE}_$pid.fusions.txt' --output='${SAMPLE}_$pid.fusions.pdf'"
+		echo_run "$ARRIBA_DRAW_FUSIONS --annotation='$GENE_MODELS' --fusions='$ALIGNMENT_DIR/${SAMPLE}_$pid.fusions.txt' --proteinDomains='$ARRIBA_PROTEIN_DOMAINS' --cytobands='$ARRIBA_CYTOBANDS' --alignments='$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' --output='$ALIGNMENT_DIR/${SAMPLE}_$pid.fusions.pdf'"
 	fi
+
+    echo_run "gzip -9 '$ALIGNMENT_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
+
 fi
 
 ##
