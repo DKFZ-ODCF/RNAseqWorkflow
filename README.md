@@ -157,8 +157,11 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 ## Change Log
 
-* 2.0.0 [Feb 2020]
+* 2.0.0 [March 2020]
   - Update Arriba to version 1.2.0
+  - Update STAR to 2.5.3a
+  - Update Samtools to 1.6
+  - Update Subread (featureCounts) to 1.5.3
   - Added draft Conda environment (incomplete)
 
 * 1.3.0-2 [26th Nov 2019]
