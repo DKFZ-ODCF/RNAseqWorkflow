@@ -105,8 +105,8 @@ The reference data is configurable via the following configuration values.
 | GENOME_STAR_INDEX_100 | Path to STAR index for read length 100 pb | ${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp  |
 | GENOME_STAR_INDEX_200 | Path to STAR index for read length 200 pb | ${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp |
 | GENOME_KALLISTO_INDEX | |  ${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index |
-| ARRIBA_KNOWN_FUSIONS | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz | 
-| ARRIBA_BLACKLIST | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz |
+| ARRIBA_KNOWN_FUSIONS | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-05-11.tsv.gz | 
+| ARRIBA_BLACKLIST | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/blacklist_hg19_hs37d5_GRCh37_2018-11-04.tsv.gz |
 | ARRIBA_PROTEIN_DOMAINS | GFF3 | ${hg19BaseDirectory}/tools_data/arriba/protein_domains_hg19_hs37d5_GRCh37_2019-07-05.gff3 |
 | ARRIBA_CYTOBANDS | TSV | ${hg19BaseDirectory}/tools_data/arriba/cytobands_hg19_hs37d5_GRCh37_2018-02-23.tsv |
 
