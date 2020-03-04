@@ -120,6 +120,8 @@
         <cvalue name='GENOME_KALLISTO_INDEX' value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/>
         <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz' type='string'/>
         <cvalue name='ARRIBA_BLACKLIST' value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz' type='string'/>
+        <cvalue name='ARRIBA_PROTEIN_DOMAINS' value='${hg19BaseDirectory}/tools_data/arriba/protein_domains_hg19_hs37d5_GRCh37_2019-07-05.gff3' type='string'/>
+        <cvalue name='ARRIBA_CYTOBANDS' value='${hg19BaseDirectory}/tools_data/arriba/cytobands_hg19_hs37d5_GRCh37_2018-02-23.tsv' type="string"/>
 
         <!-- ## -->
         <!-- ## SOFTWARE PARAMS -->

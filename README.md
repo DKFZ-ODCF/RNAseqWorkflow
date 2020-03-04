@@ -91,38 +91,28 @@ The environment is not tested.
 
 #### ... the reference data
 
-```
-GENOME_FA			${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa
-GENOME_GATK_INDEX		${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa
-GENOME_STAR_INDEX_50		${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp
-GENOME_STAR_INDEX_100		${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp
-GENOME_STAR_INDEX_200		${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp
-GENOME_KALLISTO_INDEX		${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index
-GENOME_STAR_INDEX		$GENOME_STAR_INDEX_200
+The reference data is configurable via the following configuration values. 
 
-GENE_MODELS			${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.gtf
-GENE_MODELS_EXCLUDE		${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf
-GENE_MODELS_DEXSEQ		${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff
-GENE_MODELS_GC			${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc
-ARRIBA_KNOWN_FUSIONS		${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz
-ARRIBA_BLACKLIST		${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz
-```
-
-| Configuration value | Description | Example |
+| Configuration value | Description | Default Path |
 |---------------------|-------------|---------| 
 | GENOME_FA |  FASTA assembly file | ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz |
 | GENOME_GATK_INDEX | The path to the GATK index directory and name. The value may end in `.fa` just because this may be the prefix of index | |
 | GENE_MODELS | GTF with gene models. | https://www.encodeproject.org/files/gencode.v19.annotation/@@download/gencode.v19.annotation.gtf.gz |
-| GENE_MODELS_EXCLUDE | GTF | value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf' type='string'/> |
-| GENE_MODELS_DEXSEQ | GFF | value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff' type='string'/> |
-| GENE_MODELS_GC | | value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc' type='string'/> |
-| GENOME_STAR_INDEX_50 | Path to STAR index for read length 50 pb | value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp' type='string'/> |
-| GENOME_STAR_INDEX_100 | Path to STAR index for read length 100 pb | value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp' type='string'/> |
-| GENOME_STAR_INDEX_200 | Path to STAR index for read length 200 pb | value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp' type='string'/> |
-| GENOME_KALLISTO_INDEX | |  value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/> |
-| ARRIBA_KNOWN_FUSIONS | GZipped TSV | value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz' type='string'/> | 
-| ARRIBA_BLACKLIST | GZipped TSV | value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz' type='string'/> |
-|---------------------|-------------|---------| 
+| GENE_MODELS_EXCLUDE | GTF | ${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf |
+| GENE_MODELS_DEXSEQ | GFF | ${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff |
+| GENE_MODELS_GC | | ${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc |
+| GENOME_STAR_INDEX_50 | Path to STAR index for read length 50 pb | ${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp |
+| GENOME_STAR_INDEX_100 | Path to STAR index for read length 100 pb | ${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp  |
+| GENOME_STAR_INDEX_200 | Path to STAR index for read length 200 pb | ${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp |
+| GENOME_KALLISTO_INDEX | |  ${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index |
+| ARRIBA_KNOWN_FUSIONS | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz | 
+| ARRIBA_BLACKLIST | GZipped TSV | ${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz |
+| ARRIBA_PROTEIN_DOMAINS | GFF3 | ${hg19BaseDirectory}/tools_data/arriba/protein_domains_hg19_hs37d5_GRCh37_2019-07-05.gff3 |
+| ARRIBA_CYTOBANDS | TSV | ${hg19BaseDirectory}/tools_data/arriba/cytobands_hg19_hs37d5_GRCh37_2018-02-23.tsv |
+
+The Arriba files are available via the Arriba release tarball available at [GitHub](https://github.com/suhrig/arriba/).
+
+
 
 ### Running the workflow
 
