@@ -264,8 +264,6 @@ then
 
 	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -T -P -o '$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt' -I -O '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
-	echo "$arribaCommand" > /dev/stderr
-
     echo_run "$arribaCommand"
 
 	if [[ -f "$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt" ]]
