@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Copyright (c) 2018 German Cancer Research Center (DKFZ).
+#
+# Distributed under the MIT License (license terms are at https://github.com/DKFZ-ODCF/RNAseqWorkflow).
+#
 
 set -vx
 
@@ -120,21 +125,20 @@ fi
 
 if [ "$RUN_RNASEQC" == true ]
 then
-	make_directory $RNASEQC_DIR/${SAMPLE}_${pid}
-	cd $RNASEQC_DIR/${SAMPLE}_${pid}
-        DOC_FLAG=" "
-        if [ "$disableDoC_GATK" == true ]
-        then
-		DOC_FLAG="-noDoC"
-	fi
-        if [ "$useSingleEndProcessing" == true ]
-        then
-		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
-        else
-		 echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
-        fi
-
-        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+    make_directory $RNASEQC_DIR/${SAMPLE}_${pid}
+    cd $RNASEQC_DIR/${SAMPLE}_${pid}
+    DOC_FLAG=" "
+    if [ "$disableDoC_GATK" == true ]
+    then
+        DOC_FLAG="-noDoC"
+    fi
+    if [ "$useSingleEndProcessing" == true ]
+    then
+        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+    else
+        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+    fi
+    echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
 fi
 
 ##
