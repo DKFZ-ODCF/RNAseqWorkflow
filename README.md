@@ -157,6 +157,9 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 ## Change Log
 
+* 2.0.1 [July 2020]
+  - Bugfix: Variable `SEQUENCING_PROTOCOL` was statically overwritten to be "paired". In a mode where the plugin retrieves the files from the filesystem (i.e. without `FASTQ_LIST`), the workflow therefore searched for FASTQs below the "paired" rather than "single" directory.
+
 * 2.0.0 [13th March 2020]
   - Update Arriba to version 1.2.0
   - Update STAR to 2.5.3a

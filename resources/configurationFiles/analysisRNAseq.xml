@@ -19,8 +19,6 @@
         <cvalue name="useCentralAnalysisArchive" value="true"/>
         <cvalue name="enableJobProfiling" value="false"/>
         <cvalue name='QUAL' value='phred' description="Default quality is phred, can be illumina."/>
-        <!-- ## Imported from commonCOWorkflowsSettings -->
-        <cvalue name='SEQUENCER_PROTOCOL' value='paired' type="string"  description="only paired read sequencing is currently supported"/>
 
         <!-- ## -->
         <!-- ## SOME RUNTIME_CONFIG PARMS -->
