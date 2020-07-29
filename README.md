@@ -7,15 +7,15 @@ This workflow does the primary data processing for RNAseq data: alignment, QC, r
 
 ### Description
 
-The following is kind of a template protocol for a methods section. You will probably need to adapt it to your specific settings and we can not guarantee to always keep this up to date.
+The following is kind of a template protocol for a methods section. You will probably need to adapt it to your specific settings. 
 
 #### Example Protocol
 
-The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, version; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, version; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, version; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, version; https://github.com/TheRoddyWMS/Roddy, version). The workflow performs the following analysis steps.
+The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, **version**; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, **version**; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy, **version**). The workflow performs the following analysis steps.
 
-   NOTE: You should also list the other plugins in the dependency chain and the Roddy version you used to ensure reproducibility. Use the short commit hash if the version you used was not tagged.
+   NOTE: You should also list the other plugins in the dependency chain, and the Roddy version you used to ensure reproducibility. Use the short commit hash if the version you used was not tagged.
 
-FASTQ reads for individual samples were aligned by a 2 pass alignment using the STAR aligner (version, https://www.ncbi.nlm.nih.gov/pubmed/23104886). Reads were aligned to a STAR index generated from the 1000 genomes assembly, gencode 19 gene models and for asjbdOverhang of 200. The alignment call parameters were -
+FASTQ reads for individual samples were aligned by a 2 pass alignment using the STAR aligner (**version**, https://www.ncbi.nlm.nih.gov/pubmed/23104886). Reads were aligned to a STAR index generated from the 1000 genomes assembly, gencode 19 gene models and for asjbdOverhang of 200. The alignment call parameters were -
 
 ```
 --sjdbOverhang 200 --runThreadN 8 --outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3 --twopassMode Basic --twopass1readsN -1 --genomeLoad NoSharedMemory --chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15 --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5 --alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20 --clip3pAdapterSeq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --readFilesCommand gunzip -c
@@ -23,19 +23,27 @@ FASTQ reads for individual samples were aligned by a 2 pass alignment using the 
 
 Other parameters were as default, or only pertinent for particular samples (e.g. list of FASTQ files or definitions of the RG line).
 
-Duplicate marking of the resultant main alignment file was performed using sambamba (version, https://www.ncbi.nlm.nih.gov/pubmed/25697820) using 8 threads.
+Duplicate marking of the resultant main alignment file was done with sambamba (**version**, https://www.ncbi.nlm.nih.gov/pubmed/25697820) using 8 threads.
 
-The Chimeric file was sorted using samtools sort (version, https://www.ncbi.nlm.nih.gov/pubmed/19505943), and then duplicates were marked using sambamba.
+The Chimeric file was sorted using samtools sort (**version**, https://www.ncbi.nlm.nih.gov/pubmed/19505943), and then duplicates were marked using sambamba.
 
 BAM indexes were generated using sambamba.
 
-Quality control analysis was performed using the `samtools flagstat` command, and the rnaseqc tool (version, https://www.ncbi.nlm.nih.gov/pubmed/22539670) with the 1000 genomes assembly and gencode 19 gene models. Depth of Coverage analysis for rnaseqc was turned off.
+Quality control analysis was performed using the `samtools flagstat` command, and the rnaseqc tool (**version**, https://www.ncbi.nlm.nih.gov/pubmed/22539670) with the 1000 genomes assembly and gencode 19 gene models. Depth of Coverage analysis for rnaseqc was turned off.
 
-Featurecounts (version, https://www.ncbi.nlm.nih.gov/pubmed/24227677​) was used to perform gene specific read counting over exon features based on the gencode 19 gene models. Both reads of a paired fragment were used for counting and the quality threshold was set to 255 (which indicates that STAR found a unique alignment). Strand unspecific counting was used.
+Featurecounts (**version**, https://www.ncbi.nlm.nih.gov/pubmed/24227677) was used to perform gene specific read counting over exon features based on the gencode 19 gene models. Both reads of a paired fragment were used for counting and the quality threshold was set to 255 (which indicates that STAR found a unique alignment). Strand unspecific counting was used.
 
 A custom script was used to calculate RPKM and TPM expression values. For total library abundance calculations, all genes on chromosomes X, Y, MT and rRNA and tRNA genes were omitted as they are likely to introduce library size estimation biases.
 
 Gene fusions were identified using the arriba algorithm (version, https://github.com/suhrig/arriba/).
+
+### Software Versions
+
+Usually, the software versions used for the analysis are set in one of the scripts in the  `resources/analysisTools\rnaseqworkflow\environments` directory. Which of these scripts was used for your analyses is determined by the `workflowEnvironmentScript` variable.  Dependent on that script, specific version number may also have been set in e.g. the configuration files or command-line. In this case, the actually used value can be found in the `roddyExecutionStore/exec_*/*.parameter` files. 
+
+Currently, there are two example environment setup scripts. One of them loads a "composite" module, which makes it very hard or impossible to identify the software version just from the logging output. If such an environment is used, the only option you have is to load the "composite" module, and check the versions manually. 
+
+The second example uses `_VERSION` variables that specify the version of the module to load. In this case, you can just do a grep on `_VERSION` on the `.parameter` file to retrieve the software versions.
 
 ### Installation of ...
 
@@ -66,13 +74,13 @@ Note that the workflow directory can be suffixed by the version tag to allow for
 
 ##### Manual Installation
 
-Software stack version and citations for RNAseq workflow (not all tools may be used, dependent on your configuration):
+The following is a list of citations for software used by the RNAseq workflow. Note that dependent on your configuration some tools may be unused. The actual versions used may deviate from those given in this list.
 
 * Python 2.7.9
 * [star 2.5.3a](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
 * [samtools 1.6](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
 * [arriba 1.2.0](https://github.com/suhrig/arriba/)
-* [subread 1.5.3](http://subread.sourceforge.net/) providing [featurecounts 1.5.3](https://www.ncbi.nlm.nih.gov/pubmed/24227677​)
+* [subread 1.5.1](http://subread.sourceforge.net/) providing [featurecounts 1.5.1](https://www.ncbi.nlm.nih.gov/pubmed/24227677)
 * [rnaseqc 1.1.8](https://www.ncbi.nlm.nih.gov/pubmed/22539670)
 * [sambamba 0.6.5](https://www.ncbi.nlm.nih.gov/pubmed/25697820)
 * [qualimap 2.2.1](http://qualimap.bioinfo.cipf.es/)
@@ -81,13 +89,13 @@ Software stack version and citations for RNAseq workflow (not all tools may be u
 
 ##### Conda Environment
 
-The [Conda](https://conda.io/docs/)-environment is work in progress. The current version of the file than is delivered as an outlook differs from our current production environment is some aspects:
+The [Conda](https://conda.io/docs/)-environment is work in progress. The current version of the file that is delivered as an "outlook" differs from our current production environment is some aspects:
 
   * Jemultiplexer is yet missing from Conda
   * qualimap is not available in version 2.2.1 in Conda. Instead the environment contains version 2.2.2a.
   * Rather than R 3.0.0 the conda environment uses R 3.1.2.
   
-The environment is not tested. 
+The environment is not tested. Furthermore we noticed that Conda environments can sometimes not be restored, even if the "bioconda-legacy" channel is used. 
 
 #### ... the reference data
 
@@ -112,9 +120,32 @@ The reference data is configurable via the following configuration values.
 
 The Arriba files are available via the Arriba release tarball available at [GitHub](https://github.com/suhrig/arriba/).
 
+#### Setting up the reference data
 
+```bash
+http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz \
+    && gunzip hs37d5.fa.gz
 
-### Running the workflow
+wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz -O /dev/stdout \
+    | awk -F'\t' '$3!="gene"' \
+    | perl -pe 's/^chr(\d+)/\1/' \
+    | perl -pe 's/^chrM/MT/' \
+    | perl -pe 's/^chr([XY])/\1/' \
+    | perl -pe 's/ protein_id "[^"]+";//' \
+    > gencode.v19.annotation_plain.noGenes.gtf
+
+gffread \
+    -w kallisto-0.43.0_1KGRef_Gencode19.noGenes.fa \
+    -g hs37d5.fa \
+    gencode.v19.annotation_plain.noGenes.gtf
+   
+kallisto-0.43.0 \
+    index \
+    --index=kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index \
+    kallisto-0.43.0_1KGRef_Gencode19.noGenes.fa
+```
+
+# Running the workflow
 
 ## Configuration Values
 
@@ -219,7 +250,10 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
   - Modified default scratch to avoid crosstalk between multi sample PIDs
 
 * 1.0.22-1 [15th Sep 2017]
-  - Added variable FEATURE_COUNT_CORES to bypass segfault with too many core
+  - Added variable 
+  
+  
+  _COUNT_CORES to bypass segfault with too many core
   
 * 1.0.22 [21st Aug 2017]
   - Fixed errors is SE qc json file (removed empty value and NaN values)
