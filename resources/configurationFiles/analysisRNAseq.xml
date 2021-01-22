@@ -109,6 +109,8 @@
         <cvalue name='GENOME_FA' value='${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
         <cvalue name='GENOME_GATK_INDEX' value='${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
         <cvalue name='GENE_MODELS' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.gtf' type='string'/>
+        <cvalue name='GENE_MODELS_NOGENE' value='${GENE_MODELS}' type='string'
+                description="Like GENE_MODELS, but without 'gene' features. Required for gencode update for hg38. Defaults (for hg19): $GENE_MODELS."/>
         <cvalue name='GENE_MODELS_EXCLUDE' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf' type='string'/>
         <cvalue name='GENE_MODELS_DEXSEQ' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff' type='string'/>
         <cvalue name='GENE_MODELS_GC' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc' type='string'/>
@@ -157,7 +159,7 @@
     	<cvalue name="fingerprintingSitesFile" value="${fingerprintingSitesFile_hs37}" type="path"
                 description='BED file with the reference positions used for fingerprinting. Used by alignment workflow for fingerprinting individuals to discover swaps. Use runFingerprinting=true/false to toggle fingerprinting.'/>
 
-        <!-- ## Default file acces -->
+        <!-- ## Default file access -->
         <cvalue name='outputFileGroup' value='B080'/>
         <cvalue name='outputUMask' value='007' type='string'/>
         <cvalue name='outputAccessRights' value='u+rw,g+rw,o-rwx'/>
