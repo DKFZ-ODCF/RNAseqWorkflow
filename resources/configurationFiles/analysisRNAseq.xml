@@ -185,7 +185,7 @@
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
         <tool name='fingerprint' value="bsnp.py" basepath="qcPipeline"/>
 
-        <tool name="starAlignment" value="HIPO2_rnaseq_processing.sh" basepath="rnaseqworkflow">
+        <tool name="starAlignment" value="rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
                 <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>

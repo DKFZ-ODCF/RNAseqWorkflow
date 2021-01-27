@@ -68,12 +68,12 @@ then
 	cd $ALIGNMENT_DIR
 	## the STAR temp directory must not exist, otherwise STAR will fail
 	remove_directory $SCRATCH/${SAMPLE}_${pid}_STAR
-        if [ "$useSingleEndProcessing" == true ]
-        then
+	if [ "$useSingleEndProcessing" == true ]
+	then
 		echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT}                     --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
-        else
+	else
 		echo_run "${STAR_BINARY} ${STAR_PARAMS} --readFilesIn ${READS_STAR_LEFT} ${READS_STAR_RIGHT} --readFilesCommand ${READ_COMMAND} --outSAMattrRGline ${PARM_READGROUPS}"
-        fi
+	fi
 	check_or_die $STAR_SORTED_BAM alignment
 	check_or_die $STAR_NOTSORTED_BAM alignment
 	check_or_die $STAR_CHIMERA_SAM alignment
@@ -83,7 +83,6 @@ then
 	## BAM-erise and sort chimera file: 1 core, 1 hours, 200mb
 	echo_run "$SAMTOOLS_BINARY view -Sbh $STAR_CHIMERA_SAM | $SAMTOOLS_BINARY sort - -o $STAR_CHIMERA_BAM_PREF.bam"
 	check_or_die ${STAR_CHIMERA_BAM_PREF}.bam chimera-sam-2-bam
-	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 ${STAR_CHIMERA_BAM_PREF}.bam | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > ${STAR_CHIMERA_MKDUP_BAM}"
 	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES ${STAR_CHIMERA_BAM_PREF}.bam ${STAR_CHIMERA_MKDUP_BAM}"
 	check_or_die $STAR_CHIMERA_MKDUP_BAM chimera-post-markdups
 	remove_file ${STAR_CHIMERA_BAM_PREF}.bam
@@ -91,15 +90,14 @@ then
 	check_or_die ${STAR_CHIMERA_MKDUP_BAM}.bai chimera-alignment-index
 
 	## markdups using sambamba  (requires 7Gb and 20 min walltime (or 1.5 hrs CPU time) for 200m reads)
-	#echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t 1 -l 0 $STAR_SORTED_BAM | $SAMTOOLS_BINARY view -h - | $SAMTOOLS_BINARY view -S -b -@ $CORES > $STAR_SORTED_MKDUP_BAM"
 	echo_run "$SAMBAMBA_BINARY markdup --tmpdir=$SCRATCH -t $CORES $STAR_SORTED_BAM $STAR_SORTED_MKDUP_BAM"
 	check_or_die $STAR_SORTED_MKDUP_BAM post-markdups
-	
+
 	## index using samtools (requires 40MB and 5 minutes for 200m reads)
 	echo_run "$SAMBAMBA_BINARY index -t $CORES $STAR_SORTED_MKDUP_BAM"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.bai alignment-index
-	
-    ## md5sum
+
+	## md5sum
 	echo_run "md5sum $STAR_SORTED_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_SORTED_MKDUP_BAM.md5"
 	check_or_die ${STAR_SORTED_MKDUP_BAM}.md5 alignment-md5sums
 	echo_run "md5sum $STAR_CHIMERA_MKDUP_BAM | cut -f 1 -d ' ' > $STAR_CHIMERA_MKDUP_BAM.md5"
@@ -113,7 +111,7 @@ fi
 # Run the fingerprinting. This requires the .bai file.
 if [[ "${runFingerprinting:-false}" == true ]]
 then
-    cd $ALIGNMENT_DIR
+	cd $ALIGNMENT_DIR
 	echo_run "$PYTHON_BINARY $TOOL_FINGERPRINT $fingerprintingSitesFile $STAR_SORTED_MKDUP_BAM > $STAR_SORTED_MKDUP_BAM.fp.tmp"
 	mv "$STAR_SORTED_MKDUP_BAM.fp.tmp" "$STAR_SORTED_MKDUP_BAM.fp"
 fi
@@ -124,20 +122,20 @@ fi
 
 if [ "$RUN_RNASEQC" == true ]
 then
-    make_directory $RNASEQC_DIR/${SAMPLE}_${pid}
-    cd $RNASEQC_DIR/${SAMPLE}_${pid}
-    DOC_FLAG=" "
-    if [ "$disableDoC_GATK" == true ]
-    then
-        DOC_FLAG="-noDoC"
-    fi
-    if [ "$useSingleEndProcessing" == true ]
-    then
-        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
-    else
-        echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
-    fi
-    echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+	make_directory $RNASEQC_DIR/${SAMPLE}_${pid}
+	cd $RNASEQC_DIR/${SAMPLE}_${pid}
+	DOC_FLAG=" "
+	if [ "$disableDoC_GATK" == true ]
+	then
+		DOC_FLAG="-noDoC"
+	fi
+	if [ "$useSingleEndProcessing" == true ]
+	then
+		echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -singleEnd -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+	else
+		echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG            -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
+	fi
+	echo_run "$RNASEQC_BINARY -r $GENOME_GATK_INDEX $DOC_FLAG -t $GENE_MODELS_NOGENE -n 1000 -o . -s \"${SAMPLE}_${pid}|${ALIGNMENT_DIR}/${STAR_SORTED_MKDUP_BAM}|${SAMPLE}\" &> $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log &"
 fi
 
 ##
@@ -148,8 +146,8 @@ if [ "$RUN_QUALIMAP" == true ]
 then
 	make_directory $QUALIMAP_DIR/${SAMPLE}_${pid}
 	cd $QUALIMAP_DIR/${SAMPLE}_${pid}
-    if [ "$useSingleEndProcessing" == true ]
-    then
+	if [ "$useSingleEndProcessing" == true ]
+	then
 		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s     --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
 	else
 		echo_run "$QUALIMAP_BINARY rnaseq -gtf $GENE_MODELS -s -pe --java-mem-size=60G -outfile ${SAMPLE}_${pid}.report -outdir $QUALIMAP_DIR/${SAMPLE}_${pid} -bam $ALIGNMENT_DIR/$STAR_NOTSORTED_BAM"
@@ -163,14 +161,14 @@ fi
 
 if [ "$RUN_FEATURE_COUNTS" == true ]
 then
-	make_directory $COUNT_DIR 
+	make_directory $COUNT_DIR
 	cd $COUNT_DIR
 	COUNT="-t exon -g gene_id -Q 255 -T $FEATURE_COUNT_CORES -a $GENE_MODELS -F GTF --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCounts "
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCounts
-	for S in {0..2} 
+	for S in {0..2}
 	do
-	    if [ "$useSingleEndProcessing" == true ]
-        then
+		if [ "$useSingleEndProcessing" == true ]
+		then
 			echo_run "$FEATURECOUNTS_BINARY $COUNT --donotsort -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
 		else
 			echo_run "$FEATURECOUNTS_BINARY $COUNT -p -B       -s $S -o ${SAMPLE}_${pid}.featureCounts.s$S $ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM"
@@ -197,7 +195,7 @@ then
 	cd $COUNT_DIR_EXON
 	COUNT_EXONS="-f -O -F GTF -a $GENE_MODELS_DEXSEQ -t exonic_part -Q 255 -T $FEATURE_COUNT_CORES --tmpDir $SCRATCH/${SAMPLE}_${pid}_featureCountsExons "
 	make_directory $SCRATCH/${SAMPLE}_${pid}_featureCountsExons
-	for S in {0..2}  
+	for S in {0..2}
 	do
 		if [ "$useSingleEndProcessing" == true ]
 		then
@@ -268,14 +266,14 @@ then
 
 	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -T -P -o '$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt' -I -O '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
-    echo_run "$arribaCommand"
+	echo_run "$arribaCommand"
 
 	if [[ -f "$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt" ]]
 	then
 		echo_run "$ARRIBA_DRAW_FUSIONS --annotation='$GENE_MODELS' --fusions='$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt' --proteinDomains='$ARRIBA_PROTEIN_DOMAINS' --cytobands='$ARRIBA_CYTOBANDS' --alignments='$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' --output='$ARRIBA_DIR/${SAMPLE}_$pid.fusions.pdf'"
 	fi
 
-    echo_run "gzip -9 '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
+	echo_run "gzip -9 '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
 fi
 
@@ -298,18 +296,18 @@ then
 		echo_run "mv $RNASEQC_DIR/${SAMPLE}_${pid}/metrics.tsv $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv"
 	fi
 
-        if  [[ -f "$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv" ]]
+	if  [[ -f "$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv" ]]
 	then
 		echo "#FOUND FILE: RNAseQC file \"$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv\""
 	else
-		echo "#ERROR: file not found: \"$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv\" ... exitting!" 1>&2
+		echo "#ERROR: file not found: \"$RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv\" ... exiting!" 1>&2
 		exit 1
 	fi
 
-        if [[ -f "$DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log" ]]
+	if [[ -f "$DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log" ]]
 	then
-        check_text_and_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "org.broadinstitute.sting.gatk.walkers.coverage.DepthOfCoverageWalker.onTraversalDone" "rerun with \$disableDoC_GATK=TRUE"
-        check_text_or_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "Finished Successfully"
+		check_text_and_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "org.broadinstitute.sting.gatk.walkers.coverage.DepthOfCoverageWalker.onTraversalDone" "rerun with \$disableDoC_GATK=TRUE"
+		check_text_or_die $DIR_EXECUTION/${RODDY_JOBNAME}.${SAMPLE}_${pid}_RNAseQC.log "Finished Successfully"
 	fi
 	echo_run "$TOOL_CREATE_JSON_FROM_OUTPUT $ALIGNMENT_DIR/${STAR_SORTED_MKDUP_BAM}.flagstat $RNASEQC_DIR/${SAMPLE}_${pid}/${SAMPLE}_${pid}_metrics.tsv > ${JSON_PREFIX}qualitycontrol.json"
 	check_or_die ${JSON_PREFIX}qualitycontrol.json qc-json

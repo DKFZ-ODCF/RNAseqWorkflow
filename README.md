@@ -174,6 +174,7 @@ The following is merely on overview over the most important parameters.
 | ADAPTER_SEQ | ${ADAPTER_SEQ_TRUSEQ_LT_HT} | Sequences of the adapters to trim off by STAR. This is usually one or two (space delimited) DNA-sequences. |
 | GENOME_* | | Multiple configuration values defining the paths to STAR indices and genome reference files. Please see the variables starting with "GENOME_" in the configuration to get an idea of the default directory structure and files. The layout defined in the default in the plugin XML can be specified using the `indexDirectory` variable. |
 | GENE_MODELS | | By default the gencode v19 annotations. See the XML for further information | 
+| GENE_MODELS_NOGENE | | For gencode < v21 this can be the same as `GENE_MODELS`. For later versions, create a file from `GENE_MODELS_NOGENE` by dropping all "gene" features. E.g. `awk '$3 != "gene"' gencode.v32.annotation_plain.gtf > gencode.v32.annotation_noGene.gtf` |
 | ARRIBA_KNOWN_FUSIONS | | Only needed if arriba is used for fusion detection. ${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz |
 | ARRIBA_BLACKLIST | | Only needed if arriba is used for fusion detection. ${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz |
 |--------------------|--------|-------------|
@@ -187,6 +188,10 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 * Set GENOME_GATK_INDEX to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
 
 ## Change Log
+
+* to be announced
+  - Rnaseqc requires "transcript_id" attributes also for "gene" features. Gencode versions >= v21, however, don't have a "transcript_id" attribute in the "gene" features. You can now provide a Gencode annotation without gene features via the `GENE_MODELS_NOGENE` variable.
+  - Renamed `HIPO2_rnaseq_processing.sh` to `rnaseq_processing.sh`.
 
 * 2.0.1 [July 2020]
   - Bugfix: Variable `SEQUENCING_PROTOCOL` was statically overwritten to be "paired". In a mode where the plugin retrieves the files from the filesystem (i.e. without `FASTQ_LIST`), the workflow therefore searched for FASTQs below the "paired" rather than "single" directory.
