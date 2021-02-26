@@ -264,7 +264,7 @@ then
 	make_directory "$ARRIBA_DIR"
 	cd "$ARRIBA_DIR"
 
-	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -T -P -o '$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt' -I -O '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
+	arribaCommand="$ARRIBA_BINARY -c '$ALIGNMENT_DIR/$STAR_CHIMERA_MKDUP_BAM' -x '$ALIGNMENT_DIR/$STAR_SORTED_MKDUP_BAM' -a '$GENOME_FA' -k '$ARRIBA_KNOWN_FUSIONS' -g '$GENE_MODELS' -b '$ARRIBA_BLACKLIST' -o '$ARRIBA_DIR/${SAMPLE}_$pid.fusions.txt' -O '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
 	echo_run "$arribaCommand"
 
@@ -275,6 +275,7 @@ then
 
 	echo_run "gzip -9 '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
+    check_or_die "${SAMPLE}_$pid.fusions.txt" arriba_fusions_txt
 fi
 
 ##
