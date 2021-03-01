@@ -54,8 +54,7 @@
         <cvalue name='STAR_CHIMERA_PREFIX' value='${SAMPLE}_${pid}_chimeric_merged' type='string'/>
         <cvalue name='STAR_NOTSORTED_BAM' value='${STAR_PREFIX}.Aligned.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_BAM' value='${STAR_PREFIX}.Aligned.sortedByCoord.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>
-        <!--cvalue name='STAR_SORTED_MKDUP_BAM2' value='${STAR_PREFIX}.mdup.bam' type='string'/-->
+        <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>        
         <cvalue name='STAR_CHIMERA_SAM' value='${STAR_PREFIX}.Chimeric.out.sam' type='string'/>
         <cvalue name='STAR_CHIMERA_BAM_PREF' value='${STAR_PREFIX}.Chimeric.out' type='string'/>
         <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='${STAR_CHIMERA_PREFIX}.mdup.bam' type='string'/>
@@ -191,6 +190,7 @@
 
         <tool name="countsToFpkmTpm" value="featureCounts_2_FpkmTpm" basepath="rnaseqworkflow"/>
         <tool name="countsdexseqToFpkmTpm" value="featureCountsDexseq_2_FpkmTpm" basepath="rnaseqworkflow"/>
+        <tool name="gtfParser" value="gtfParser.pl" basepath="rnaseqworkflow"/>
         <tool name="kallistoRescale" value="kallistoRescaleTPM" basepath="rnaseqworkflow"/>
         <tool name="createJsonFromOutput" value="qcJson" basepath="rnaseqworkflow"/>
         <tool name='fingerprint' value="bsnp.py" basepath="qcPipeline"/>

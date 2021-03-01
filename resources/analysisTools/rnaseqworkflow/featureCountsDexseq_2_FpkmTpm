@@ -19,7 +19,7 @@ use List::Util 'sum';
 my $MILLION =    1000000;
 my $BILLION = 1000000000;
 
-my $usage = "\n\tUSAGE: $0 [featureCounts_file_s0] [featureCounts_file_s1] [featureCounts_file_s2] [GTF_file] [ignore_GTF_file]\n\n";
+my $usage = "\n\tUSAGE: $0 [featureCounts_file_s0] [featureCounts_file_s1] [featureCounts_file_s2] [GTF_file] [ignore_GTF_file] [GTF_parser_package]\n\n";
 
 #######################################################################################################################
 
@@ -39,6 +39,10 @@ $files{2}="$fc2_file";
 my $gtf_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing full GTF file!\n$usage";
 
 my $ignore_gtf_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing ignore GTF file!\n$usage";
+
+# Loading a GTF parser function from the script
+my $gtf_parser = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing GTF parser package!\n$usage";
+require $gtf_parser;
 
 warn "PROCESS COMPLETE : 1 : parsing inputs\n";
 
@@ -75,25 +79,16 @@ my %gtf_names = ();
 
 if (length $gtf_file > 0) {
   warn "STARTING PROCESS : 3 : parse GTF file : $gtf_file\n";
-  while (my $line = <$gtf_fh>){
-    chomp $line;
-    my @line_split = split ("\t", $line);
-    if ($line_split[2] eq "gene") {
-      my @comment = split (";",$line_split[8]);
-      my ($gene_id, $gene_name);
-      for(my $i=0;$i<=$#comment;$i++){
-        if($comment[$i]=~/gene_id/){
-          ($gene_id)=$comment[$i]=~/\"(.*)\"/;
-        }
-        if($comment[$i]=~/gene_name/){
-          ($gene_name)=$comment[$i]=~/\"(.*)\"/;
-        }
-      }
-      $gtf{$gene_id}="$line_split[0]\t$line_split[3]\t$line_split[4]\t$gene_id\t.\t$line_split[6]\t$gene_name\n";
-      $gtf_names{$gene_id}=$gene_name;
-      $gtf_count++ ;
-    }
-  }
+
+  # Parsing the GTF file using an import function
+  my $return_names = 1;
+  my ($gtf_ref, $gtf_count_ref, $gtf_names_ref) = parseGTFFile($gtf_fh, $return_names);
+
+  # Deference
+  %gtf = %{$gtf_ref};
+  $gtf_count = ${$gtf_count_ref};
+  %gtf_names = %{$gtf_names_ref};
+
   warn "-------- PROCESS : 3 : parse GTF file : $gtf_file : gene counts : $gtf_count\n";
   close($gtf_fh);
   warn "PROCESS COMPLETE : 3 : parse GTF file\n";
@@ -109,24 +104,14 @@ my $ignore_count = 0;
 
 if (length $ignore_gtf_file > 0) {
   warn "STARTING PROCESS : 4 : parse ignore GTF file\n";
-  while (my $line = <$ignore_gtf_fh>){
-    chomp $line;
-    my @line_split = split ("\t", $line);
-    if ($line_split[2] eq "gene") {
-      my @comment = split (";",$line_split[8]);
-      my ($gene_id, $gene_name);
-      for(my $i=0;$i<=$#comment;$i++){
-        if($comment[$i]=~/gene_id/){
-          ($gene_id)=$comment[$i]=~/\"(.*)\"/;
-        }
-        if($comment[$i]=~/gene_name/){
-          ($gene_name)=$comment[$i]=~/\"(.*)\"/;
-        }
-      }
-      $ignore{$gene_id}="$line_split[0]\t$line_split[3]\t$line_split[4]\t$gene_id\t.\t$line_split[6]\t$gene_name\n";
-      $ignore_count++ ;
-    }
-  }
+
+  # Parsing the GTF file using an import function
+  my $return_names = 0;
+  my ($ignore_ref, $ignore_count_ref) = parseGTFFile($ignore_gtf_fh, $return_names);
+  # Dereference
+  %ignore = %{$ignore_ref};
+  $ignore_count = ${$ignore_count_ref};
+
   warn "-------- PROCESS : 3 : parse ignore GTF file : $ignore_gtf_file : gene counts : $ignore_count\n";
   close($ignore_gtf_fh);
   warn "PROCESS COMPLETE : 4 : parse ignore GTF file\n";
@@ -155,19 +140,25 @@ foreach my $fc_fh ($fc0_fh, $fc1_fh, $fc2_fh){
 
   warn "-------- PROCESS : 5 : reading files : $files{$hash_index}\n";
 
-  my $line = <$fc_fh>;
-  $line = <$fc_fh>;
-  while ($line = <$fc_fh>){
+  while (!eof($fc_fh)){
+    
+    my $line = readline($fc_fh) || die "Error reading file '$files{$hash_index}': $!";
     chomp ($line);
+
+    # To skip the first two lines
+    if($line =~ /^#/ || $line =~ /^Geneid/){
+      next;
+    }
+
     my ($id,$chr,$start,$end,$strand,$length,$counts)=split /\t/, $line;   
 
-    $read_counts{$hash_index}{"$id\t$start\t$end"}=$counts                    unless (defined $ignore{$id});
-    $read_counts_per_length{$hash_index}{"$id\t$start\t$end"}=$counts/$length unless (defined $ignore{$id});
+    $read_counts{$hash_index}{"$id\t$start\t$end"}                = $counts         unless (defined $ignore{$id});
+    $read_counts_per_length{$hash_index}{"$id\t$start\t$end"}     = $counts/$length unless (defined $ignore{$id});
 
-    $read_counts_all{$hash_index}{"$id\t$start\t$end"}=$counts;
-    $read_counts_all_per_length{$hash_index}{"$id\t$start\t$end"}=$counts/$length;
+    $read_counts_all{$hash_index}{"$id\t$start\t$end"}            = $counts;
+    $read_counts_all_per_length{$hash_index}{"$id\t$start\t$end"} =$counts/$length;
 
-    $gene_lengths{"$id\t$start\t$end"}=$length if ($hash_index < 1);
+    $gene_lengths{"$id\t$start\t$end"} = $length if ($hash_index < 1);
     $counter++;
   }
   warn "-------- PROCESS : 5 : reading files : $files{$hash_index} : gene count : $counter\n";
@@ -255,19 +246,20 @@ print "TPM\tTPM_fw\tTPM_rv\t";
 print "FPKM_legacy\tFPKM_legacy_fw\tFPKM_legacy_rv\t";
 print "TPM_legacy\tTPM_legacy_fw\tTPM_legacy_rv\n";
 
-while (<$fh>){
+while (!eof($fh)){
 
-  chomp;
-  my @line = split("\t", $_);
+  my $fc0 = readline($fh) || die "Error reading from '$fc0_file': $!";
+  chomp $fc0;
+  my @line = split("\t", $fc0);
 
   # print gene ID or BED
   print "$line[1]\t$line[2]\t$line[3]\t$line[0]\t.\t$line[4]\t";
   
   # print gene_name
   if (index($line[0], "+") != -1) {
-    my $delim="+";
+    my $delim = "+";
     my @ensgids = split(/\+/, $line[0]);
-    my $plus=0;
+    my $plus = 0;
     foreach my $ensgid (@ensgids){
       print "+" if ($plus == 1);
       print "$gtf_names{$ensgid}";
