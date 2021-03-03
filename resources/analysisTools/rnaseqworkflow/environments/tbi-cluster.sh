@@ -39,3 +39,4 @@ module load "R/${R_VERSION:?No R_VERSION}"
 
 export JOB_PROFILER_BINARY="strace.sh"
 
+export PERL5LIB="$TOOLSDIR:$PERL5LIB"

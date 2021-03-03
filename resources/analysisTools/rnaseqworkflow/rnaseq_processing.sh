@@ -176,7 +176,7 @@ then
 		check_or_die ${SAMPLE}_${pid}.featureCounts.s${S} gene-counting
 	done
 	## RPKM TPM calculations
-	echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${pid}.featureCounts.s0 ${SAMPLE}_${pid}.featureCounts.s1 ${SAMPLE}_${pid}.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE $TOOL_GTF_PARSER > ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.tsv"
+	echo_run "$TOOL_COUNTS_TO_FPKM_TPM ${SAMPLE}_${pid}.featureCounts.s0 ${SAMPLE}_${pid}.featureCounts.s1 ${SAMPLE}_${pid}.featureCounts.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.tsv"
 	check_or_die ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.tsv counting-featureCounts
 	# cleanup
 	make_directory ${SAMPLE}_${pid}_featureCounts_raw
@@ -206,7 +206,7 @@ then
 		check_or_die ${SAMPLE}_${pid}.featureCounts.dexseq.s${S} exon-counting
 	done
 	## RPKM TPM calculations
-	echo_run "$TOOL_COUNTSDEXSEQ_TO_FPKM_TPM ${SAMPLE}_${pid}.featureCounts.dexseq.s0 ${SAMPLE}_${pid}.featureCounts.dexseq.s1 ${SAMPLE}_${pid}.featureCounts.dexseq.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE $TOOL_GTF_PARSER > ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.dexseq.tsv"
+	echo_run "$TOOL_COUNTSDEXSEQ_TO_FPKM_TPM ${SAMPLE}_${pid}.featureCounts.dexseq.s0 ${SAMPLE}_${pid}.featureCounts.dexseq.s1 ${SAMPLE}_${pid}.featureCounts.dexseq.s2 $GENE_MODELS $GENE_MODELS_EXCLUDE > ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.dexseq.tsv"
 	check_or_die ${SAMPLE}_${pid}.fpkm_tpm.featureCounts.dexseq.tsv counting-featureCounts_dexseq
 	cleanup
 	make_directory ${SAMPLE}_${pid}_featureCounts_dexseq_raw

@@ -16,10 +16,12 @@
 use strict;
 use List::Util 'sum';
 
+use gtfParser;
+
 my $MILLION =    1000000;
 my $BILLION = 1000000000;
 
-my $usage = "\n\tUSAGE: $0 [featureCounts_file_s0] [featureCounts_file_s1] [featureCounts_file_s2] [GTF_file] [ignore_GTF_file] [GTF_parser_package]\n\n";
+my $usage = "\n\tUSAGE: $0 [featureCounts_file_s0] [featureCounts_file_s1] [featureCounts_file_s2] [GTF_file] [ignore_GTF_file]\n\n";
 
 #######################################################################################################################
 
@@ -39,10 +41,6 @@ $files{2}="$fc2_file";
 my $gtf_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing full GTF file!\n$usage";
 
 my $ignore_gtf_file = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing ignore GTF file!\n$usage";
-
-# Loading a GTF parser function from the script
-my $gtf_parser = shift or die "-------- PROCESS : 1 : parsing inputs : ERROR : missing GTF parser package!\n$usage";
-require $gtf_parser;
 
 warn "PROCESS COMPLETE : 1 : parsing inputs\n";
 
@@ -81,7 +79,7 @@ if (length $gtf_file > 0) {
 
   # Parsing the GTF file using an import function
   my $return_names = 0;
-  my ($gtf_ref, $gtf_count_ref) = parseGTFFile($gtf_fh, $return_names);
+  my ($gtf_ref, $gtf_count_ref) = gtfParser::parseGTFFile($gtf_fh, $return_names);
   # Dereference
   %gtf = %{$gtf_ref};
   $gtf_count = ${$gtf_count_ref};
@@ -104,7 +102,7 @@ if (length $ignore_gtf_file > 0) {
 
   # Parsing the GTF file using an import function
   my $return_names = 0;
-  my ($ignore_ref, $ignore_count_ref) = parseGTFFile($ignore_gtf_fh, $return_names);
+  my ($ignore_ref, $ignore_count_ref) = gtfParser::parseGTFFile($ignore_gtf_fh, $return_names);
   # Dereference
   %ignore = %{$ignore_ref};
   $ignore_count = ${$ignore_count_ref};
