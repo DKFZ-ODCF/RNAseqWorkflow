@@ -10,9 +10,10 @@ function echo_run (){
         if [[ "$TEST_RUN" != true ]]
         then
                 eval $COMMAND
-                if [[ $? -ne 0 ]]
+                exitCode=$?
+                if [[ $exitCode -ne 0 ]]
                 then
-                  echo "Error running '$COMMAND'" && exit
+                  echo "Error running '$COMMAND'" && exit $exitCode
                 fi
         fi
 }
