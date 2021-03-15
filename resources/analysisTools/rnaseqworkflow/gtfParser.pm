@@ -14,7 +14,7 @@ use strict;
 # chr1    HAVANA  gene    11869   14409   .       +       .       gene_id "ENSG00000223972.5"; gene_type "transcribed_unprocessed_pseudogene"; gene_name "DDX11L1"; level 2; hgnc_id "HGNC:37102"; havana_gene "OTTHUMG00000000961.2";
 #######################################################################################################################
 
-sub parseGTFFile{
+sub parseGTFFile($$){
 
   my ($file_fh, $return_names) = @_;
 
@@ -45,7 +45,7 @@ sub parseGTFFile{
         }
       }
 
-      if($gene_id !~ /^$/){
+      if(defined $gene_id && $gene_id !~ /^$/){
         $data{$gene_id} = join("\t", 
                                 @line_split[0,3,4], 
                                 $gene_id, 
