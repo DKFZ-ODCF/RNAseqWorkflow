@@ -23,7 +23,7 @@
         <cvalue name='indexDirectory' value='${hg38IndexDirectory}' type='string'/>
 
         <!--Databases and index-->
-        <cvalue name='GENOME_FA' value='${hg38IndexDirectory}/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa' type='string'/>
+        <cvalue name='GENOME_FA' value='${hg38BaseDirectory}/sequence/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa' type='string'/>
         <cvalue name='GENOME_GATK_INDEX' value='${hg38IndexDirectory}/bwa/bwa07_GRCh38_decoy_ebv_phiX_alt_hla_chr/GRCh38_decoy_ebv_phiX_alt_hla_chr.fa' type='string'/>
 
         <cvalue name='GENE_MODELS' value='${hg38DatabaseDirectory}/gencode/gencode31/hg38_gencode.v31.annotation.gtf' type='string'/>
