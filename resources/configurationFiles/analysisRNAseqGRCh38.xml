@@ -29,19 +29,19 @@
         <cvalue name='GENE_MODELS' value='${hg38DatabaseDirectory}/gencode/gencode31/hg38_gencode.v31.annotation.gtf' type='string'/>
         <cvalue name='GENE_MODELS_NOGENE' value='${hg38DatabaseDirectory}/gencode/gencode31/hg38_gencode.v31.annotation.nogene.gtf' type='string' 
                 description="Like GENE_MODELS, but without 'gene' features. Required for gencode update for hg38. Defaults (for hg19): $GENE_MODELS."/>
-        
+
         <cvalue name='GENE_MODELS_EXCLUDE' value='${hg38DatabaseDirectory}/gencode/gencode31/hg38_gencode.v31.annotation.chrXYMT.rRNA.gtf' type='string'
                 description="Other than mitochondrial genes, there were no genes annotated as tRNA, so have removed it from the filename."/>
         <cvalue name='GENE_MODELS_DEXSEQ' value='${hg38DatabaseDirectory}/gencode/gencode31/hg38_gencode.v31.annotation.dexseq.gff' type='string'/>
-        
+
         <cvalue name='GENOME_STAR_INDEX_50' value='${hg38IndexDirectory}/STAR/STAR_2.7.6a_Gencode31/STAR_2.7.6a_GRCh38_decoy_ebv_phiX_alt_hla_chr_Gencode31_50bp' type='string'/>
         <cvalue name='GENOME_STAR_INDEX_100' value='${hg38IndexDirectory}/STAR/STAR_2.7.6a_Gencode31/STAR_2.7.6a_GRCh38_decoy_ebv_phiX_alt_hla_chr_Gencode31_100bp' type='string'/>
         <cvalue name='GENOME_STAR_INDEX_200' value='${hg38IndexDirectory}/STAR/STAR_2.7.6a_Gencode31/STAR_2.7.6a_GRCh38_decoy_ebv_phiX_alt_hla_chr_Gencode31_200bp' type='string'/>
         <cvalue name='GENOME_KALLISTO_INDEX' value='${hg38IndexDirectory}/kallisto/kallisto-0.46.0_GRCh38_decoy_ebv_phiX_alt_hla_chr_Gencode31_k31/kallisto-0.46.0_GRCh38_decoy_ebv_phiX_alt_hla_chr_Gencode31.noGenes.index' type='string'/>
-        <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg38BaseDirectory}/tools_data2/arriba/known_fusions_hg38_GRCh38_v2.0.0.tsv.gz' type='string'/>
-        <cvalue name='ARRIBA_BLACKLIST' value='${hg38BaseDirectory}/tools_data2/arriba/blacklist_hg38_GRCh38_v2.0.0.tsv.gz' type='string'/>
-        <cvalue name='ARRIBA_PROTEIN_DOMAINS' value='${hg38BaseDirectory}/tools_data2/arriba/protein_domains_hg38_GRCh38_v2.0.0.gff3' type='string'/>
-        <cvalue name='ARRIBA_CYTOBANDS' value='${hg38BaseDirectory}/tools_data2/arriba/cytobands_hg38_GRCh38_v2.0.0.tsv' type="string"/>
+        <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg38BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode31_2017-05-11.tsv.gz' type='string'/>
+        <cvalue name='ARRIBA_BLACKLIST' value='${hg38BaseDirectory}/tools_data/arriba/blacklist_hg38_GRCh38_2018-11-04.tsv.gz' type='string'/>
+        <cvalue name='ARRIBA_PROTEIN_DOMAINS' value='${hg38BaseDirectory}/tools_data/arriba/protein_domains_hg38_GRCh38_2019-07-05.gff3' type='string'/>
+        <cvalue name='ARRIBA_CYTOBANDS' value='${hg38BaseDirectory}/tools_data/arriba/cytobands_hg38_GRCh38_2018-02-23.tsv' type="string"/>
 
         <!-- Hg38 Finger printing-->
         <cvalue name="fingerprintingSitesFile_hs38" value="${hg38DatabaseDirectory}/fingerprinting/hovestadt_v1.1/snp138Common.n1000_hg38.vh20140318.bed" type="path"/>
