@@ -189,7 +189,17 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 ## Change Log
 
-* to be announced
+* 2.0.3
+  - Added GRCh38 genome support
+    - Reference genome (core_ref_GRCh38_hla_decoy_ebv.tar.gz) was downloaded from ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/ and Illumina PhiX genome was added.
+    - Added GRCh38 specific configs to a `resources/configurationFiles/analysisRNAseqGRCh38.xml`
+    - Updated STAR to 2.7.6a
+    - Updated Kallisto to 0.46.0
+    - Gene model gencode version 31 was used to create the STAR and Kallisto indexes
+  - Update Samtools to 1.9
+  - Update HTSlib to 1.9
+
+* 2.0.2
   - Rnaseqc requires "transcript_id" attributes also for "gene" features. Gencode versions >= v21, however, don't have a "transcript_id" attribute in the "gene" features. You can now provide a Gencode annotation without gene features via the `GENE_MODELS_NOGENE` variable.
   - Renamed `HIPO2_rnaseq_processing.sh` to `rnaseq_processing.sh`.
 
