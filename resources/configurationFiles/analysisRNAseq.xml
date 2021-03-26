@@ -19,6 +19,8 @@
         <cvalue name="useCentralAnalysisArchive" value="true"/>
         <cvalue name="enableJobProfiling" value="false"/>
         <cvalue name='QUAL' value='phred' description="Default quality is phred, can be illumina."/>
+        <!-- ## Imported from commonCOWorkflowsSettings -->
+        <cvalue name='SEQUENCER_PROTOCOL' value='paired' type="string"  description="only paired read sequencing is currently supported"/>
 
         <!-- ## -->
         <!-- ## SOME RUNTIME_CONFIG PARMS -->
@@ -28,12 +30,13 @@
         <cvalue name='TEST_RUN' value='false' type='boolean' description="only print the commands and doesnt execute them"/>
         <cvalue name='DO_FIRST' value='echo "Do something first"' type='string' description="increase something needs to be run at the start of the workflow"/>
         <cvalue name='useSingleEndProcessing' value='false' type='boolean' description="flag for using single end mode"/>
+        <cvalue name='runSingleCellWorkflow' value='false' type='boolean'/>
 
         <!-- ## DIRECTORIES -->
+        <cvalue name='trimmingOutputDirectory' value='trimming' type='string'/>
         <cvalue name='alignmentOutputDirectory' value='alignment' type='string'/>
         <cvalue name='qcOutputDirectory' value='qualitycontrol' type='string'/>
-        <cvalue name='ALIGNMENT_DIR' value='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}' type='string'/>
-        <!--<cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp_${sample}_${pid}' type='string'/>-->
+        <cvalue name='ALIGNMENT_DIR' value='${outputAnalysisBaseDirectory}/${alignmentOutputDirectory}' type='string'/>        
         <cvalue name='SCRATCH' value='${outputAnalysisBaseDirectory}/temp' type='string'/>
         <cvalue name='COUNT_DIR' value='${outputAnalysisBaseDirectory}/featureCounts' type='string'/>
         <cvalue name='COUNT_DIR_EXON' value='${outputAnalysisBaseDirectory}/featureCounts_dexseq' type='string'/>
@@ -47,11 +50,11 @@
 
         <!-- # RUNTIME_CONFIG_OUTFILE DEFINITITIONS -->
         <cvalue name='STAR_PREFIX' value='${SAMPLE}_${pid}_merged' type='string'/>
+        <cvalue name='STAR_TMPDIR' value='${RODDY_SCRATCH}/${SAMPLE}_${pid}_STAR'/>
         <cvalue name='STAR_CHIMERA_PREFIX' value='${SAMPLE}_${pid}_chimeric_merged' type='string'/>
         <cvalue name='STAR_NOTSORTED_BAM' value='${STAR_PREFIX}.Aligned.out.bam' type='string'/>
         <cvalue name='STAR_SORTED_BAM' value='${STAR_PREFIX}.Aligned.sortedByCoord.out.bam' type='string'/>
-        <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>
-        <cvalue name='STAR_SORTED_MKDUP_BAM2' value='${STAR_PREFIX}.mdup.bam' type='string'/>
+        <cvalue name='STAR_SORTED_MKDUP_BAM' value='${STAR_PREFIX}.mdup.bam' type='string'/>        
         <cvalue name='STAR_CHIMERA_SAM' value='${STAR_PREFIX}.Chimeric.out.sam' type='string'/>
         <cvalue name='STAR_CHIMERA_BAM_PREF' value='${STAR_PREFIX}.Chimeric.out' type='string'/>
         <cvalue name='STAR_CHIMERA_MKDUP_BAM' value='${STAR_CHIMERA_PREFIX}.mdup.bam' type='string'/>
@@ -63,13 +66,14 @@
         <cvalue name='STAR_VERSION' value='2.5.3a' type='string'/>
         <cvalue name='SUBREAD_VERSION' value='1.5.1' type='string'/>
         <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
-        <cvalue name='SAMTOOLS_VERSION' value='1.6' type='string'/>
-        <cvalue name='HTSLIB_VERSION' value='1.6' type='string'/>
+        <cvalue name='SAMTOOLS_VERSION' value='1.9' type='string'/>
+        <cvalue name='HTSLIB_VERSION' value='1.9' type='string'/>
         <cvalue name='RNASEQC_VERSION' value='1.1.8' type='string'/>
         <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
         <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
         <cvalue name='ARRIBA_VERSION' value='1.2.0' type='string'/>
         <cvalue name='R_VERSION' value='3.4.2' type='string'/>
+        <cvalue name='STAR_MODULE_NAME' value='STAR' type='string'/>
 
         <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
 
@@ -101,23 +105,27 @@
         <cvalue name='hg19BaseDirectory' value='/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/' type='string'/>
         <cvalue name='hg19DatabaseDirectory' value='${hg19BaseDirectory}/databases' type='string'/>
         <cvalue name='hg19IndexDirectory' value='${hg19BaseDirectory}/indexes/' type='string'/>
+        
         <cvalue name='mm10BaseDirectory' value='/icgc/ngs_share/assemblies/mm10/' type='string'/>
         <cvalue name='mm10DatabaseDirectory' value='${mm10BaseDirectory}/databases' type='string'/>
         <cvalue name='mm10IndexDirectory' value='${mm10BaseDirectory}/indexes/' type='string'/>
+
         <cvalue name='databaseDirectory' value='${hg19DatabaseDirectory}' type='string'/>
         <cvalue name='indexDirectory' value='${hg19IndexDirectory}' type='string'/>
-        <cvalue name='GENOME_FA' value='${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
-        <cvalue name='GENOME_GATK_INDEX' value='${indexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
-        <cvalue name='GENE_MODELS' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.gtf' type='string'/>
+
+        <cvalue name='GENOME_FA' value='${hg19IndexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
+        <cvalue name='GENOME_GATK_INDEX' value='${hg19IndexDirectory}/bwa/bwa06_1KGRef_Phix/hs37d5_PhiX.fa' type='string'/>
+
+        <cvalue name='GENE_MODELS' value='${hg19DatabaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.gtf' type='string'/>
         <cvalue name='GENE_MODELS_NOGENE' value='${GENE_MODELS}' type='string'
                 description="Like GENE_MODELS, but without 'gene' features. Required for gencode update for hg38. Defaults (for hg19): $GENE_MODELS."/>
-        <cvalue name='GENE_MODELS_EXCLUDE' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf' type='string'/>
-        <cvalue name='GENE_MODELS_DEXSEQ' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff' type='string'/>
-        <cvalue name='GENE_MODELS_GC' value='${databaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc' type='string'/>
-        <cvalue name='GENOME_STAR_INDEX_50' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp' type='string'/>
-        <cvalue name='GENOME_STAR_INDEX_100' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp' type='string'/>
-        <cvalue name='GENOME_STAR_INDEX_200' value='${indexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp' type='string'/>
-        <cvalue name='GENOME_KALLISTO_INDEX' value='${indexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/>
+        <cvalue name='GENE_MODELS_EXCLUDE' value='${hg19DatabaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.chrXYMT.rRNA.tRNA.gtf' type='string'/>
+        <cvalue name='GENE_MODELS_DEXSEQ' value='${hg19DatabaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.dexseq.gff' type='string'/>
+        <cvalue name='GENE_MODELS_GC' value='${hg19DatabaseDirectory}/gencode/gencode19/gencode.v19.annotation_plain.transcripts.autosomal_transcriptTypeProteinCoding_nonPseudo.1KGRef.gc' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX_50' value='${hg19IndexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_50bp' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX_100' value='${hg19IndexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_100bp' type='string'/>
+        <cvalue name='GENOME_STAR_INDEX_200' value='${hg19IndexDirectory}/STAR/STAR_2.5.2b_1KGRef_PhiX_Gencode19_200bp' type='string'/>
+        <cvalue name='GENOME_KALLISTO_INDEX' value='${hg19IndexDirectory}/kallisto/kallisto-0.43.0_1KGRef_Gencode19_k31/kallisto-0.43.0_1KGRef_Gencode19_k31.noGenes.index' type='string'/>
         <cvalue name='ARRIBA_KNOWN_FUSIONS' value='${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-05-11.tsv.gz' type='string'/>
         <cvalue name='ARRIBA_BLACKLIST' value='${hg19BaseDirectory}/tools_data/arriba/blacklist_hg19_hs37d5_GRCh37_2018-11-04.tsv.gz' type='string'/>
         <cvalue name='ARRIBA_PROTEIN_DOMAINS' value='${hg19BaseDirectory}/tools_data/arriba/protein_domains_hg19_hs37d5_GRCh37_2019-07-05.gff3' type='string'/>
@@ -188,7 +196,8 @@
         <tool name="starAlignment" value="rnaseq_processing.sh" basepath="rnaseqworkflow">
             <resourcesets>
                 <rset size="s" memory="37g" cores="4" nodes="1" walltime="3h" queue="devel"/>
-                <rset size="l" memory="100g" cores="8" nodes="1" walltime="120h"/>
+                <rset size="m" memory="50g" cores="4" nodes="1" walltime="120h"/>
+                <rset size="xl" memory="100g" cores="8" nodes="1" walltime="120h"/>
             </resourcesets>
             <input type="file" typeof="LaneFile" scriptparameter="FAKE_FILE"/>
             <input type="string" setby="callingCode" scriptparameter="SAMPLE"/>

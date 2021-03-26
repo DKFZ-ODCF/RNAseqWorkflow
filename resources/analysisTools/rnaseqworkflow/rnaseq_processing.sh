@@ -275,6 +275,7 @@ then
 
 	echo_run "gzip -9 '$ARRIBA_DIR/${SAMPLE}_$pid.discarded_fusions.txt'"
 
+  check_or_die "${SAMPLE}_$pid.fusions.txt" arriba_fusions_txt
 fi
 
 ##

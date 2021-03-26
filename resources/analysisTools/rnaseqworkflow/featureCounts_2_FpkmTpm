@@ -16,6 +16,8 @@
 use strict;
 use List::Util 'sum';
 
+use gtfParser;
+
 my $MILLION =    1000000;
 my $BILLION = 1000000000;
 
@@ -74,15 +76,14 @@ my $gtf_count = 0;
 
 if (length $gtf_file > 0) {
   warn "STARTING PROCESS : 3 : parse GTF file : $gtf_file\n";
-  while (my $line = <$gtf_fh>){
-    chomp $line;
-    my @line_split = split ("\t", $line);
-    if ($line_split[2] eq "gene") {
-      my @comment = split ("\"",$line_split[8]);
-      $gtf{$comment[1]}="$line_split[0]\t$line_split[3]\t$line_split[4]\t$comment[1]\t.\t$line_split[6]\t$comment[9]";
-      $gtf_count++ ;
-    }
-  }
+
+  # Parsing the GTF file using an import function
+  my $return_names = 0;
+  my ($gtf_ref, $gtf_count_ref) = gtfParser::parseGTFFile($gtf_fh, $return_names);
+  # Dereference
+  %gtf = %{$gtf_ref};
+  $gtf_count = ${$gtf_count_ref};
+
   warn "-------- PROCESS : 3 : parse GTF file : $gtf_file : gene counts : $gtf_count\n";
   close($gtf_fh);
   warn "PROCESS COMPLETE : 3 : parse GTF file\n";
@@ -98,15 +99,14 @@ my $ignore_count = 0;
 
 if (length $ignore_gtf_file > 0) {
   warn "STARTING PROCESS : 4 : parse ignore GTF file\n";
-  while (my $line = <$ignore_gtf_fh>){
-    chomp $line;
-    my @line_split = split ("\t", $line);
-    if ($line_split[2] eq "gene") {
-      my @comment = split ("\"",$line_split[8]);
-      $ignore{$comment[1]}="$line_split[0]\t$line_split[3]\t$line_split[4]\t$comment[1]\t.\t$line_split[6]\t$comment[9]\n";
-      $ignore_count++ ;
-    }
-  }
+
+  # Parsing the GTF file using an import function
+  my $return_names = 0;
+  my ($ignore_ref, $ignore_count_ref) = gtfParser::parseGTFFile($ignore_gtf_fh, $return_names);
+  # Dereference
+  %ignore = %{$ignore_ref};
+  $ignore_count = ${$ignore_count_ref};
+
   warn "-------- PROCESS : 3 : parse ignore GTF file : $ignore_gtf_file : gene counts : $ignore_count\n";
   close($ignore_gtf_fh);
   warn "PROCESS COMPLETE : 4 : parse ignore GTF file\n";
@@ -135,19 +135,25 @@ foreach my $fc_fh ($fc0_fh, $fc1_fh, $fc2_fh){
 
   warn "-------- PROCESS : 5 : reading files : $files{$hash_index}\n";
 
-  my $line = <$fc_fh>;
-  $line = <$fc_fh>;
-  while ($line = <$fc_fh>){
+  while (!eof($fc_fh)){
+
+    my $line = readline($fc_fh) || die "Error reading from '$files{$hash_index}': $!";
     chomp ($line);
-    my ($id,$chr,$start,$end,$strand,$length,$counts)=split /\t/, $line;   
+    
+    # To skip the first two lines
+    if($line =~ /^#/ || $line =~ /^Geneid/){
+      next;
+    }
 
-    $read_counts{$hash_index}{$id}=$counts                         unless (exists $ignore{$id});
-    $read_counts_per_length{$hash_index}{$id}=$counts/$length unless (exists $ignore{$id});
+    my ($id,$chr,$start,$end,$strand,$length,$counts) = split /\t/, $line;   
 
-    $read_counts_all{$hash_index}{$id}=$counts;
-    $read_counts_all_per_length{$hash_index}{$id}=$counts/$length;
+    $read_counts{$hash_index}{$id}                = $counts         unless (exists $ignore{$id});
+    $read_counts_per_length{$hash_index}{$id}     = $counts/$length unless (exists $ignore{$id});
 
-    $gene_lengths{$id}=$length if ($hash_index < 1);
+    $read_counts_all{$hash_index}{$id}            = $counts;
+    $read_counts_all_per_length{$hash_index}{$id} = $counts/$length;
+
+    $gene_lengths{$id} = $length if ($hash_index < 1);
     $counter++;
   }
   warn "-------- PROCESS : 5 : reading files : $files{$hash_index} : gene count : $counter\n";
@@ -235,39 +241,40 @@ print "TPM\tTPM_fw\tTPM_rv\t";
 print "FPKM_legacy\tFPKM_legacy_fw\tFPKM_legacy_rv\t";
 print "TPM_legacy\tTPM_legacy_fw\tTPM_legacy_rv\n";
 
-while (<$fh>){
+while (!eof($fh)){
 
-  chomp;
+  my $fc0 = readline($fh) || die "Error reading from '$fc0_file': $!";
+  chomp $fc0;
 
   # print gene ID or BED
-  print "$_\t"       unless (length $gtf_file > 0);
-  print "$gtf{$_}\t" if     (length $gtf_file > 0);
-  print "$gene_lengths{$_}\t";
+  print "$fc0\t"       unless (length $gtf_file > 0);
+  print "$gtf{$fc0}\t" if     (length $gtf_file > 0);
+  print "$gene_lengths{$fc0}\t";
   
   # print read counts
-  print "$read_counts_all{0}{$_}\t";
-  print "$read_counts_all{1}{$_}\t";
-  print "$read_counts_all{2}{$_}\t";
+  print "$read_counts_all{0}{$fc0}\t";
+  print "$read_counts_all{1}{$fc0}\t";
+  print "$read_counts_all{2}{$fc0}\t";
 
     # print RPKMS exclude
-    print "".($read_counts_all_per_length{0}{$_})*($BILLION/$ignore_read_counts{0})."\t";
-    print "".($read_counts_all_per_length{1}{$_})*($BILLION/$ignore_read_counts{1})."\t";
-    print "".($read_counts_all_per_length{2}{$_})*($BILLION/$ignore_read_counts{2})."\t";
+    print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$ignore_read_counts{0})."\t";
+    print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$ignore_read_counts{1})."\t";
+    print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$ignore_read_counts{2})."\t";
 
     # print TPMS exclude
-    print "".($read_counts_all_per_length{0}{$_})*($BILLION/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/$MILLION)."\t";
-    print "".($read_counts_all_per_length{1}{$_})*($BILLION/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/$MILLION)."\t";
-    print "".($read_counts_all_per_length{2}{$_})*($BILLION/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/$MILLION)."\t";
+    print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/$MILLION)."\t";
+    print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/$MILLION)."\t";
+    print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/$MILLION)."\t";
 
   # print RPKMS legacy
-  print "".($read_counts_all_per_length{0}{$_})*($BILLION/$all_read_counts{0})."\t";
-  print "".($read_counts_all_per_length{1}{$_})*($BILLION/$all_read_counts{1})."\t";
-  print "".($read_counts_all_per_length{2}{$_})*($BILLION/$all_read_counts{2})."\t";
+  print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$all_read_counts{0})."\t";
+  print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$all_read_counts{1})."\t";
+  print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$all_read_counts{2})."\t";
 
   # print TPMS legacy
-  print "".($read_counts_all_per_length{0}{$_})*($BILLION/$all_read_counts{0})/($all_fpkm_counts{0}/$MILLION)."\t";
-  print "".($read_counts_all_per_length{1}{$_})*($BILLION/$all_read_counts{1})/($all_fpkm_counts{1}/$MILLION)."\t";
-  print "".($read_counts_all_per_length{2}{$_})*($BILLION/$all_read_counts{2})/($all_fpkm_counts{2}/$MILLION)."";
+  print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$all_read_counts{0})/($all_fpkm_counts{0}/$MILLION)."\t";
+  print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$all_read_counts{1})/($all_fpkm_counts{1}/$MILLION)."\t";
+  print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$all_read_counts{2})/($all_fpkm_counts{2}/$MILLION)."";
 
   print "\n";
 

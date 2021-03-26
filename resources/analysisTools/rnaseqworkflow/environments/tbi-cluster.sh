@@ -4,7 +4,7 @@
 module load "python/${PYTHON_VERSION:?No PYTHON_VERSION}"
 export PYTHON_BINARY=python
 
-module load "STAR/${STAR_VERSION:?No STAR_VERSION}"
+module load "${STAR_MODULE_NAME}/${STAR_VERSION:?No STAR_VERSION}"
 export STAR_BINARY=STAR
 
 module load "subread/${SUBREAD_VERSION:?No SUBREAD_VERSION}"
@@ -39,3 +39,4 @@ module load "R/${R_VERSION:?No R_VERSION}"
 
 export JOB_PROFILER_BINARY="strace.sh"
 
+export PERL5LIB="$TOOLSDIR:$PERL5LIB"
