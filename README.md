@@ -189,39 +189,47 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 ## Change Log
 
-* 2.0.3
-  - Added GRCh38 genome support
+* 3.0.0 [19th Oct 2021]
+  - major: Column rename in feature counts table:
+    - "FPKM{,_fw,_rv}" -> "FPKM_no_mt_rrna_trna_chrxy{,_fw,_rv}"
+    - "TPM{,_fw,_rv}" -> "TPM_no_mt_rrna_trna_chrxy{,_fw,_rv}"
+    - "FPKM_legacy{,_fw,_rv}" -> "FPKM_standard{,_fw,_rv}"
+    - "TPM_legacy{,_fw,_rv}" -> "TPM_standard{,_fw,_rv}"
+
+* 2.1.0 (2.0.3-deprecated) [26th Mar 2021]
+  - minor: Added GRCh38 genome support
     - Reference genome (core_ref_GRCh38_hla_decoy_ebv.tar.gz) was downloaded from ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/ and Illumina PhiX genome was added.
     - Added GRCh38 specific configs to a `resources/configurationFiles/analysisRNAseqGRCh38.xml`
     - Updated STAR to 2.7.6a
     - Updated Kallisto to 0.46.0
     - Gene model gencode version 31 was used to create the STAR and Kallisto indexes
-  - Update Samtools to 1.9
-  - Update HTSlib to 1.9
+  - minor: Update Samtools to 1.9
+  - minor: Update HTSlib to 1.9
+  - 2.0.3 was deprecated to correct the incorrect version number. 
 
-* 2.0.2
-  - Rnaseqc requires "transcript_id" attributes also for "gene" features. Gencode versions >= v21, however, don't have a "transcript_id" attribute in the "gene" features. You can now provide a Gencode annotation without gene features via the `GENE_MODELS_NOGENE` variable.
-  - Renamed `HIPO2_rnaseq_processing.sh` to `rnaseq_processing.sh`.
+* 2.0.2 [27th Jan 2021]
+  - patch: Rnaseqc requires "transcript_id" attributes also for "gene" features. Gencode versions >= v21, however, don't have a "transcript_id" attribute in the "gene" features. You can now provide a Gencode annotation without gene features via the `GENE_MODELS_NOGENE` variable.
+  - patch: Renamed `HIPO2_rnaseq_processing.sh` to `rnaseq_processing.sh`.
 
-* 2.0.1 [July 2020]
-  - Bugfix: Variable `SEQUENCING_PROTOCOL` was statically overwritten to be "paired". In a mode where the plugin retrieves the files from the filesystem (i.e. without `FASTQ_LIST`), the workflow therefore searched for FASTQs below the "paired" rather than "single" directory.
+* 2.0.1 [16th Jul 2020]
+  - patch: bugfix: Variable `SEQUENCING_PROTOCOL` was statically overwritten to be "paired". In a mode where the plugin retrieves the files from the filesystem (i.e. without `FASTQ_LIST`), the workflow therefore searched for FASTQs below the "paired" rather than "single" directory.
 
-* 2.0.0 [13th March 2020]
-  - Update Arriba to version 1.2.0
-  - Update STAR to 2.5.3a
-  - Update Samtools to 1.6
-  - Update Subread (featureCounts) to 1.5.3
-  - Added draft Conda environment (incomplete)
+* 2.0.0 [13th Mar 2020]
+  - major: Update Arriba to version 1.2.0
+  - major: Update STAR to 2.5.3a
+  - minor: Update Samtools to 1.6
+  - patch: Update Subread (featureCounts) to 1.5.3
+  - patch: Added draft Conda environment (incomplete)
 
 * 1.3.0-2 [26th Nov 2019]
   - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
 
 * 1.3.0-1 [7th Nov 7 2018]
-  - Added single quotes around `$ADAPTER_SEQ` parameter in `--clip3pAdapterSeq` to allow for separate first and second read adapters.
-  - Changed all plain "$varName" references in the configuration file to "${varName}" references. Roddy only knows the latter.
+  - patch: Added single quotes around `$ADAPTER_SEQ` parameter in `--clip3pAdapterSeq` to allow for separate first and second read adapters.
+  - patch: bugfix: Changed all plain "$varName" references in the configuration file to "${varName}" references. Roddy only knows the latter.
 
-* 1.3.0 [9th Ap 2018]
-  - works with Roddy 3
+* 1.3.0 [9th Apr 2018]
+  - minor: works with Roddy 3
 
 * 1.2.23-2 [15th Feb 2018]
   - Modified software defaults to samtools 1.6, star 2.5.3a, arriba 0.12.
