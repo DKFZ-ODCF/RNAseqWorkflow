@@ -80,7 +80,7 @@ The following is a list of citations for software used by the RNAseq workflow. N
 * [star 2.5.3a](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
 * [samtools 1.6](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
 * [arriba 1.2.0](https://github.com/suhrig/arriba/)
-* [subread 1.5.1](http://subread.sourceforge.net/) providing [featurecounts 1.5.1](https://www.ncbi.nlm.nih.gov/pubmed/24227677)
+* [subread 1.6.5](http://subread.sourceforge.net/) providing [featurecounts](https://www.ncbi.nlm.nih.gov/pubmed/24227677)
 * [rnaseqc 1.1.8](https://www.ncbi.nlm.nih.gov/pubmed/22539670)
 * [sambamba 0.6.5](https://www.ncbi.nlm.nih.gov/pubmed/25697820)
 * [qualimap 2.2.1](http://qualimap.bioinfo.cipf.es/)
@@ -189,6 +189,9 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 ## Change Log
 
+* 3.1.0
+  - patch: Updated default from subread 1.5.1 to 1.6.5. The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
+
 * 3.0.0 [19th Oct 2021]
   - major: Column rename in feature counts table:
     - "FPKM{,_fw,_rv}" -> "FPKM_no_mt_rrna_trna_chrxy{,_fw,_rv}"
@@ -237,7 +240,7 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
   - Modified output file check of BAM file
   
 * 1.2.23-1 [26th Jan 2018]
-  - changed default samtools to v1.6 from v1.3.1
+  - Changed default samtools from v1.3.1 to v1.6
 
 * 1.2.23 [25th Jan 2018]
   - Update to Roddy 3.5 that fixes a non-quoting error with the Bash environment and spaces in referenced variables (relevant for adapter variables).
