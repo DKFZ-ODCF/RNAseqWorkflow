@@ -1,4 +1,4 @@
-<configuration name='RNAseqAnalysisGRCh38' description='for hg38 reference geneme, paired end RNA seq analysis using STAR, feature counts, kallisto, arriba, RNAseQC and QualiMap2'
+<configuration name='RNAseqAnalysisGRCh38' description='for hg38 reference genome, paired end RNA seq analysis using STAR, feature counts, kallisto, arriba, RNAseQC and QualiMap2'
                configurationType='analysis' class='de.dkfz.roddy.core.Analysis'
                workflowClass='de.dkfz.b080.co.rnaseqworkflow.RNAseqWorkflow'
                runtimeServiceClass='de.dkfz.b080.co.common.COProjectsRuntimeService'
