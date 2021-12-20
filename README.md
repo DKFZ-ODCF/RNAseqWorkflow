@@ -18,7 +18,31 @@ The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github
 FASTQ reads for individual samples were aligned by a 2 pass alignment using the STAR aligner (**version**, https://www.ncbi.nlm.nih.gov/pubmed/23104886). Reads were aligned to a STAR index generated from the 1000 genomes assembly, gencode 19 gene models and for asjbdOverhang of 200. The alignment call parameters were -
 
 ```
---sjdbOverhang 200 --runThreadN 8 --outSAMtype BAM Unsorted SortedByCoordinate --limitBAMsortRAM 100000000000 --outBAMsortingThreadN=1 --outSAMstrandField intronMotif --outSAMunmapped Within KeepPairs --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 --outFilterMismatchNoverLmax 0.3 --twopassMode Basic --twopass1readsN -1 --genomeLoad NoSharedMemory --chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15 --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5 --alignIntronMax 1100000 --alignMatesGapMax 1100000 --alignSJDBoverhangMin 3 --alignIntronMin 20 --clip3pAdapterSeq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA --readFilesCommand gunzip -c
+--sjdbOverhang 200 \
+--runThreadN 8 \
+--outSAMtype BAM Unsorted SortedByCoordinate \
+--limitBAMsortRAM 100000000000 \
+--outBAMsortingThreadN=1 \
+--outSAMstrandField intronMotif \
+--outSAMunmapped Within KeepPairs \
+--outFilterMultimapNmax 1 \
+--outFilterMismatchNmax 5 \
+--outFilterMismatchNoverLmax 0.3 \
+--twopassMode Basic \
+--twopass1readsN -1 \
+--genomeLoad NoSharedMemory \
+--chimSegmentMin 15 \
+--chimScoreMin 1 \
+--chimScoreJunctionNonGTAG 0 \
+--chimJunctionOverhangMin 15 \
+--chimSegmentReadGapMax 3 \
+--alignSJstitchMismatchNmax 5 -1 5 5 \
+--alignIntronMax 1100000 \
+--alignMatesGapMax 1100000 \
+--alignSJDBoverhangMin 3 \
+--alignIntronMin 20 \
+--clip3pAdapterSeq AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+--readFilesCommand gunzip -c
 ```
 
 Other parameters were as default, or only pertinent for particular samples (e.g. list of FASTQ files or definitions of the RG line).
