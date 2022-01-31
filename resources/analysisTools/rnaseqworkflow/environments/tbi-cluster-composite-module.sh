@@ -10,6 +10,5 @@ if [ "$LOAD_MODULE" == true ]; then
     export KALLISTO_BINARY=kallisto
     export QUALIMAP_BINARY=qualimap
     export ARRIBA_BINARY=arriba
-    export ARRIBA_READTHROUGH_BINARY=extract_read-through_fusions
     export ARRIBA_DRAW_FUSIONS=draw_fusions.R
 fi
