@@ -32,7 +32,6 @@ export QUALIMAP_BINARY=qualimap
 
 module load "arriba/${ARRIBA_VERSION:?No ARRIBA_VERSION}"
 export ARRIBA_BINARY=arriba
-export ARRIBA_READTHROUGH_BINARY=extract_read-through_fusions
 export ARRIBA_DRAW_FUSIONS=draw_fusions.R
 
 module load "R/${R_VERSION:?No R_VERSION}"
