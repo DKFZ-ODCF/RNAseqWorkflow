@@ -216,15 +216,16 @@ set `RUN_FEATURE_COUNTS_DEXSEQ`, `RUN_RNASEQC`, `RUN_KALLISTO`, `RUN_ARRIBA`, `r
 * 4.0.0
   - major: Arriba 2.2.1
   - major: `resources/configurationFiles/analysisRNAseq.xml` is now just a default configuration with many configuration options left blank. For your `<analysis>` tags in your project XMLs the analysis names can be changed to use the following defaults:
-     * GRCh37-specific: [RNAseqAnalysisGRCh37](resources/configurationFiles/analysisRNAseqGRCh37.xml)
+     * GRCh37, mm10: [RNAseqAnalysis](resources/configurationFiles/analysisRNAseq.xml)
      * GRCh38-specific: [RNAseqAnalysisGRCh38](resources/configurationFiles/analysisRNAseqGRCh38.xml)
-  - Update default software versions
+  - major: Update default software versions
     * STAR 2.7.6a (from 2.5.3a)
     * Kallisto 0.46.0 (from 0.42.0)
     * Samtools 1.9 (from 1.6)
     * HTSlib 1.9 (from 1.6)
     * subread 1.6.5 (from 1.5.1): The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
-  - Gene model gencode version 31 was used to create the STAR and Kallisto indexes
+  - major: Gene model gencode version 31 was used to create the STAR and Kallisto indexes
+  - major: Update default paths to new ngs_share at ODCF.
 
 * 3.0.0 [19th Oct 2021]
   - major: Column rename in feature counts table:

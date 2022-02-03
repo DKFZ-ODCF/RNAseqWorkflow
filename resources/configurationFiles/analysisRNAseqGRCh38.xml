@@ -7,7 +7,7 @@
                imports="RNAseqAnalysis"
                cleanupScript="cleanupScript">
 
-        <configurationvalues>
+    <configurationvalues>
         <cvalue name='STAR_PARAMS_CHIMERIC' value='--chimSegmentMin 15 --chimScoreMin 1 --chimScoreJunctionNonGTAG 0 --chimJunctionOverhangMin 15  --chimSegmentReadGapMax 3 --alignSJstitchMismatchNmax 5 -1 5 5 --chimOutType Junctions SeparateSAMold' type='string'/>
         <!-- Hg38 reference genome -->
         <cvalue name='hg38BaseDirectory'
@@ -49,6 +49,5 @@
                 type="path"/>
         <cvalue name="fingerprintingSitesFile" value="${fingerprintingSitesFile_hg38}" type="path"
                 description='BED file with the reference positions used for fingerprinting. Used by alignment workflow for fingerprinting individuals to discover swaps. Use runFingerprinting=true/false to toggle fingerprinting.'/>
-
-        </configurationvalues>
+    </configurationvalues>
 </configuration>
