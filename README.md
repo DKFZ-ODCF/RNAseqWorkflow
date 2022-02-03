@@ -205,28 +205,26 @@ The following is merely on overview over the most important parameters.
 
 ## Example Call
 
-* Change the basic stuff like inputbase and outputbase directories
-set RUN_FEATURE_COUNTS_DEXSEQ, RUN_RNASEQC, RUN_KALLISTO, RUN_ARRIBA, runFingerprinting to FALSE.
-* Check if your sample type is in possibleTumorSampleNamePrefixes
-G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) parameters to what your created for (1) and (2).
-* Set GENOME_GATK_INDEX to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
+* Change the basic stuff like `inputbase` and `outputbase` directories
+set `RUN_FEATURE_COUNTS_DEXSEQ`, `RUN_RNASEQC`, `RUN_KALLISTO`, `RUN_ARRIBA`, `runFingerprinting` to `FALSE`.
+* Check if your sample type is in `possibleTumorSampleNamePrefixes`
+* Set your star index (`GENOME_STAR_INDEX`) and gene models (`GENE_MODELS`) parameters to what your created for (1) and (2).
+* Set `GENOME_GATK_INDEX` to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
 
 ## Change Log
 
 * 4.0.0
-  - major: Arriba 2
+  - major: Arriba 2.2.1
   - major: `resources/configurationFiles/analysisRNAseq.xml` is now just a default configuration with many configuration options left blank. For your `<analysis>` tags in your project XMLs the analysis names can be changed to use the following defaults:
      * GRCh37-specific: [RNAseqAnalysisGRCh37](resources/configurationFiles/analysisRNAseqGRCh37.xml)
      * GRCh38-specific: [RNAseqAnalysisGRCh38](resources/configurationFiles/analysisRNAseqGRCh38.xml)
   - Update default software versions
-    * STAR 2.7.6a (was 2.5.3a for GRCh37/hg19)
-    * Kallisto 0.46.0 (was 0.42.0 for GRCh37/hg19)
-    * Samtools 1.9 (was 1.6 for GRCh37/hg19)
-    * HTSlib 1.9 (was 1.6 for GRCh37/hg19)
-    * Gene model gencode version 31 was used to create the STAR and Kallisto indexes
-
-* 3.1.0
-  - patch: Updated default from subread 1.5.1 to 1.6.5. The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
+    * STAR 2.7.6a (from 2.5.3a)
+    * Kallisto 0.46.0 (from 0.42.0)
+    * Samtools 1.9 (from 1.6)
+    * HTSlib 1.9 (from 1.6)
+    * subread 1.6.5 (from 1.5.1): The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
+  - Gene model gencode version 31 was used to create the STAR and Kallisto indexes
 
 * 3.0.0 [19th Oct 2021]
   - major: Column rename in feature counts table:
