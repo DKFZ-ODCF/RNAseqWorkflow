@@ -63,7 +63,7 @@
         <!-- ## SOFTWARE STACK -->
         <!-- ## -->
         <cvalue name='PYTHON_VERSION' value='2.7.9' type='string'/>
-        <cvalue name='STAR_VERSION' value='2.7.6a' type='string'/>
+        <cvalue name='STAR_VERSION' value='2.7.10a' type='string'/>
         <cvalue name='STAR_MODULE_NAME' value='star' type='string'/>
         <cvalue name='SUBREAD_VERSION' value='1.6.5' type='string'/>
         <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
