@@ -182,7 +182,6 @@
 
     <processingTools>
         <tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="rnaseqworkflow/environments"/>
-        <tool name="workflowEnvironment_tbiClusterCompositeModule" value="tbi-cluster-composite-module.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="navLib" value="navBashLib.sh" basepath="rnaseqworkflow"/>
         <!--<tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>-->
         <!--<tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>-->
