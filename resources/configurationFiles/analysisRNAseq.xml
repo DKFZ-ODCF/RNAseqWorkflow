@@ -147,7 +147,7 @@
         <cvalue name='ADAPTER_SEQ_NEXTERA'      value="CTGTCTCTTATACACATCT" type='string' description="Nextera, Nextera XT, Nextera Enrichment, Nextera Rapid Capture Enrichment, TruSight Enrichment, TruSight Rapid Capture Enrichment, TruSight HLA"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
         <cvalue name='ADAPTER_SEQ' value='${ADAPTER_SEQ_TRUSEQ_LT_HT}' type='string'/>
-        <cvalue name='STAR_PARAMS_CLIP' value="--clip3pAdapterSeq ${ADAPTER_SEQ}" type='string'
+        <cvalue name='STAR_PARAMS_CLIP' value="--clip3pAdapterSeq ${ADAPTER_SEQ} --clip3pAdapterMMp 0.1 0.1" type='string'
                 description="Better not quote ${ADAPTER_SEQ}, because STAR can parse this correctly and the manual never uses quotes for parameter arguments."/>
         <cvalue name='GENOME_STAR_INDEX' value='${GENOME_STAR_INDEX_200}' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
