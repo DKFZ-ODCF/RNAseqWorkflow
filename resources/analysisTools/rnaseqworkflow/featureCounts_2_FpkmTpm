@@ -235,11 +235,11 @@ open (my $fh, "cut -f 1 $fc0_file| tail -n $counter |") or die;
 
 # print header
 print "\#chrom\tchromStart\tchromEnd\tgene_id\tscore\tstrand\tname\texonic_length\t";
-print "num_reads\tnum_reads_fw\tnum_reads_rv\t";
-print "FPKM_no_mt_rrna_trna_chrxy\tFPKM_no_mt_rrna_trna_chrxy_fw\tFPKM_no_mt_rrna_trna_chrxy_rv\t";
-print "TPM_no_mt_rrna_trna_chrxy\tTPM_no_mt_rrna_trna_chrxy_fw\tTPM_no_mt_rrna_trna_chrxy_rv\t";
-print "FPKM_standard\tFPKM_standard_fw\tFPKM_standard_rv\t";
-print "TPM_standard\tTPM_standard_fw\tTPM_standard_rv\n";
+print "num_reads_unstranded\tnum_reads_stranded\tnum_reads_reverse_unstranded\t";
+print "FPKM_customLibSize_unstranded\tFPKM_customLibSize_stranded\tFPKM_customLibSize_reverse_stranded\t";
+print "TPM_customLibSize_unstranded\tTPM_customLibSize_stranded\tTPM_customLibSize_reverse_stranded\t";
+print "FPKM_unstranded\tFPKM_stranded\tFPKM_reverse_stranded\t";
+print "TPM_unstranded\tTPM_stranded\tTPM_reverse_stranded\n";
 
 while (!eof($fh)){
 
@@ -256,22 +256,22 @@ while (!eof($fh)){
   print "$read_counts_all{1}{$fc0}\t";
   print "$read_counts_all{2}{$fc0}\t";
 
-    # print RPKMS no_mt_rrna_trna_chrxy
+    # print FPKM with custom library size estimation
     print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$ignore_read_counts{0})."\t";
     print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$ignore_read_counts{1})."\t";
     print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$ignore_read_counts{2})."\t";
 
-    # print TPMS no_mt_rrna_trna_chrxy
+    # print TPM with custom library size estimation
     print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$ignore_read_counts{0})/($ignore_fpkm_counts{0}/$MILLION)."\t";
     print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$ignore_read_counts{1})/($ignore_fpkm_counts{1}/$MILLION)."\t";
     print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$ignore_read_counts{2})/($ignore_fpkm_counts{2}/$MILLION)."\t";
 
-  # print RPKMS standard
+  # print FPKM
   print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$all_read_counts{0})."\t";
   print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$all_read_counts{1})."\t";
   print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$all_read_counts{2})."\t";
 
-  # print TPMS standard
+  # print TPM
   print "".($read_counts_all_per_length{0}{$fc0})*($BILLION/$all_read_counts{0})/($all_fpkm_counts{0}/$MILLION)."\t";
   print "".($read_counts_all_per_length{1}{$fc0})*($BILLION/$all_read_counts{1})/($all_fpkm_counts{1}/$MILLION)."\t";
   print "".($read_counts_all_per_length{2}{$fc0})*($BILLION/$all_read_counts{2})/($all_fpkm_counts{2}/$MILLION)."";
