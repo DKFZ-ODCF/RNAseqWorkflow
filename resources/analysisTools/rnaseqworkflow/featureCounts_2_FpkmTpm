@@ -235,7 +235,7 @@ open (my $fh, "cut -f 1 $fc0_file| tail -n $counter |") or die;
 
 # print header
 print "\#chrom\tchromStart\tchromEnd\tgene_id\tscore\tstrand\tname\texonic_length\t";
-print "num_reads_unstranded\tnum_reads_stranded\tnum_reads_reverse_unstranded\t";
+print "num_reads_unstranded\tnum_reads_stranded\tnum_reads_reverse_stranded\t";
 print "FPKM_customLibSize_unstranded\tFPKM_customLibSize_stranded\tFPKM_customLibSize_reverse_stranded\t";
 print "TPM_customLibSize_unstranded\tTPM_customLibSize_stranded\tTPM_customLibSize_reverse_stranded\t";
 print "FPKM_unstranded\tFPKM_stranded\tFPKM_reverse_stranded\t";
