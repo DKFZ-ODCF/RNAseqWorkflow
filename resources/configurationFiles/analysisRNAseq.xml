@@ -63,17 +63,17 @@
         <!-- ## SOFTWARE STACK -->
         <!-- ## -->
         <cvalue name='PYTHON_VERSION' value='2.7.9' type='string'/>
-        <cvalue name='STAR_VERSION' value='2.5.3a' type='string'/>
+        <cvalue name='STAR_VERSION' value='2.7.10a' type='string'/>
+        <cvalue name='STAR_MODULE_NAME' value='star' type='string'/>
         <cvalue name='SUBREAD_VERSION' value='1.6.5' type='string'/>
         <cvalue name='SAMBAMBA_VERSION' value='0.6.5' type='string'/>
         <cvalue name='SAMTOOLS_VERSION' value='1.9' type='string'/>
         <cvalue name='HTSLIB_VERSION' value='1.9' type='string'/>
         <cvalue name='RNASEQC_VERSION' value='1.1.8' type='string'/>
-        <cvalue name='KALLISTO_VERSION' value='0.43.0' type='string'/>
+        <cvalue name='KALLISTO_VERSION' value='0.46.0' type='string'/>
         <cvalue name='QUALIMAP_VERSION' value='2.2.1' type='string'/>
         <cvalue name='ARRIBA_VERSION' value='2.2.1' type='string'/>
         <cvalue name='R_VERSION' value='3.4.2' type='string'/>
-        <cvalue name='STAR_MODULE_NAME' value='STAR' type='string'/>
 
         <cvalue name="workflowEnvironmentScript" value="workflowEnvironment_tbiCluster" type="string"/>
 
@@ -102,11 +102,13 @@
         <!-- ## -->
         <!-- ## DATABASE/FILE STACK -->
         <!-- ## -->
-        <cvalue name='hg19BaseDirectory' value='/icgc/ngs_share/assemblies/hg19_GRCh37_1000genomes/' type='string'/>
+        <cvalue name='hg19BaseDirectory'
+                value='/omics/odcf/reference_data/legacy/ngs_share/assemblies/hg19_GRCh37_1000genomes/'
+                type='path'/>
         <cvalue name='hg19DatabaseDirectory' value='${hg19BaseDirectory}/databases' type='string'/>
         <cvalue name='hg19IndexDirectory' value='${hg19BaseDirectory}/indexes/' type='string'/>
         
-        <cvalue name='mm10BaseDirectory' value='/icgc/ngs_share/assemblies/mm10/' type='string'/>
+        <cvalue name='mm10BaseDirectory' value='/omics/odcf/reference_data/legacy/ngs_share/assemblies/mm10' type='path'/>
         <cvalue name='mm10DatabaseDirectory' value='${mm10BaseDirectory}/databases' type='string'/>
         <cvalue name='mm10IndexDirectory' value='${mm10BaseDirectory}/indexes/' type='string'/>
 
@@ -145,7 +147,7 @@
         <cvalue name='ADAPTER_SEQ_NEXTERA'      value="CTGTCTCTTATACACATCT" type='string' description="Nextera, Nextera XT, Nextera Enrichment, Nextera Rapid Capture Enrichment, TruSight Enrichment, TruSight Rapid Capture Enrichment, TruSight HLA"/>
         <cvalue name='ADAPTER_SEQ_NEXTERA_MP'   value="CTGTCTCTTATACACATCT AGATGTGTATAAGAGACAG" type='string' description="Nextera Mate Pair"/>
         <cvalue name='ADAPTER_SEQ' value='${ADAPTER_SEQ_TRUSEQ_LT_HT}' type='string'/>
-        <cvalue name='STAR_PARAMS_CLIP' value="--clip3pAdapterSeq ${ADAPTER_SEQ}" type='string'
+        <cvalue name='STAR_PARAMS_CLIP' value="--clip3pAdapterSeq ${ADAPTER_SEQ} --clip3pAdapterMMp 0.1 0.1" type='string'
                 description="Better not quote ${ADAPTER_SEQ}, because STAR can parse this correctly and the manual never uses quotes for parameter arguments."/>
         <cvalue name='GENOME_STAR_INDEX' value='${GENOME_STAR_INDEX_200}' type='string'/>
         <cvalue name='STAR_PARAMS_BASIC'
@@ -164,8 +166,10 @@
 
         <!-- Fingerprinting -->
         <cvalue name="runFingerprinting" value="true" type="boolean"/>
-        <cvalue name="fingerprintingSitesFile_hs37" value="${databaseDirectory}/fingerprinting/hovestadt_v1.1/snp138Common.n1000.vh20140318.bed" type="path"/>
-    	<cvalue name="fingerprintingSitesFile" value="${fingerprintingSitesFile_hs37}" type="path"
+        <cvalue name="fingerprintingSitesFile_hg37"
+                value="${databaseDirectory}/fingerprinting/hovestadt_v1.1/snp138Common.n1000.vh20140318.bed"
+                type="path"/>
+    	<cvalue name="fingerprintingSitesFile" value="${fingerprintingSitesFile_hg37}" type="path"
                 description='BED file with the reference positions used for fingerprinting. Used by alignment workflow for fingerprinting individuals to discover swaps. Use runFingerprinting=true/false to toggle fingerprinting.'/>
 
         <!-- ## Default file access -->
@@ -178,7 +182,6 @@
 
     <processingTools>
         <tool name="workflowEnvironment_tbiCluster" value="tbi-cluster.sh" basepath="rnaseqworkflow/environments"/>
-        <tool name="workflowEnvironment_tbiClusterCompositeModule" value="tbi-cluster-composite-module.sh" basepath="rnaseqworkflow/environments"/>
         <tool name="navLib" value="navBashLib.sh" basepath="rnaseqworkflow"/>
         <!--<tool name="bashLib" value="bashLib.sh" basepath="rnaseqworkflow"/>-->
         <!--<tool name="workflowLib" value="workflowLib.sh" basepath="rnaseqworkflow"/>-->

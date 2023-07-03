@@ -7,9 +7,63 @@ This workflow does the primary data processing for RNAseq data: alignment, QC, r
 
 ### Description
 
-The following is kind of a template protocol for a methods section. You will probably need to adapt it to your specific settings. 
+
+#### Output
+
+| File                                         | Description                                                                                                                                                                                                                                            |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `*_merged.mdup.bam` & `.bai`                 | Standard alignment.                                                                                                                                                                                                                                    |
+| `*_chimeric_merged.mdup.bam` & `.bai`        | Chimeric alignments.                                                                                                                                                                                                                                   |
+| `_chimeric_merged.junction`                  | Correspond to the file mentioned in section “6.4 Chimeric alignments in Chimeric.out.junction” in the [STAR manual](https://github.com/alexdobin/STAR/blob/2.7.10a/doc/STARmanual.pdf). The columns and their content is described in the STAR manual. |
+| `_merged.mdup.bam.flagstat`                  | flag statistics of the “standard” bam file                                                                                                                                                                                                             |
+| `_star_logs_and_files`                       | STAR logs                                                                                                                                                                                                                                              |
+| `featureCounts/*.fpkm_tpm.featureCounts.tsv` | Gene-based expression values derived from `featureCounts`. See below.                                                                                                                                                                                  |
+| `featureCounts_dexseq/*.fpkm_tpm.featureCounts.dexseq.tsv`                     | Exon-based expression values derived from `featureCounts`. See below.                                                                                                                                                                                  |
+| `fusions_arriba/` | Output of the [Arriba](https://github.com/suhrig/arriba/) tool                                                                                                                                                                                         |
+
+
+#### Extended Feature Counts Table
+
+The following concerns the tables in the `featureCounts/*.fpkm_tpm.featureCounts.tsv` (gene-based) and `featureCounts_dexseq/*.fpkm_tpm.featureCounts.dexseq.tsv` (exon-based) files. The [FPKM and TPM values](https://www.rna-seqblog.com/rpkm-fpkm-and-tpm-clearly-explained/) are calculated in [featureCounts_2_FpkmTpm](https://github.com/DKFZ-ODCF/RNAseqWorkflow/blob/master/resources/analysisTools/rnaseqworkflow/featureCounts_2_FpkmTpm) (gene-based) and [featureCountsDexseq_2_FpkmTpm](https://github.com/DKFZ-ODCF/RNAseqWorkflow/blob/master/resources/analysisTools/rnaseqworkflow/featureCountsDexseq_2_FpkmTpm) (exon-based) from the `.s0` (unstranded), `.s1` (forward/sense), and `.s2` (reverse/antisense) output files of featureCounts.
+
+* RPKM: Reads per kilobase gene model, per million read<br>
+  <img src="https://render.githubusercontent.com/render/math?math=RPKM(g)%20=%20\frac{read\_count(g)%20/%20length(g)}{\sum_{i%20\in%20Genes}{read\_count(i)}}%20*%2010^9" style="background-color:white;">
+* FPKM: Like RPKM, but for fragments with paired-end data (a pair of aligning reads is counted as one fragment)<br>
+  <img src="https://render.githubusercontent.com/render/math?math=FPKM(g)%20=%20\frac{fragment\_count(g)%20/%20length(g)}{\sum_{i%20\in%20Genes}{fragment\_count(i)}}%20*%2010^9" style="background-color:white;">
+* TPM: Like RPKM, but the length-weighted sum of read counts is used in the denominator<br>
+  <img src="https://render.githubusercontent.com/render/math?math=TPM(gene)%20=%20\frac{RPKM(g)}{\sum_{i%20\in%20Genes}{RPKM(i)}}%20*%2010^6%20=%20\frac{read\_count(g)%20/%20length(g)}{\sum_{i%20in%20Genes}{read\_count(i)%20/%20length(i)}}%20*%2010^6" style="background-color:white;"> 
+
+
+| Header     | Description |
+|------------|-------------------|
+| #chrom     | Chromosome contigs |
+| chromStart | Start position of the gene |
+| chromEnd   | End position of the gene |
+| gene_id    | Ensembl gene ID. For the exon-based featureCounts file this column states all Ensembl gene IDs for which the respective exon is part of (separated by "+"). |
+| score      | - |
+| strand     | Strand of the gene |
+| name                       | Gene name |
+| exonic_length              | Length of the coding region of the gene |
+| num_reads_unstranded                  | The number of reads falling into the gene region, in a non-strand specific counting mode (unstranded - `s 0` option in featureCounts).|
+| num_reads_stranded               | The number(s) of reads falling into the gene region, in a strand specific counting modes. Applying the featureCounts option for standedness of `s 1`.  When using featureCounts, you can choose the `1/_stranded` or `2/_reverse_stranded` option for standedness based on the library preparation step of your stranded sequenced data. For example, the Illumina TruSeq stranded RNA kit usually produces data that fits the option `2/_reverse_stranded`. |
+| num_reads_reverse_stranded               |   The number of reads falling into the gene region. The counts are based on the `s 2` option in featureCounts. To obtain the counts for the Illumina TruSeq stranded RNA kit library protocol, refer to this column as mentioned above. And also use `_reverse_stranded` columns for FPKM and TPM values from this protocol. |
+| FPKM_customLibSize_unstranded                       | Unstranded FPKM calculation using the counts from the `s 0` option in feature counts. Counts for genes from rRNA, tRNA, chrX, chrY, and Mt were excluded during library size estimation.|
+| FPKM_customLibSize_stranded                    | Stranded FPKM calculation based on the counts from `-s 1` option in featureCount with custom library size estimation as described above.|
+| FPKM_customLibSize_reverse_stranded                    | Reverse stranded FPKM calculation based on the counts from `-s 2` option in featureCount with custom library size estimation as described above.|
+| TPM_customLibSize_unstranded                        | Unstranded TPM calculation using the counts from the `s 0` option in feature counts. Counts for genes from rRNA, tRNA, chrX, chrY, and Mt were excluded during library size estimation.|
+| TPM_customLibSize_stranded                     | Stranded TPM calculation was performed using the counts from the `s 1` option in feature counts with custom library size estimation as above.|
+| TPM_customLibSize_reverse_stranded                     | Reverse stranded TPM calculation was performed using the counts from the `s 2` option in feature counts with custom library size estimation as above.|
+| FPKM_unstranded                | Unstranded FPKM calculation based on the counts from `-s 0` option in featureCount|
+| FPKM_stranded            | Stranded FPKM calculation based on the counts from `-s 1` option in featureCount|
+| FPKM_reverse_stranded            | Reverse stranded FKPM calculation based on the counts from `-s 2` option in featureCount|
+| TPM_unstranded                 |Unstranded TPM calculation based on the counts from `-s 0` option in featureCount |
+| TPM_stranded             | Stranded TPM calculation based on the counts from `-s 1` option in featureCount|
+| TPM_reverse_stranded             | Reverse stranded TPM calculation based on the counts from `-s 2` option in featureCount|
+
 
 #### Example Protocol
+
+The following is kind of a template protocol for a methods section. You will probably need to adapt it to your specific settings.
 
 The RNAseq data were analysed with the DKFZ/ODCF RNAseq workflow (https://github.com/DKFZ-ODCF/RNAseqWorkflow, **version**; https://github.com/DKFZ-ODCF/AlignmentAndQCWorkflows, **version**; https://github.com/TheRoddyWMS/Roddy-Default-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy-Base-Plugin, **version**; https://github.com/TheRoddyWMS/Roddy, **version**). The workflow performs the following analysis steps.
 
@@ -101,14 +155,14 @@ Note that the workflow directory can be suffixed by the version tag to allow for
 The following is a list of citations for software used by the RNAseq workflow. Note that dependent on your configuration some tools may be unused. The actual versions used may deviate from those given in this list.
 
 * Python 2.7.9
-* [star 2.5.3a](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
+* [star 2.7.10a](https://www.ncbi.nlm.nih.gov/pubmed/23104886)
 * [samtools 1.6](https://www.ncbi.nlm.nih.gov/pubmed/19505943)
-* [arriba 1.2.0](https://github.com/suhrig/arriba/)
+* [arriba 2.3.0](https://github.com/suhrig/arriba/)
 * [subread 1.6.5](http://subread.sourceforge.net/) providing [featurecounts](https://www.ncbi.nlm.nih.gov/pubmed/24227677)
 * [rnaseqc 1.1.8](https://www.ncbi.nlm.nih.gov/pubmed/22539670)
 * [sambamba 0.6.5](https://www.ncbi.nlm.nih.gov/pubmed/25697820)
 * [qualimap 2.2.1](http://qualimap.bioinfo.cipf.es/)
-* [kallisto 0.43.0](https://pachterlab.github.io/kallisto/about)
+* [kallisto 0.46.0](https://pachterlab.github.io/kallisto/about)
 * [Jemultiplexer 1.0.6](https://gbcs.embl.de/portal/tiki-index.php?page=Jemultiplexer) 
 
 ##### Conda Environment
@@ -205,16 +259,35 @@ The following is merely on overview over the most important parameters.
 
 ## Example Call
 
-* Change the basic stuff like inputbase and outputbase directories
-set RUN_FEATURE_COUNTS_DEXSEQ, RUN_RNASEQC, RUN_KALLISTO, RUN_ARRIBA, runFingerprinting to FALSE.
-* Check if your sample type is in possibleTumorSampleNamePrefixes
-G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) parameters to what your created for (1) and (2).
-* Set GENOME_GATK_INDEX to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
+* Change the basic stuff like `inputbase` and `outputbase` directories
+set `RUN_FEATURE_COUNTS_DEXSEQ`, `RUN_RNASEQC`, `RUN_KALLISTO`, `RUN_ARRIBA`, `runFingerprinting` to `FALSE`.
+* Check if your sample type is in `possibleTumorSampleNamePrefixes`
+* Set your star index (`GENOME_STAR_INDEX`) and gene models (`GENE_MODELS`) parameters to what you created for (1) and (2).
+* Set `GENOME_GATK_INDEX` to point to the new FASTA file (1), for which you have created a dict file. The dict file should be in the same directory as the FASTA.
 
 ## Change Log
 
-* 3.1.0
-  - patch: Updated default from subread 1.5.1 to 1.6.5. The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
+* 4.0.0
+  - major: `resources/configurationFiles/analysisRNAseq.xml` is now just a default configuration with many configuration options left blank. For your `<analysis>` tags in your project XMLs the analysis names can be changed to use the following defaults:
+     * GRCh37, mm10: [RNAseqAnalysis](resources/configurationFiles/analysisRNAseq.xml)
+     * GRCh38-specific: [RNAseqAnalysisGRCh38](resources/configurationFiles/analysisRNAseqGRCh38.xml)
+  - major: Update default software versions for all assemblies
+    * Arriba 2.3.0
+    * STAR 2.7.10a (from 2.5.3a for hg37/mm10 and 2.7.6a for hg38)
+    * Kallisto 0.46.0 (from 0.42.0)
+    * Samtools 1.9 (from 1.6)
+    * HTSlib 1.9 (from 1.6)
+    * subread 1.6.5 (from 1.5.1): The previous version produces occasional segmentation faults (related to extreme optimization option `-O6`) but otherwise produces the same results. Both versions produced exactly the same `featureCounts` in multiple tests.
+  - major: Gene model gencode version 39/43 was used to create the STAR and Kallisto indexes
+  - major: Update default paths to new ngs_share at ODCF.
+  - major: GRCh38 STAR and Kallisto indexes are based on `refmake` workflow.
+  - major: Updated the Conda `environment.yaml`.
+    * Note for users at the DKFZ cluster: The software versions used in Conda environment do not exactly match the versions in the default configuration used for the cluster's module system.
+  - major: Column rename in featureCounts table:
+    - "FPKM_no_mt_rrna_trna_chrxy{,_fw,_rv}" -> "FPKM_customLibSize{_unstranded, _stranded, _reverse_stranded}"
+    - "TPM_no_mt_rrna_trna_chrxy{,_fw,_rv}" -> "TPM_customLibSize{_unstranded, _stranded, _reverse_stranded}"
+    - "FPKM_standard{,_fw,_rv}" -> "FPKM{_unstranded, _stranded, _reverse_stranded}"
+    - "TPM_standard{,_fw,_rv}" -> "TPM{_unstranded, _stranded, _reverse_stranded}"
 
 * 3.0.0 [19th Oct 2021]
   - major: Column rename in feature counts table:
@@ -224,12 +297,12 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
     - "TPM_legacy{,_fw,_rv}" -> "TPM_standard{,_fw,_rv}"
 
 * 2.1.0 (2.0.3-deprecated) [26th Mar 2021]
-  - minor: Added GRCh38 genome support
+  - minor: Added GRCh38 genome support; version changes only affect hg38
     - Reference genome (core_ref_GRCh38_hla_decoy_ebv.tar.gz) was downloaded from ftp://ftp.sanger.ac.uk/pub/cancer/dockstore/human/GRCh38_hla_decoy_ebv/ and Illumina PhiX genome was added.
     - Added GRCh38 specific configs to a `resources/configurationFiles/analysisRNAseqGRCh38.xml`
-    - Updated STAR to 2.7.6a
-    - Updated Kallisto to 0.46.0
-    - Gene model gencode version 31 was used to create the STAR and Kallisto indexes
+    - minor: STAR to 2.7.6a
+    - minor: Updated Kallisto to 0.46.0
+    - minor: Gene model gencode version 31 was used to create the STAR and Kallisto indexes
   - minor: Update Samtools to 1.9
   - minor: Update HTSlib to 1.9
   - 2.0.3 was deprecated to correct the incorrect version number. 
@@ -243,13 +316,11 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
 
 * 2.0.0 [13th Mar 2020]
   - major: Update Arriba to version 1.2.0
-  - major: Update STAR to 2.5.3a
-  - minor: Update Samtools to 1.6
   - patch: Update Subread (featureCounts) to 1.5.3
   - patch: Added draft Conda environment (incomplete)
 
 * 1.3.0-2 [26th Nov 2019]
-  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
+  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also, and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
 
 * 1.3.0-1 [7th Nov 7 2018]
   - patch: Added single quotes around `$ADAPTER_SEQ` parameter in `--clip3pAdapterSeq` to allow for separate first and second read adapters.
@@ -259,7 +330,7 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
   - minor: works with Roddy 3
 
 * 1.2.23-2 [15th Feb 2018]
-  - Modified software defaults to samtools 1.6, star 2.5.3a, arriba 0.12.
+  - Modified software defaults to samtools 1.6, star 2.5.2b -> 2.5.3a, arriba 0.8 -> 0.12.
   - Added exception for loading htslib if samtools version is too low. 
   - Modified output file check of BAM file
   
@@ -273,7 +344,7 @@ G Set your star index (GENOME_STAR_INDEX) and gene models (GENE_MODELS) paramete
     failed -- for at least Bash < 4.2 -- to export both adapters correctly to the called job script.
 
 * 1.2.22-8 [26th Nov 2019]
-  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
+  - Removed the single-quotes around `${ADAPTER_SEQ}` in `--clip3pAdapterSeq` again. STAR uses non-standard way of parsing parameters and manages to get all adapters. With quotes the adapters get also quoted, and it is unclear what STAR does with them, except that it does not complain about a configuration error and that it also does not complain with even more severe misconfigurations, such as other non-DNA sequences as adapter sequences. The manual also does not use quoted parameter arguments, so no-quotes is conform to this STAR-specific CLI parameter handling pattern.
 
 * 1.2.22-7 [7th Nov 2018]
   - Fixed a number of variable references that were without braces (now everywhere `${...}` is used to allow Roddy to resolve the references and order the parameter file correctly)
