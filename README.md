@@ -111,7 +111,9 @@ Quality control analysis was performed using the `samtools flagstat` command, an
 
 Featurecounts (**version**, https://www.ncbi.nlm.nih.gov/pubmed/24227677) was used to perform gene specific read counting over exon features based on the gencode 19 gene models. Both reads of a paired fragment were used for counting and the quality threshold was set to 255 (which indicates that STAR found a unique alignment). Strand unspecific counting was used.
 
-A custom script was used to calculate RPKM and TPM expression values. For total library abundance calculations, all genes on chromosomes X, Y, MT and rRNA and tRNA genes were omitted as they are likely to introduce library size estimation biases.
+A custom script was used to calculate RPKM and TPM expression values. 
+
+For total library abundance calculations, all genes on chromosomes X, Y, MT and rRNA and tRNA genes were omitted as they are likely to introduce library size estimation biases. The estimation of library complexity is done with by [rnaseqc](https://github.com/getzlab/rnaseqc/blob/master/Metrics.md), which implements the algorithm of [Picard EstimateLibraryComplexity](https://broadinstitute.github.io/picard/command-line-overview.html#EstimateLibraryComplexity).
 
 Gene fusions were identified using the arriba algorithm (version, https://github.com/suhrig/arriba/).
 
