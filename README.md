@@ -240,7 +240,7 @@ The following is merely on overview over the most important parameters.
 | RUN_FEATURE_COUNTS_DEXSEQ	| false | runs the exon based read counting using feature counts |
 | RUN_RNASEQC | true | runs RNAseQC for quality metric |
 | RUN_QUALIMAP | false | runs QualiMap2 QC. This is NOT recommended as it uses all cores on the node |
-| RUN_KALLISTO | false | runs reference free quantification using kallisto |
+| RUN_KALLISTO | false | runs reference free quantification using kallisto. |
 | RUN_KALLISTO_FR | false | runs reference free quantification using kallisto, forward strand specific |
 | RUN_KALLISTO_RF | false | runs reference free quantification using kallisto, reverse strand specific |
 | RUN_ARRIBA | true | run fusion detection using arriba |
@@ -258,6 +258,8 @@ The following is merely on overview over the most important parameters.
 | ARRIBA_KNOWN_FUSIONS | | Only needed if arriba is used for fusion detection. ${hg19BaseDirectory}/tools_data/arriba/known_fusions_CancerGeneCensus_gencode19_2017-01-16.tsv.gz |
 | ARRIBA_BLACKLIST | | Only needed if arriba is used for fusion detection. ${hg19BaseDirectory}/tools_data/arriba/blacklist_hs37d5_gencode19_2017-01-09.tsv.gz |
 |--------------------|--------|-------------|
+
+> NOTE: Please turn only at most one of the three options `RUN_KALLISTO`, `RUN_KALLISTO_FR` or `RUN_KALLISTO_RF`. These options are mutually exclusive.
 
 ## Example Call
 
